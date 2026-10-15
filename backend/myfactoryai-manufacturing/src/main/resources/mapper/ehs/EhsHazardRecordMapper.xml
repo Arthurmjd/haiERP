@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ehs.mapper.EhsHazardRecordMapper">
+    
+    <resultMap type="EhsHazardRecord" id="EhsHazardRecordResult">
+        <result property="id"    column="id"    />
+        <result property="hazardDesc"    column="hazard_desc"    />
+        <result property="hazardLevel"    column="hazard_level"    />
+        <result property="day"    column="day"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="employeeId"    column="employee_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEhsHazardRecordVo">
+        select id, hazard_desc, hazard_level, day, dept_id, employee_id, remark, create_by, create_time, update_by, update_time from ehs_hazard_record
+    </sql>
+
+    <select id="selectEhsHazardRecordList" parameterType="EhsHazardRecord" resultMap="EhsHazardRecordResult">
+        <include refid="selectEhsHazardRecordVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="hazardDesc != null  and hazardDesc != ''"> and hazard_desc like concat('%', #{hazardDesc}, '%')</if>
+            <if test="hazardLevel != null  and hazardLevel != ''"> and hazard_level = #{hazardLevel}</if>
+            <if test="day != null  and day != ''"> and day = #{day}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="employeeId != null "> and employee_id = #{employeeId}</if>
+        </where>
+    </select>
+    
+    <select id="selectEhsHazardRecordById" parameterType="Long" resultMap="EhsHazardRecordResult">
+        <include refid="selectEhsHazardRecordVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEhsHazardRecordListByDeptId" parameterType="Long" resultMap="EhsHazardRecordResult">
+        <include refid="selectEhsHazardRecordVo"/>
+        where dept_id = #{deptId}
+    </select>
+
+    <select id="selectEhsHazardRecordListByEmployeeId" parameterType="Long" resultMap="EhsHazardRecordResult">
+        <include refid="selectEhsHazardRecordVo"/>
+        where employee_id = #{employeeId}
+    </select>
+        
+    <insert id="insertEhsHazardRecord" parameterType="EhsHazardRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into ehs_hazard_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="hazardDesc != null and hazardDesc != ''">hazard_desc,</if>
+            <if test="hazardLevel != null and hazardLevel != ''">hazard_level,</if>
+            <if test="day != null and day != ''">day,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="employeeId != null">employee_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="hazardDesc != null and hazardDesc != ''">#{hazardDesc},</if>
+            <if test="hazardLevel != null and hazardLevel != ''">#{hazardLevel},</if>
+            <if test="day != null and day != ''">#{day},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="employeeId != null">#{employeeId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEhsHazardRecord" parameterType="EhsHazardRecord">
+        update ehs_hazard_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="hazardDesc != null and hazardDesc != ''">hazard_desc = #{hazardDesc},</if>
+            <if test="hazardLevel != null and hazardLevel != ''">hazard_level = #{hazardLevel},</if>
+            <if test="day != null and day != ''">day = #{day},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="employeeId != null">employee_id = #{employeeId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEhsHazardRecordById" parameterType="Long">
+        delete from ehs_hazard_record where id = #{id}
+    </delete>
+
+    <delete id="deleteEhsHazardRecordByIds" parameterType="String">
+        delete from ehs_hazard_record where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEhsHazardRecordByDeptId" parameterType="Long">
+        delete from ehs_hazard_record where dept_id = #{deptId}
+    </delete>
+
+    <delete id="deleteEhsHazardRecordByEmployeeId" parameterType="Long">
+        delete from ehs_hazard_record where employee_id = #{employeeId}
+    </delete>
+</mapper>

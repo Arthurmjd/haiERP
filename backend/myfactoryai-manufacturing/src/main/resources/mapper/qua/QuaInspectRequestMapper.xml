@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.qua.mapper.QuaInspectRequestMapper">
+    
+    <resultMap type="QuaInspectRequest" id="QuaInspectRequestResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="requestBillId"    column="request_bill_id"    />
+        <result property="requestBillNo"    column="request_bill_no"    />
+        <result property="inspectType"    column="inspect_type"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="requestorId"    column="requestor_id"    />
+        <result property="sourceSupplierId"    column="source_supplier_id"    />
+        <result property="sourceProcessId"    column="source_process_id"    />
+        <result property="sourceLineId"    column="source_line_id"    />
+        <result property="sourceGroupId"    column="source_group_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectQuaInspectRequestVo">
+        select id, bill_no, status, request_bill_id, request_bill_no, inspect_type, project_id, requestor_id, source_supplier_id, source_process_id, source_line_id, source_group_id, remark, create_by, create_time, update_by, update_time from qua_inspect_request
+    </sql>
+
+    <select id="selectQuaInspectRequestList" parameterType="QuaInspectRequest" resultMap="QuaInspectRequestResult">
+        <include refid="selectQuaInspectRequestVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+                 and status in (4)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="requestBillId != null "> and request_bill_id = #{requestBillId}</if>
+            <if test="requestBillNo != null  and requestBillNo != ''"> and request_bill_no like concat('%', #{requestBillNo}, '%')</if>
+            <if test="inspectType != null "> and inspect_type = #{inspectType}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="requestorId != null "> and requestor_id = #{requestorId}</if>
+            <if test="sourceSupplierId != null "> and source_supplier_id = #{sourceSupplierId}</if>
+            <if test="sourceProcessId != null "> and source_process_id = #{sourceProcessId}</if>
+            <if test="sourceLineId != null "> and source_line_id = #{sourceLineId}</if>
+            <if test="sourceGroupId != null "> and source_group_id = #{sourceGroupId}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectQuaInspectRequestById" parameterType="Long" resultMap="QuaInspectRequestResult">
+        <include refid="selectQuaInspectRequestVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectQuaInspectRequestListByProjectId" parameterType="Long" resultMap="QuaInspectRequestResult">
+        <include refid="selectQuaInspectRequestVo"/>
+        where project_id = #{projectId}
+    </select>
+
+    <select id="selectQuaInspectRequestListByRequestorId" parameterType="Long" resultMap="QuaInspectRequestResult">
+        <include refid="selectQuaInspectRequestVo"/>
+        where requestor_id = #{requestorId}
+    </select>
+
+    <select id="selectQuaInspectRequestListBySourceSupplierId" parameterType="Long" resultMap="QuaInspectRequestResult">
+        <include refid="selectQuaInspectRequestVo"/>
+        where source_supplier_id = #{sourceSupplierId}
+    </select>
+
+    <select id="selectQuaInspectRequestListBySourceProcessId" parameterType="Long" resultMap="QuaInspectRequestResult">
+        <include refid="selectQuaInspectRequestVo"/>
+        where source_process_id = #{sourceProcessId}
+    </select>
+
+    <select id="selectQuaInspectRequestListBySourceLineId" parameterType="Long" resultMap="QuaInspectRequestResult">
+        <include refid="selectQuaInspectRequestVo"/>
+        where source_line_id = #{sourceLineId}
+    </select>
+
+    <select id="selectQuaInspectRequestListBySourceGroupId" parameterType="Long" resultMap="QuaInspectRequestResult">
+        <include refid="selectQuaInspectRequestVo"/>
+        where source_group_id = #{sourceGroupId}
+    </select>
+        
+    <insert id="insertQuaInspectRequest" parameterType="QuaInspectRequest" useGeneratedKeys="true" keyProperty="id">
+        insert into qua_inspect_request
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="requestBillId != null">request_bill_id,</if>
+            <if test="requestBillNo != null">request_bill_no,</if>
+            <if test="inspectType != null">inspect_type,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="requestorId != null">requestor_id,</if>
+            <if test="sourceSupplierId != null">source_supplier_id,</if>
+            <if test="sourceProcessId != null">source_process_id,</if>
+            <if test="sourceLineId != null">source_line_id,</if>
+            <if test="sourceGroupId != null">source_group_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="requestBillId != null">#{requestBillId},</if>
+            <if test="requestBillNo != null">#{requestBillNo},</if>
+            <if test="inspectType != null">#{inspectType},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="requestorId != null">#{requestorId},</if>
+            <if test="sourceSupplierId != null">#{sourceSupplierId},</if>
+            <if test="sourceProcessId != null">#{sourceProcessId},</if>
+            <if test="sourceLineId != null">#{sourceLineId},</if>
+            <if test="sourceGroupId != null">#{sourceGroupId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateQuaInspectRequest" parameterType="QuaInspectRequest">
+        update qua_inspect_request
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="requestBillId != null">request_bill_id = #{requestBillId},</if>
+            <if test="requestBillNo != null">request_bill_no = #{requestBillNo},</if>
+            <if test="inspectType != null">inspect_type = #{inspectType},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="requestorId != null">requestor_id = #{requestorId},</if>
+            <if test="sourceSupplierId != null">source_supplier_id = #{sourceSupplierId},</if>
+            <if test="sourceProcessId != null">source_process_id = #{sourceProcessId},</if>
+            <if test="sourceLineId != null">source_line_id = #{sourceLineId},</if>
+            <if test="sourceGroupId != null">source_group_id = #{sourceGroupId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteQuaInspectRequestById" parameterType="Long">
+        delete from qua_inspect_request where id = #{id}
+    </delete>
+
+    <delete id="deleteQuaInspectRequestByIds" parameterType="String">
+        delete from qua_inspect_request where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteQuaInspectRequestByProjectId" parameterType="Long">
+        delete from qua_inspect_request where project_id = #{projectId}
+    </delete>
+
+    <delete id="deleteQuaInspectRequestByRequestorId" parameterType="Long">
+        delete from qua_inspect_request where requestor_id = #{requestorId}
+    </delete>
+
+    <delete id="deleteQuaInspectRequestBySourceSupplierId" parameterType="Long">
+        delete from qua_inspect_request where source_supplier_id = #{sourceSupplierId}
+    </delete>
+
+    <delete id="deleteQuaInspectRequestBySourceProcessId" parameterType="Long">
+        delete from qua_inspect_request where source_process_id = #{sourceProcessId}
+    </delete>
+
+    <delete id="deleteQuaInspectRequestBySourceLineId" parameterType="Long">
+        delete from qua_inspect_request where source_line_id = #{sourceLineId}
+    </delete>
+
+    <delete id="deleteQuaInspectRequestBySourceGroupId" parameterType="Long">
+        delete from qua_inspect_request where source_group_id = #{sourceGroupId}
+    </delete>
+</mapper>

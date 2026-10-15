@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.sup.mapper.SupSupplierMapper">
+    
+    <resultMap type="SupSupplier" id="SupSupplierResult">
+        <result property="id"    column="id"    />
+        <result property="supplierName"    column="supplier_name"    />
+        <result property="supplierCode"    column="supplier_code"    />
+        <result property="fullName"    column="full_name"    />
+        <result property="materialEnabled"    column="material_enabled"    />
+        <result property="ordorOsEnabled"    column="ordor_os_enabled"    />
+        <result property="processOsEnabled"    column="process_os_enabled"    />
+        <result property="logisticEnabled"    column="logistic_enabled"    />
+        <result property="contact"    column="contact"    />
+        <result property="phone"    column="phone"    />
+        <result property="address"    column="address"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSupSupplierVo">
+        select id, supplier_name, supplier_code, full_name, material_enabled, ordor_os_enabled, process_os_enabled, logistic_enabled, contact, phone, address, status, remark, create_by, create_time, update_by, update_time from sup_supplier
+    </sql>
+
+    <select id="selectSupSupplierList" parameterType="SupSupplier" resultMap="SupSupplierResult">
+        <include refid="selectSupSupplierVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="supplierName != null  and supplierName != ''"> and supplier_name like concat('%', #{supplierName}, '%')</if>
+            <if test="supplierCode != null  and supplierCode != ''"> and supplier_code like concat('%', #{supplierCode}, '%')</if>
+            <if test="fullName != null  and fullName != ''"> and full_name like concat('%', #{fullName}, '%')</if>
+            <if test="materialEnabled != null  and materialEnabled != ''"> and material_enabled = #{materialEnabled}</if>
+            <if test="ordorOsEnabled != null  and ordorOsEnabled != ''"> and ordor_os_enabled = #{ordorOsEnabled}</if>
+            <if test="processOsEnabled != null  and processOsEnabled != ''"> and process_os_enabled = #{processOsEnabled}</if>
+            <if test="logisticEnabled != null  and logisticEnabled != ''"> and logistic_enabled = #{logisticEnabled}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectSupSupplierById" parameterType="Long" resultMap="SupSupplierResult">
+        <include refid="selectSupSupplierVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSupSupplier" parameterType="SupSupplier" useGeneratedKeys="true" keyProperty="id">
+        insert into sup_supplier
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="supplierName != null">supplier_name,</if>
+            <if test="supplierCode != null">supplier_code,</if>
+            <if test="fullName != null">full_name,</if>
+            <if test="materialEnabled != null">material_enabled,</if>
+            <if test="ordorOsEnabled != null">ordor_os_enabled,</if>
+            <if test="processOsEnabled != null">process_os_enabled,</if>
+            <if test="logisticEnabled != null">logistic_enabled,</if>
+            <if test="contact != null">contact,</if>
+            <if test="phone != null">phone,</if>
+            <if test="address != null">address,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="supplierName != null">#{supplierName},</if>
+            <if test="supplierCode != null">#{supplierCode},</if>
+            <if test="fullName != null">#{fullName},</if>
+            <if test="materialEnabled != null">#{materialEnabled},</if>
+            <if test="ordorOsEnabled != null">#{ordorOsEnabled},</if>
+            <if test="processOsEnabled != null">#{processOsEnabled},</if>
+            <if test="logisticEnabled != null">#{logisticEnabled},</if>
+            <if test="contact != null">#{contact},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="address != null">#{address},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSupSupplier" parameterType="SupSupplier">
+        update sup_supplier
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierName != null">supplier_name = #{supplierName},</if>
+            <if test="supplierCode != null">supplier_code = #{supplierCode},</if>
+            <if test="fullName != null">full_name = #{fullName},</if>
+            <if test="materialEnabled != null">material_enabled = #{materialEnabled},</if>
+            <if test="ordorOsEnabled != null">ordor_os_enabled = #{ordorOsEnabled},</if>
+            <if test="processOsEnabled != null">process_os_enabled = #{processOsEnabled},</if>
+            <if test="logisticEnabled != null">logistic_enabled = #{logisticEnabled},</if>
+            <if test="contact != null">contact = #{contact},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSupSupplierById" parameterType="Long">
+        delete from sup_supplier where id = #{id}
+    </delete>
+
+    <delete id="deleteSupSupplierByIds" parameterType="String">
+        delete from sup_supplier where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.snc.mapper.SncStockRequestItemMapper">
+    
+    <resultMap type="SncStockRequestItem" id="SncStockRequestItemResult">
+        <result property="id"    column="id"    />
+        <result property="requestId"    column="request_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialCode"    column="material_code"    />
+        <result property="materialSpec"    column="material_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="customerProductNo"    column="customer_product_no"    />
+        <result property="abroadProductNo"    column="abroad_product_no"    />
+        <result property="compoundId"    column="compound_id"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="price"    column="price"    />
+        <result property="amount"    column="amount"    />
+        <result property="materialAvailableType"    column="material_available_type"    />
+        <result property="sourceLotNo"    column="source_lot_no"    />
+        <result property="houseId"    column="house_id"    />
+        <result property="positionId"    column="position_id"    />
+        <result property="ilId"    column="il_id"    />
+        <result property="sourceId"    column="source_id"    />
+        <result property="quantityQcExceptional"    column="quantity_qc_exceptional"    />
+        <result property="quantityQcGood"    column="quantity_qc_good"    />
+        <result property="quantityQcNg"    column="quantity_qc_ng"    />
+        <result property="quantityQcRedisp"    column="quantity_qc_redisp"    />
+        <result property="quantityQcRework"    column="quantity_qc_rework"    />
+        <result property="quantityQcPending"    column="quantity_qc_pending"    />
+        <result property="quantityQcAod"    column="quantity_qc_aod"    />
+        <result property="remark"    column="remark"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="updateBy"    column="update_by"    />
+    </resultMap>
+
+    <sql id="selectSncStockRequestItemVo">
+        select id, request_id, seq_no, material_id, material_name, material_code, material_spec, draw_no, customer_product_no, abroad_product_no, compound_id, category_id, unit_id, quantity, price, amount, material_available_type, source_lot_no, house_id, position_id, il_id, source_id, quantity_qc_exceptional, quantity_qc_good, quantity_qc_ng, quantity_qc_redisp, quantity_qc_rework, quantity_qc_pending, quantity_qc_aod, remark, create_time, create_by, update_time, update_by from snc_stock_request_item
+    </sql>
+
+    <select id="selectSncStockRequestItemList" parameterType="SncStockRequestItem" resultMap="SncStockRequestItemResult">
+        <include refid="selectSncStockRequestItemVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="requestId != null "> and request_id = #{requestId}</if>
+            <if test="seqNo != null "> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="materialName != null  and materialName != ''"> and material_name like concat('%', #{materialName}, '%')</if>
+            <if test="materialCode != null  and materialCode != ''"> and material_code like concat('%', #{materialCode}, '%')</if>
+            <if test="materialSpec != null  and materialSpec != ''"> and material_spec like concat('%', #{materialSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''"> and abroad_product_no like concat('%', #{abroadProductNo}, '%')</if>
+            <if test="compoundId != null "> and compound_id = #{compoundId}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="materialAvailableType != null "> and material_available_type = #{materialAvailableType}</if>
+            <if test="sourceLotNo != null  and sourceLotNo != ''"> and source_lot_no like concat('%', #{sourceLotNo}, '%')</if>
+            <if test="houseId != null "> and house_id = #{houseId}</if>
+            <if test="positionId != null "> and position_id = #{positionId}</if>
+            <if test="ilId != null "> and il_id = #{ilId}</if>
+            <if test="sourceId != null "> and source_id = #{sourceId}</if>
+            <if test="quantityQcExceptional != null "> and quantity_qc_exceptional = #{quantityQcExceptional}</if>
+            <if test="quantityQcGood != null "> and quantity_qc_good = #{quantityQcGood}</if>
+            <if test="quantityQcNg != null "> and quantity_qc_ng = #{quantityQcNg}</if>
+            <if test="quantityQcRedisp != null "> and quantity_qc_redisp = #{quantityQcRedisp}</if>
+            <if test="quantityQcRework != null "> and quantity_qc_rework = #{quantityQcRework}</if>
+            <if test="quantityQcPending != null "> and quantity_qc_pending = #{quantityQcPending}</if>
+            <if test="quantityQcAod != null "> and quantity_qc_aod = #{quantityQcAod}</if>
+        </where>
+    </select>
+    
+    <select id="selectSncStockRequestItemById" parameterType="Long" resultMap="SncStockRequestItemResult">
+        <include refid="selectSncStockRequestItemVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSncStockRequestItemListByRequestId" parameterType="Long" resultMap="SncStockRequestItemResult">
+        <include refid="selectSncStockRequestItemVo"/>
+        where request_id = #{requestId}
+    </select>
+
+    <select id="selectSncStockRequestItemListByMaterialId" parameterType="Long" resultMap="SncStockRequestItemResult">
+        <include refid="selectSncStockRequestItemVo"/>
+        where material_id = #{materialId}
+    </select>
+
+    <select id="selectSncStockRequestItemListByCategoryId" parameterType="Long" resultMap="SncStockRequestItemResult">
+        <include refid="selectSncStockRequestItemVo"/>
+        where category_id = #{categoryId}
+    </select>
+
+    <select id="selectSncStockRequestItemListByHouseId" parameterType="Long" resultMap="SncStockRequestItemResult">
+        <include refid="selectSncStockRequestItemVo"/>
+        where house_id = #{houseId}
+    </select>
+
+    <select id="selectSncStockRequestItemListByPositionId" parameterType="Long" resultMap="SncStockRequestItemResult">
+        <include refid="selectSncStockRequestItemVo"/>
+        where position_id = #{positionId}
+    </select>
+
+    <select id="selectSncStockRequestItemListByIlId" parameterType="Long" resultMap="SncStockRequestItemResult">
+        <include refid="selectSncStockRequestItemVo"/>
+        where il_id = #{ilId}
+    </select>
+        
+    <insert id="insertSncStockRequestItem" parameterType="SncStockRequestItem" useGeneratedKeys="true" keyProperty="id">
+        insert into snc_stock_request_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="requestId != null">request_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="materialName != null and materialName != ''">material_name,</if>
+            <if test="materialCode != null">material_code,</if>
+            <if test="materialSpec != null">material_spec,</if>
+            <if test="drawNo != null">draw_no,</if>
+            <if test="customerProductNo != null">customer_product_no,</if>
+            <if test="abroadProductNo != null">abroad_product_no,</if>
+            <if test="compoundId != null">compound_id,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="price != null">price,</if>
+            <if test="amount != null">amount,</if>
+            <if test="materialAvailableType != null">material_available_type,</if>
+            <if test="sourceLotNo != null">source_lot_no,</if>
+            <if test="houseId != null">house_id,</if>
+            <if test="positionId != null">position_id,</if>
+            <if test="ilId != null">il_id,</if>
+            <if test="sourceId != null">source_id,</if>
+            <if test="quantityQcExceptional != null">quantity_qc_exceptional,</if>
+            <if test="quantityQcGood != null">quantity_qc_good,</if>
+            <if test="quantityQcNg != null">quantity_qc_ng,</if>
+            <if test="quantityQcRedisp != null">quantity_qc_redisp,</if>
+            <if test="quantityQcRework != null">quantity_qc_rework,</if>
+            <if test="quantityQcPending != null">quantity_qc_pending,</if>
+            <if test="quantityQcAod != null">quantity_qc_aod,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="updateBy != null">update_by,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="requestId != null">#{requestId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="materialName != null and materialName != ''">#{materialName},</if>
+            <if test="materialCode != null">#{materialCode},</if>
+            <if test="materialSpec != null">#{materialSpec},</if>
+            <if test="drawNo != null">#{drawNo},</if>
+            <if test="customerProductNo != null">#{customerProductNo},</if>
+            <if test="abroadProductNo != null">#{abroadProductNo},</if>
+            <if test="compoundId != null">#{compoundId},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="price != null">#{price},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="materialAvailableType != null">#{materialAvailableType},</if>
+            <if test="sourceLotNo != null">#{sourceLotNo},</if>
+            <if test="houseId != null">#{houseId},</if>
+            <if test="positionId != null">#{positionId},</if>
+            <if test="ilId != null">#{ilId},</if>
+            <if test="sourceId != null">#{sourceId},</if>
+            <if test="quantityQcExceptional != null">#{quantityQcExceptional},</if>
+            <if test="quantityQcGood != null">#{quantityQcGood},</if>
+            <if test="quantityQcNg != null">#{quantityQcNg},</if>
+            <if test="quantityQcRedisp != null">#{quantityQcRedisp},</if>
+            <if test="quantityQcRework != null">#{quantityQcRework},</if>
+            <if test="quantityQcPending != null">#{quantityQcPending},</if>
+            <if test="quantityQcAod != null">#{quantityQcAod},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSncStockRequestItem" parameterType="SncStockRequestItem">
+        update snc_stock_request_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="requestId != null">request_id = #{requestId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="materialName != null and materialName != ''">material_name = #{materialName},</if>
+            <if test="materialCode != null">material_code = #{materialCode},</if>
+            <if test="materialSpec != null">material_spec = #{materialSpec},</if>
+            <if test="drawNo != null">draw_no = #{drawNo},</if>
+            <if test="customerProductNo != null">customer_product_no = #{customerProductNo},</if>
+            <if test="abroadProductNo != null">abroad_product_no = #{abroadProductNo},</if>
+            <if test="compoundId != null">compound_id = #{compoundId},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="materialAvailableType != null">material_available_type = #{materialAvailableType},</if>
+            <if test="sourceLotNo != null">source_lot_no = #{sourceLotNo},</if>
+            <if test="houseId != null">house_id = #{houseId},</if>
+            <if test="positionId != null">position_id = #{positionId},</if>
+            <if test="ilId != null">il_id = #{ilId},</if>
+            <if test="sourceId != null">source_id = #{sourceId},</if>
+            <if test="quantityQcExceptional != null">quantity_qc_exceptional = #{quantityQcExceptional},</if>
+            <if test="quantityQcGood != null">quantity_qc_good = #{quantityQcGood},</if>
+            <if test="quantityQcNg != null">quantity_qc_ng = #{quantityQcNg},</if>
+            <if test="quantityQcRedisp != null">quantity_qc_redisp = #{quantityQcRedisp},</if>
+            <if test="quantityQcRework != null">quantity_qc_rework = #{quantityQcRework},</if>
+            <if test="quantityQcPending != null">quantity_qc_pending = #{quantityQcPending},</if>
+            <if test="quantityQcAod != null">quantity_qc_aod = #{quantityQcAod},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSncStockRequestItemById" parameterType="Long">
+        delete from snc_stock_request_item where id = #{id}
+    </delete>
+
+    <delete id="deleteSncStockRequestItemByIds" parameterType="String">
+        delete from snc_stock_request_item where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSncStockRequestItemByRequestId" parameterType="Long">
+        delete from snc_stock_request_item where request_id = #{requestId}
+    </delete>
+
+    <delete id="deleteSncStockRequestItemByMaterialId" parameterType="Long">
+        delete from snc_stock_request_item where material_id = #{materialId}
+    </delete>
+
+    <delete id="deleteSncStockRequestItemByCategoryId" parameterType="Long">
+        delete from snc_stock_request_item where category_id = #{categoryId}
+    </delete>
+
+    <delete id="deleteSncStockRequestItemByHouseId" parameterType="Long">
+        delete from snc_stock_request_item where house_id = #{houseId}
+    </delete>
+
+    <delete id="deleteSncStockRequestItemByPositionId" parameterType="Long">
+        delete from snc_stock_request_item where position_id = #{positionId}
+    </delete>
+
+    <delete id="deleteSncStockRequestItemByIlId" parameterType="Long">
+        delete from snc_stock_request_item where il_id = #{ilId}
+    </delete>
+</mapper>

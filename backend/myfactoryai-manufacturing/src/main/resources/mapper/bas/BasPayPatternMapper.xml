@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.bas.mapper.BasPayPatternMapper">
+    
+    <resultMap type="BasPayPattern" id="BasPayPatternResult">
+        <result property="id"    column="id"    />
+        <result property="patternName"    column="pattern_name"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectBasPayPatternVo">
+        select id, pattern_name, remark, create_by, create_time, update_by, update_time from bas_pay_pattern
+    </sql>
+
+    <select id="selectBasPayPatternList" parameterType="BasPayPattern" resultMap="BasPayPatternResult">
+        <include refid="selectBasPayPatternVo"/>
+        <where>  
+            <if test="patternName != null  and patternName != ''"> and pattern_name like concat('%', #{patternName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectBasPayPatternById" parameterType="Long" resultMap="BasPayPatternResult">
+        <include refid="selectBasPayPatternVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertBasPayPattern" parameterType="BasPayPattern" useGeneratedKeys="true" keyProperty="id">
+        insert into bas_pay_pattern
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="patternName != null">pattern_name,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="patternName != null">#{patternName},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBasPayPattern" parameterType="BasPayPattern">
+        update bas_pay_pattern
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="patternName != null">pattern_name = #{patternName},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBasPayPatternById" parameterType="Long">
+        delete from bas_pay_pattern where id = #{id}
+    </delete>
+
+    <delete id="deleteBasPayPatternByIds" parameterType="String">
+        delete from bas_pay_pattern where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

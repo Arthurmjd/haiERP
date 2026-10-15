@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.sup.mapper.SuplSupplierBankMapper">
+    
+    <resultMap type="SuplSupplierBank" id="SuplSupplierBankResult">
+        <result property="id"    column="id"    />
+        <result property="supplierId"    column="supplier_id"    />
+        <result property="accountNo"    column="account_no"    />
+        <result property="bankName"    column="bank_name"    />
+        <result property="ownerName"    column="owner_name"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSuplSupplierBankVo">
+        select id, supplier_id, account_no, bank_name, owner_name, remark, create_by, create_time, update_by, update_time from sup_supplier_bank
+    </sql>
+
+    <select id="selectSuplSupplierBankList" parameterType="SuplSupplierBank" resultMap="SuplSupplierBankResult">
+        <include refid="selectSuplSupplierBankVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+            <if test="accountNo != null  and accountNo != ''"> and account_no like concat('%', #{accountNo}, '%')</if>
+            <if test="bankName != null  and bankName != ''"> and bank_name like concat('%', #{bankName}, '%')</if>
+            <if test="ownerName != null  and ownerName != ''"> and owner_name like concat('%', #{ownerName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectSuplSupplierBankById" parameterType="Long" resultMap="SuplSupplierBankResult">
+        <include refid="selectSuplSupplierBankVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSuplSupplierBankListBySupplierId" parameterType="Long" resultMap="SuplSupplierBankResult">
+        <include refid="selectSuplSupplierBankVo"/>
+        where supplier_id = #{supplierId}
+    </select>
+        
+    <insert id="insertSuplSupplierBank" parameterType="SuplSupplierBank" useGeneratedKeys="true" keyProperty="id">
+        insert into sup_supplier_bank
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="supplierId != null">supplier_id,</if>
+            <if test="accountNo != null">account_no,</if>
+            <if test="bankName != null">bank_name,</if>
+            <if test="ownerName != null">owner_name,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="supplierId != null">#{supplierId},</if>
+            <if test="accountNo != null">#{accountNo},</if>
+            <if test="bankName != null">#{bankName},</if>
+            <if test="ownerName != null">#{ownerName},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSuplSupplierBank" parameterType="SuplSupplierBank">
+        update sup_supplier_bank
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="accountNo != null">account_no = #{accountNo},</if>
+            <if test="bankName != null">bank_name = #{bankName},</if>
+            <if test="ownerName != null">owner_name = #{ownerName},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSuplSupplierBankById" parameterType="Long">
+        delete from sup_supplier_bank where id = #{id}
+    </delete>
+
+    <delete id="deleteSuplSupplierBankByIds" parameterType="String">
+        delete from sup_supplier_bank where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSuplSupplierBankBySupplierId" parameterType="Long">
+        delete from sup_supplier_bank where supplier_id = #{supplierId}
+    </delete>
+</mapper>

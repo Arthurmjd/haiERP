@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.res.mapper.ResWorkgroupMapper">
+    
+    <resultMap type="ResWorkgroup" id="ResWorkgroupResult">
+        <result property="id"    column="id"    />
+        <result property="groupName"    column="group_name"    />
+        <result property="shiftsysId"    column="shiftsys_id"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectResWorkgroupVo">
+        select id, group_name, shiftsys_id, line_id, remark, create_by, create_time, update_by, update_time from res_workgroup
+    </sql>
+
+    <select id="selectResWorkgroupList" parameterType="ResWorkgroup" resultMap="ResWorkgroupResult">
+        <include refid="selectResWorkgroupVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="groupName != null  and groupName != ''"> and group_name like concat('%', #{groupName}, '%')</if>
+            <if test="shiftsysId != null "> and shiftsys_id = #{shiftsysId}</if>
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+        </where>
+    </select>
+    
+    <select id="selectResWorkgroupById" parameterType="Long" resultMap="ResWorkgroupResult">
+        <include refid="selectResWorkgroupVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectResWorkgroupListByShiftsysId" parameterType="Long" resultMap="ResWorkgroupResult">
+        <include refid="selectResWorkgroupVo"/>
+        where shiftsys_id = #{shiftsysId}
+    </select>
+
+    <select id="selectResWorkgroupListByLineId" parameterType="Long" resultMap="ResWorkgroupResult">
+        <include refid="selectResWorkgroupVo"/>
+        where line_id = #{lineId}
+    </select>
+        
+    <insert id="insertResWorkgroup" parameterType="ResWorkgroup" useGeneratedKeys="true" keyProperty="id">
+        insert into res_workgroup
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="groupName != null">group_name,</if>
+            <if test="shiftsysId != null">shiftsys_id,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="groupName != null">#{groupName},</if>
+            <if test="shiftsysId != null">#{shiftsysId},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateResWorkgroup" parameterType="ResWorkgroup">
+        update res_workgroup
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="groupName != null">group_name = #{groupName},</if>
+            <if test="shiftsysId != null">shiftsys_id = #{shiftsysId},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteResWorkgroupById" parameterType="Long">
+        delete from res_workgroup where id = #{id}
+    </delete>
+
+    <delete id="deleteResWorkgroupByIds" parameterType="String">
+        delete from res_workgroup where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteResWorkgroupByShiftsysId" parameterType="Long">
+        delete from res_workgroup where shiftsys_id = #{shiftsysId}
+    </delete>
+
+    <delete id="deleteResWorkgroupByLineId" parameterType="Long">
+        delete from res_workgroup where line_id = #{lineId}
+    </delete>
+</mapper>

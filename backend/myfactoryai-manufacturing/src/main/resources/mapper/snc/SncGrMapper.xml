@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.snc.mapper.SncGrMapper">
+    
+    <resultMap type="SncGr" id="SncGrResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="grType"    column="gr_type"    />
+        <result property="supplierId"    column="supplier_id"    />
+        <result property="receiveDay"    column="receive_day"    />
+        <result property="contactPerson"    column="contact_person"    />
+        <result property="contactPhone"    column="contact_phone"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSncGrVo">
+        select id, bill_no, status, gr_type, supplier_id, receive_day, contact_person, contact_phone, remark, create_by, create_time, update_by, update_time from snc_gr
+    </sql>
+
+    <select id="selectSncGrList" parameterType="SncGr" resultMap="SncGrResult">
+        <include refid="selectSncGrVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="grType != null "> and gr_type = #{grType}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+            <if test="receiveDay != null "> and receive_day = #{receiveDay}</if>
+            <if test="contactPerson != null  and contactPerson != ''"> and contact_person = #{contactPerson}</if>
+            <if test="contactPhone != null  and contactPhone != ''"> and contact_phone = #{contactPhone}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectSncGrById" parameterType="Long" resultMap="SncGrResult">
+        <include refid="selectSncGrVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSncGrListBySupplierId" parameterType="Long" resultMap="SncGrResult">
+        <include refid="selectSncGrVo"/>
+        where supplier_id = #{supplierId}
+    </select>
+        
+    <insert id="insertSncGr" parameterType="SncGr" useGeneratedKeys="true" keyProperty="id">
+        insert into snc_gr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="grType != null">gr_type,</if>
+            <if test="supplierId != null">supplier_id,</if>
+            <if test="receiveDay != null">receive_day,</if>
+            <if test="contactPerson != null">contact_person,</if>
+            <if test="contactPhone != null">contact_phone,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="grType != null">#{grType},</if>
+            <if test="supplierId != null">#{supplierId},</if>
+            <if test="receiveDay != null">#{receiveDay},</if>
+            <if test="contactPerson != null">#{contactPerson},</if>
+            <if test="contactPhone != null">#{contactPhone},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSncGr" parameterType="SncGr">
+        update snc_gr
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="grType != null">gr_type = #{grType},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="receiveDay != null">receive_day = #{receiveDay},</if>
+            <if test="contactPerson != null">contact_person = #{contactPerson},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSncGrById" parameterType="Long">
+        delete from snc_gr where id = #{id}
+    </delete>
+
+    <delete id="deleteSncGrByIds" parameterType="String">
+        delete from snc_gr where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSncGrBySupplierId" parameterType="Long">
+        delete from snc_gr where supplier_id = #{supplierId}
+    </delete>
+</mapper>

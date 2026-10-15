@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.core.common.codeManager.mapper.BillcodeManagerMapper">
+
+    <resultMap type="BillcodeManagerEntity" id="BillManagerResult">
+        <result property="id" column="id"/>
+        <result property="billCode" column="bill_code"/>
+        <result property="billName" column="bill_name"/>
+        <result property="disableRule" column="disable_rule"/>
+        <result property="disableCode" column="disable_code"/>
+        <result property="disablePrefix" column="disable_prefix"/>
+        <result property="prefixChars" column="prefix_chars"/>
+        <result property="disablePeriod" column="disable_period"/>
+        <result property="periodPattern" column="period_pattern"/>
+        <result property="lastDate" column="last_date"/>
+        <result property="disableNumber" column="disable_number"/>
+        <result property="numberSize" column="number_size"/>
+        <result property="nextNumber" column="next_number"/>
+    </resultMap>
+
+    <sql id="selectBillcodeManagerVo">
+        select id,
+               bill_code,
+               bill_name,
+               disable_rule,
+               disable_code,
+               disable_prefix,
+               prefix_chars,
+               disable_period,
+               period_pattern,
+               last_date,
+               disable_number,
+               number_size,
+               next_number
+        from sys_billcode_rule
+    </sql>
+    <select id="getBillcodeNameList" resultType="BillCodeName">
+        select id billId, bill_name billName
+        from sys_billcode_rule
+    </select>
+
+    <select id="selectBillcodeManagerById" resultMap="BillManagerResult">
+        <include refid="selectBillcodeManagerVo"/>
+        where id = #{billId}
+    </select>
+
+    <select id="selectBillcodeManagerByCode" resultMap="BillManagerResult">
+        <include refid="selectBillcodeManagerVo"/>
+        where bill_code = #{billCode}
+    </select>
+
+    <insert id="insertBillManager" parameterType="BillcodeManagerEntity" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_billcode_rule
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billCode != null and billCode != ''">bill_code,</if>
+            <if test="billName != null and billName != ''">bill_name,</if>
+            <if test="disableRule != null and disableRule != ''">disable_rule,</if>
+            <if test="disableCode != null and disableCode != ''">disable_code,</if>
+            <if test="disablePrefix != null and disablePrefix != ''">disable_prefix,</if>
+            <if test="prefixChars != null">prefix_chars,</if>
+            <if test="disablePeriod != null and disablePeriod != ''">disable_period,</if>
+            <if test="periodPattern != null and periodPattern != ''">period_pattern,</if>
+            <if test="lastDate != null and lastDate != ''">last_date,</if>
+            <if test="disableNumber != null and disableNumber != ''">disable_number,</if>
+            <if test="numberSize != null">number_size,</if>
+            <if test="nextNumber != null">next_number,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billCode != null and billCode != ''">#{billCode},</if>
+            <if test="billName != null and billName != ''">#{billName},</if>
+            <if test="disableRule != null and disableRule != ''">#{disableRule},</if>
+            <if test="disableCode != null and disableCode != ''">#{disableCode},</if>
+            <if test="disablePrefix != null ano4d disablePrefix != ''">#{disablePrefix},</if>
+            <if test="prefixChars != null">#{prefixChars},</if>
+            <if test="disablePeriod != null and disablePeriod != ''">#{disablePeriod},</if>
+            <if test="periodPattern != null and periodPattern != ''">#{periodPattern},</if>
+            <if test="lastDate != null and lastDate != ''">#{lastDate},</if>
+            <if test="disableNumber != null and disableNumber != ''">#{disableNumber},</if>
+            <if test="numberSize != null">#{numberSize},</if>
+            <if test="nextNumber != null">#{nextNumber},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBillcodeManagerById" parameterType="BillcodeManagerEntity">
+        update sys_billcode_rule
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billCode != null and billCode != ''">bill_code = #{billCode},</if>
+            <if test="billName != null and billName != ''">bill_name = #{billName},</if>
+            <if test="lastDate != null and lastDate != ''">last_date = #{lastDate},</if>
+            <if test="disableRule != null and disableRule != ''">disable_rule = #{disableRule},</if>
+            <if test="disableCode != null and disableCode != ''">disable_code = #{disableCode},</if>
+            <if test="disablePrefix != null and disablePrefix != ''">disable_prefix = #{disablePrefix},</if>
+            <if test="prefixChars != null">prefix_chars = #{prefixChars},</if>
+            <if test="disablePeriod != null and disablePeriod != ''">disable_period = #{disablePeriod},</if>
+            <if test="periodPattern != null and periodPattern != ''">period_pattern = #{periodPattern},</if>
+            <if test="disableNumber != null and disableNumber != ''">disable_number = #{disableNumber},</if>
+            <if test="numberSize != null">number_size = #{numberSize},</if>
+            <if test="nextNumber != null">next_number = #{nextNumber},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+
+</mapper>

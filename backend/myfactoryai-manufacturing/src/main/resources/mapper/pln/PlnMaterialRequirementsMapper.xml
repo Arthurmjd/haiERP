@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.pln.mapper.PlnMaterialRequirementsMapper">
+    
+    <resultMap type="PlnMaterialRequirements" id="PlnMaterialRequirementsResult">
+        <result property="id"    column="id"    />
+        <result property="status"    column="status"    />
+        <result property="mpsId"    column="mps_id"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialSpec"    column="material_spec"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="consumeType"    column="consume_type"    />
+        <result property="enableMust"    column="enable_must"    />
+        <result property="enableReplace"    column="enable_replace"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectPlnMaterialRequirementsVo">
+        select id, status, mps_id, material_id, material_name, material_spec, quantity, unit_id, consume_type, enable_must, enable_replace, remark, create_by, create_time, update_by, update_time from pln_mrp_pr
+    </sql>
+
+    <select id="selectPlnMaterialRequirementsList" parameterType="PlnMaterialRequirements" resultMap="PlnMaterialRequirementsResult">
+        <include refid="selectPlnMaterialRequirementsVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="mpsId != null "> and mps_id = #{mpsId}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="materialName != null  and materialName != ''"> and material_name like concat('%', #{materialName}, '%')</if>
+            <if test="materialSpec != null  and materialSpec != ''"> and material_spec like concat('%', #{materialSpec}, '%')</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="consumeType != null "> and consume_type = #{consumeType}</if>
+            <if test="enableMust != null  and enableMust != ''"> and enable_must = #{enableMust}</if>
+            <if test="enableReplace != null  and enableReplace != ''"> and enable_replace = #{enableReplace}</if>
+        </where>
+    </select>
+    
+    <select id="selectPlnMaterialRequirementsById" parameterType="Long" resultMap="PlnMaterialRequirementsResult">
+        <include refid="selectPlnMaterialRequirementsVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectPlnMaterialRequirementsListByMpsId" parameterType="Long" resultMap="PlnMaterialRequirementsResult">
+        <include refid="selectPlnMaterialRequirementsVo"/>
+        where mps_id = #{mpsId}
+    </select>
+
+    <select id="selectPlnMaterialRequirementsListByMaterialId" parameterType="Long" resultMap="PlnMaterialRequirementsResult">
+        <include refid="selectPlnMaterialRequirementsVo"/>
+        where material_id = #{materialId}
+    </select>
+
+    <select id="selectPlnMaterialRequirementsListByUnitId" parameterType="Long" resultMap="PlnMaterialRequirementsResult">
+        <include refid="selectPlnMaterialRequirementsVo"/>
+        where unit_id = #{unitId}
+    </select>
+        
+    <insert id="insertPlnMaterialRequirements" parameterType="PlnMaterialRequirements" useGeneratedKeys="true" keyProperty="id">
+        insert into pln_mrp_pr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="status != null">status,</if>
+            <if test="mpsId != null">mps_id,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="materialName != null">material_name,</if>
+            <if test="materialSpec != null">material_spec,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="consumeType != null">consume_type,</if>
+            <if test="enableMust != null">enable_must,</if>
+            <if test="enableReplace != null">enable_replace,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="status != null">#{status},</if>
+            <if test="mpsId != null">#{mpsId},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="materialName != null">#{materialName},</if>
+            <if test="materialSpec != null">#{materialSpec},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="consumeType != null">#{consumeType},</if>
+            <if test="enableMust != null">#{enableMust},</if>
+            <if test="enableReplace != null">#{enableReplace},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePlnMaterialRequirements" parameterType="PlnMaterialRequirements">
+        update pln_mrp_pr
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="status != null">status = #{status},</if>
+            <if test="mpsId != null">mps_id = #{mpsId},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="materialName != null">material_name = #{materialName},</if>
+            <if test="materialSpec != null">material_spec = #{materialSpec},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="consumeType != null">consume_type = #{consumeType},</if>
+            <if test="enableMust != null">enable_must = #{enableMust},</if>
+            <if test="enableReplace != null">enable_replace = #{enableReplace},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePlnMaterialRequirementsById" parameterType="Long">
+        delete from pln_mrp_pr where id = #{id}
+    </delete>
+
+    <delete id="deletePlnMaterialRequirementsByIds" parameterType="String">
+        delete from pln_mrp_pr where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deletePlnMaterialRequirementsByMpsId" parameterType="Long">
+        delete from pln_mrp_pr where mps_id = #{mpsId}
+    </delete>
+
+    <delete id="deletePlnMaterialRequirementsByMaterialId" parameterType="Long">
+        delete from pln_mrp_pr where material_id = #{materialId}
+    </delete>
+
+    <delete id="deletePlnMaterialRequirementsByUnitId" parameterType="Long">
+        delete from pln_mrp_pr where unit_id = #{unitId}
+    </delete>
+</mapper>

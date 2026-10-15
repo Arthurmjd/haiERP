@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ord.mapper.OrdPackagePatternMapper">
+    
+    <resultMap type="OrdPackagePattern" id="OrdPackagePatternResult">
+        <result property="id"    column="id"    />
+        <result property="patternName"    column="pattern_name"    />
+        <result property="boxName"    column="box_name"    />
+        <result property="boxMaterial"    column="box_material"    />
+        <result property="boxSpec"    column="box_spec"    />
+        <result property="boxLength"    column="box_length"    />
+        <result property="boxWidth"    column="box_width"    />
+        <result property="boxHeight"    column="box_height"    />
+        <result property="weightUnitId"    column="weight_unit_id"    />
+        <result property="enableChild"    column="enable_child"    />
+        <result property="childboxName"    column="childbox_name"    />
+        <result property="childboxMaterial"    column="childbox_material"    />
+        <result property="childboxSpec"    column="childbox_spec"    />
+        <result property="childLongnum"    column="child_longnum"    />
+        <result property="childWidenum"    column="child_widenum"    />
+        <result property="childHighnum"    column="child_highnum"    />
+        <result property="childUnitId"    column="child_unit_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectOrdPackagePatternVo">
+        select id, pattern_name, box_name, box_material, box_spec, box_length, box_width, box_height, weight_unit_id, enable_child, childbox_name, childbox_material, childbox_spec, child_longnum, child_widenum, child_highnum, child_unit_id, remark, create_by, create_time, update_by, update_time from ord_package_pattern
+    </sql>
+
+    <select id="selectOrdPackagePatternList" parameterType="OrdPackagePattern" resultMap="OrdPackagePatternResult">
+        <include refid="selectOrdPackagePatternVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="patternName != null  and patternName != ''"> and pattern_name like concat('%', #{patternName}, '%')</if>
+            <if test="boxName != null  and boxName != ''"> and box_name like concat('%', #{boxName}, '%')</if>
+            <if test="boxMaterial != null  and boxMaterial != ''"> and box_material = #{boxMaterial}</if>
+            <if test="boxSpec != null  and boxSpec != ''"> and box_spec like concat('%', #{boxSpec}, '%')</if>
+            <if test="boxLength != null "> and box_length = #{boxLength}</if>
+            <if test="boxWidth != null "> and box_width = #{boxWidth}</if>
+            <if test="boxHeight != null "> and box_height = #{boxHeight}</if>
+            <if test="weightUnitId != null "> and weight_unit_id = #{weightUnitId}</if>
+            <if test="enableChild != null  and enableChild != ''"> and enable_child = #{enableChild}</if>
+            <if test="childboxName != null  and childboxName != ''"> and childbox_name like concat('%', #{childboxName}, '%')</if>
+            <if test="childboxMaterial != null  and childboxMaterial != ''"> and childbox_material = #{childboxMaterial}</if>
+            <if test="childboxSpec != null  and childboxSpec != ''"> and childbox_spec like concat('%', #{childboxSpec}, '%')</if>
+            <if test="childLongnum != null "> and child_longnum = #{childLongnum}</if>
+            <if test="childWidenum != null "> and child_widenum = #{childWidenum}</if>
+            <if test="childHighnum != null "> and child_highnum = #{childHighnum}</if>
+            <if test="childUnitId != null "> and child_unit_id = #{childUnitId}</if>
+        </where>
+    </select>
+    
+    <select id="selectOrdPackagePatternById" parameterType="Long" resultMap="OrdPackagePatternResult">
+        <include refid="selectOrdPackagePatternVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectOrdPackagePatternListByWeightUnitId" parameterType="Long" resultMap="OrdPackagePatternResult">
+        <include refid="selectOrdPackagePatternVo"/>
+        where weight_unit_id = #{weightUnitId}
+    </select>
+
+    <select id="selectOrdPackagePatternListByChildUnitId" parameterType="Long" resultMap="OrdPackagePatternResult">
+        <include refid="selectOrdPackagePatternVo"/>
+        where child_unit_id = #{childUnitId}
+    </select>
+        
+    <insert id="insertOrdPackagePattern" parameterType="OrdPackagePattern" useGeneratedKeys="true" keyProperty="id">
+        insert into ord_package_pattern
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="patternName != null and patternName != ''">pattern_name,</if>
+            <if test="boxName != null">box_name,</if>
+            <if test="boxMaterial != null">box_material,</if>
+            <if test="boxSpec != null">box_spec,</if>
+            <if test="boxLength != null">box_length,</if>
+            <if test="boxWidth != null">box_width,</if>
+            <if test="boxHeight != null">box_height,</if>
+            <if test="weightUnitId != null">weight_unit_id,</if>
+            <if test="enableChild != null">enable_child,</if>
+            <if test="childboxName != null">childbox_name,</if>
+            <if test="childboxMaterial != null">childbox_material,</if>
+            <if test="childboxSpec != null">childbox_spec,</if>
+            <if test="childLongnum != null">child_longnum,</if>
+            <if test="childWidenum != null">child_widenum,</if>
+            <if test="childHighnum != null">child_highnum,</if>
+            <if test="childUnitId != null">child_unit_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="patternName != null and patternName != ''">#{patternName},</if>
+            <if test="boxName != null">#{boxName},</if>
+            <if test="boxMaterial != null">#{boxMaterial},</if>
+            <if test="boxSpec != null">#{boxSpec},</if>
+            <if test="boxLength != null">#{boxLength},</if>
+            <if test="boxWidth != null">#{boxWidth},</if>
+            <if test="boxHeight != null">#{boxHeight},</if>
+            <if test="weightUnitId != null">#{weightUnitId},</if>
+            <if test="enableChild != null">#{enableChild},</if>
+            <if test="childboxName != null">#{childboxName},</if>
+            <if test="childboxMaterial != null">#{childboxMaterial},</if>
+            <if test="childboxSpec != null">#{childboxSpec},</if>
+            <if test="childLongnum != null">#{childLongnum},</if>
+            <if test="childWidenum != null">#{childWidenum},</if>
+            <if test="childHighnum != null">#{childHighnum},</if>
+            <if test="childUnitId != null">#{childUnitId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateOrdPackagePattern" parameterType="OrdPackagePattern">
+        update ord_package_pattern
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="patternName != null and patternName != ''">pattern_name = #{patternName},</if>
+            <if test="boxName != null">box_name = #{boxName},</if>
+            <if test="boxMaterial != null">box_material = #{boxMaterial},</if>
+            <if test="boxSpec != null">box_spec = #{boxSpec},</if>
+            <if test="boxLength != null">box_length = #{boxLength},</if>
+            <if test="boxWidth != null">box_width = #{boxWidth},</if>
+            <if test="boxHeight != null">box_height = #{boxHeight},</if>
+            <if test="weightUnitId != null">weight_unit_id = #{weightUnitId},</if>
+            <if test="enableChild != null">enable_child = #{enableChild},</if>
+            <if test="childboxName != null">childbox_name = #{childboxName},</if>
+            <if test="childboxMaterial != null">childbox_material = #{childboxMaterial},</if>
+            <if test="childboxSpec != null">childbox_spec = #{childboxSpec},</if>
+            <if test="childLongnum != null">child_longnum = #{childLongnum},</if>
+            <if test="childWidenum != null">child_widenum = #{childWidenum},</if>
+            <if test="childHighnum != null">child_highnum = #{childHighnum},</if>
+            <if test="childUnitId != null">child_unit_id = #{childUnitId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOrdPackagePatternById" parameterType="Long">
+        delete from ord_package_pattern where id = #{id}
+    </delete>
+
+    <delete id="deleteOrdPackagePatternByIds" parameterType="String">
+        delete from ord_package_pattern where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteOrdPackagePatternByWeightUnitId" parameterType="Long">
+        delete from ord_package_pattern where weight_unit_id = #{weightUnitId}
+    </delete>
+
+    <delete id="deleteOrdPackagePatternByChildUnitId" parameterType="Long">
+        delete from ord_package_pattern where child_unit_id = #{childUnitId}
+    </delete>
+</mapper>

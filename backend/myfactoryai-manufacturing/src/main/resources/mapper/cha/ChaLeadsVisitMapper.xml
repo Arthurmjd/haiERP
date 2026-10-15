@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.cha.mapper.ChaLeadsVisitMapper">
+    
+    <resultMap type="ChaLeadsVisit" id="ChaLeadsVisitResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="contact"    column="contact"    />
+        <result property="description"    column="description"    />
+        <result property="phone"    column="phone"    />
+        <result property="sourceType"    column="source_type"    />
+        <result property="wechat"    column="wechat"    />
+        <result property="email"    column="email"    />
+        <result property="address"    column="address"    />
+        <result property="salesId"    column="sales_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectChaLeadsVisitVo">
+        select id, bill_no, status, customer_id, contact, description, phone, source_type, wechat, email, address, sales_id, remark, create_by, create_time, update_by, update_time from cha_leads
+    </sql>
+
+    <select id="selectChaLeadsVisitList" parameterType="ChaLeadsVisit" resultMap="ChaLeadsVisitResult">
+        <include refid="selectChaLeadsVisitVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+                 and status in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="sourceType != null  and sourceType != ''"> and source_type = #{sourceType}</if>
+            <if test="wechat != null  and wechat != ''"> and wechat = #{wechat}</if>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+    </select>
+    
+    <select id="selectChaLeadsVisitById" parameterType="Long" resultMap="ChaLeadsVisitResult">
+        <include refid="selectChaLeadsVisitVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectChaLeadsVisitListByCustomerId" parameterType="Long" resultMap="ChaLeadsVisitResult">
+        <include refid="selectChaLeadsVisitVo"/>
+        where customer_id = #{customerId}
+    </select>
+        
+    <insert id="insertChaLeadsVisit" parameterType="ChaLeadsVisit" useGeneratedKeys="true" keyProperty="id">
+        insert into cha_leads
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="contact != null">contact,</if>
+            <if test="description != null">description,</if>
+            <if test="phone != null">phone,</if>
+            <if test="sourceType != null">source_type,</if>
+            <if test="wechat != null">wechat,</if>
+            <if test="email != null">email,</if>
+            <if test="address != null">address,</if>
+            <if test="salesId != null">sales_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="contact != null">#{contact},</if>
+            <if test="description != null">#{description},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="sourceType != null">#{sourceType},</if>
+            <if test="wechat != null">#{wechat},</if>
+            <if test="email != null">#{email},</if>
+            <if test="address != null">#{address},</if>
+            <if test="salesId != null">#{salesId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateChaLeadsVisit" parameterType="ChaLeadsVisit">
+        update cha_leads
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="contact != null">contact = #{contact},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="sourceType != null">source_type = #{sourceType},</if>
+            <if test="wechat != null">wechat = #{wechat},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="salesId != null">sales_id = #{salesId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteChaLeadsVisitById" parameterType="Long">
+        delete from cha_leads where id = #{id}
+    </delete>
+
+    <delete id="deleteChaLeadsVisitByIds" parameterType="String">
+        delete from cha_leads where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteChaLeadsVisitByCustomerId" parameterType="Long">
+        delete from cha_leads where customer_id = #{customerId}
+    </delete>
+</mapper>

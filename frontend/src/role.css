@@ -1,0 +1,19 @@
+.sidebar { overflow-y: auto; }
+.nav-caption-secondary { padding-top: 20px; }
+.role-select { width: 132px; }
+.role-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.role-kpi { min-height: 132px; display: flex; flex-direction: column; }
+.role-kpi:hover { border-color: #7bb2a2; }
+.role-kpi-action { color: #277764; font-size: 12px; margin-top: auto; }
+.role-section { margin: 24px 0; }
+.role-section .line-toolbar h2 { font-size: 16px; }
+.role-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.role-actions .el-button { margin: 0; }
+.role-section .table-wrap { border: 1px solid #e2e9e7; border-radius: 6px; background: #fff; }
+@media (max-width: 760px) {
+  .role-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .role-select { width: 108px; }
+}
+@media (max-width: 440px) {
+  .role-kpis { grid-template-columns: 1fr; }
+}

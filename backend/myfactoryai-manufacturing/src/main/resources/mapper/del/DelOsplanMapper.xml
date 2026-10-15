@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.del.mapper.DelOsplanMapper">
+    
+    <resultMap type="DelOsplan" id="DelOsplanResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="soId"    column="so_id"    />
+        <result property="soItemId"    column="so_item_id"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productCode"    column="product_code"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="customerProductNo"    column="customer_product_no"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantityPlanned"    column="quantity_planned"    />
+        <result property="quantityDispatched"    column="quantity_dispatched"    />
+        <result property="quantityFinished"    column="quantity_finished"    />
+        <result property="needDay"    column="need_day"    />
+        <result property="promiseDay"    column="promise_day"    />
+        <result property="orderDay"    column="order_day"    />
+        <result property="priority"    column="priority"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="salesId"    column="sales_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectDelOsplanVo">
+        select id, bill_no, status, so_id, so_item_id, product_id, product_code, product_name, product_spec, draw_no, customer_product_no,
+               unit_id, quantity_planned, quantity_dispatched, quantity_finished, need_day, promise_day, order_day, priority,
+               customer_id, project_id, sales_id,
+               remark, create_by, create_time, update_by, update_time
+        from del_osplan
+    </sql>
+
+    <select id="selectDelOsplanList" parameterType="DelOsplan" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+                 and status in (4,5,6,7,8,9,10,11,12,13,14,15)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productName != null  and productName != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelOsplanDraftList" parameterType="DelOsplan" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+             and status =0
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productName != null  and productName != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelOsplanPublishingList" parameterType="DelOsplan" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            and status in (0,1,2,3,4)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productName != null  and productName != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelOsplanProcessingList" parameterType="DelOsplan" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            and status in (5,6,7,8,9,10,11,12)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productName != null  and productName != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelOsplanFinishingList" parameterType="DelOsplan" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+             and status = 16
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productName != null  and productName != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelOsplanHistoryList" parameterType="DelOsplan" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            and status in (14,15,17,18)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productName != null  and productName != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelOsplanAllList" parameterType="DelOsplan" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productName != null  and productName != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectDelOsplanById" parameterType="Long" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectDelOsplanListBySoId" parameterType="Long" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        where so_id = #{soId}
+    </select>
+
+    <select id="selectDelOsplanListBySoItemId" parameterType="Long" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        where so_item_id = #{soItemId}
+    </select>
+
+    <select id="selectDelOsplanListByCustomerId" parameterType="Long" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        where customer_id = #{customerId}
+    </select>
+
+    <select id="selectDelOsplanListByProjectId" parameterType="Long" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        where project_id = #{projectId}
+    </select>
+
+    <select id="selectDelOsplanListBySalesId" parameterType="Long" resultMap="DelOsplanResult">
+        <include refid="selectDelOsplanVo"/>
+        where sales_id = #{salesId}
+    </select>
+        
+    <insert id="insertDelOsplan" parameterType="DelOsplan" useGeneratedKeys="true" keyProperty="id">
+        insert into del_osplan
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="soId != null">so_id,</if>
+            <if test="soItemId != null">so_item_id,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productCode != null">product_code,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="drawNo != null">draw_no,</if>
+            <if test="customerProductNo != null">customer_product_no,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantityPlanned != null">quantity_planned,</if>
+            <if test="quantityDispatched != null">quantity_dispatched,</if>
+            <if test="quantityFinished != null">quantity_finished,</if>
+            <if test="needDay != null">need_day,</if>
+            <if test="promiseDay != null">promise_day,</if>
+            <if test="orderDay != null">order_day,</if>
+            <if test="priority != null">priority,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="salesId != null">sales_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="soId != null">#{soId},</if>
+            <if test="soItemId != null">#{soItemId},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productCode != null">#{productCode},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="drawNo != null">#{drawNo},</if>
+            <if test="customerProductNo != null">#{customerProductNo},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantityPlanned != null">#{quantityPlanned},</if>
+            <if test="quantityDispatched != null">#{quantityDispatched},</if>
+            <if test="quantityFinished != null">#{quantityFinished},</if>
+            <if test="needDay != null">#{needDay},</if>
+            <if test="promiseDay != null">#{promiseDay},</if>
+            <if test="orderDay != null">#{orderDay},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="salesId != null">#{salesId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDelOsplan" parameterType="DelOsplan">
+        update del_osplan
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="soId != null">so_id = #{soId},</if>
+            <if test="soItemId != null">so_item_id = #{soItemId},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productCode != null">product_code = #{productCode},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="drawNo != null">draw_no = #{drawNo},</if>
+            <if test="customerProductNo != null">customer_product_no = #{customerProductNo},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantityPlanned != null">quantity_planned = #{quantityPlanned},</if>
+            <if test="quantityDispatched != null">quantity_dispatched = #{quantityDispatched},</if>
+            <if test="quantityFinished != null">quantity_finished = #{quantityFinished},</if>
+            <if test="needDay != null">need_day = #{needDay},</if>
+            <if test="promiseDay != null">promise_day = #{promiseDay},</if>
+            <if test="orderDay != null">order_day = #{orderDay},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="salesId != null">sales_id = #{salesId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDelOsplanById" parameterType="Long">
+        delete from del_osplan where id = #{id}
+    </delete>
+
+    <delete id="deleteDelOsplanByIds" parameterType="String">
+        delete from del_osplan where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteDelOsplanBySoId" parameterType="Long">
+        delete from del_osplan where so_id = #{soId}
+    </delete>
+
+    <delete id="deleteDelOsplanBySoItemId" parameterType="Long">
+        delete from del_osplan where so_item_id = #{soItemId}
+    </delete>
+
+    <delete id="deleteDelOsplanByCustomerId" parameterType="Long">
+        delete from del_osplan where customer_id = #{customerId}
+    </delete>
+
+    <delete id="deleteDelOsplanByProjectId" parameterType="Long">
+        delete from del_osplan where project_id = #{projectId}
+    </delete>
+
+    <delete id="deleteDelOsplanBySalesId" parameterType="Long">
+        delete from del_osplan where sales_id = #{salesId}
+    </delete>
+</mapper>

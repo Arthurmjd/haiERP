@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngProductEngineeringMapper">
+
+    <resultMap type="EngProductEngineering" id="EngProductEngineeringResult">
+        <result property="id"    column="id"    />
+        <result property="materialCode"    column="material_code"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialSpec"    column="material_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="customerProductNo"    column="customer_product_no"    />
+        <result property="abroadProductNo"    column="abroad_product_no"    />
+        <result property="status"    column="status"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="baseType"    column="base_type"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantityQualified"    column="quantity_qualified"    />
+        <result property="quantityScraped"    column="quantity_scraped"    />
+        <result property="quantityExpired"    column="quantity_expired"    />
+        <result property="quantityFrozen"    column="quantity_frozen"    />
+        <result property="quantityPending"    column="quantity_pending"    />
+        <result property="quantityBooked"    column="quantity_booked"    />
+        <result property="houseId"    column="house_id"    />
+        <result property="positionId"    column="position_id"    />
+        <result property="priceLast"    column="price_last"    />
+        <result property="purchaseType"    column="purchase_type"    />
+        <result property="consumeType"    column="consume_type"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="rateLoss"    column="rate_loss"    />
+        <result property="daysCycletime"    column="days_cycletime"    />
+        <result property="daysLeadtime"    column="days_leadtime"    />
+        <result property="daysPosttime"    column="days_posttime"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngProductEngineeringVo">
+        select id, material_code, material_name, material_spec, draw_no, customer_product_no, abroad_product_no, status, base_type, category_id, unit_id,
+               quantity_qualified, quantity_scraped, quantity_expired, quantity_frozen, quantity_pending, quantity_booked,
+               house_id, position_id, price_last, purchase_type, consume_type, line_id, rate_loss, days_cycletime, days_leadtime, days_posttime,
+               remark, create_by, create_time, update_by, update_time from eng_material
+    </sql>
+
+    <select id="selectEngProductEngineeringList" parameterType="EngProductEngineering" resultMap="EngProductEngineeringResult">
+        <include refid="selectEngProductEngineeringVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="materialCode != null  and materialCode != ''"> and material_code like concat('%', #{materialCode}, '%')</if>
+            <if test="materialName != null  and materialName != ''"> and material_name like concat('%', #{materialName}, '%')</if>
+            <if test="materialSpec != null  and materialSpec != ''"> and material_spec like concat('%', #{materialSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''"> and abroad_product_no like concat('%', #{abroadProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            and base_type in (1,2,5)
+            <if test="houseId != null "> and house_id = #{houseId}</if>
+            <if test="positionId != null "> and position_id = #{positionId}</if>
+            <if test="consumeType != null  and consumeType != ''"> and consume_type = #{consumeType}</if>
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectEngProductEngineeringById" parameterType="Long" resultMap="EngProductEngineeringResult">
+        <include refid="selectEngProductEngineeringVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngProductEngineeringByCode" parameterType="String" resultMap="EngProductEngineeringResult">
+        <include refid="selectEngProductEngineeringVo"/>
+        where material_code = #{materialCode}
+    </select>
+
+    <select id="selectEngProductEngineeringListByUnitId" parameterType="Long" resultMap="EngProductEngineeringResult">
+        <include refid="selectEngProductEngineeringVo"/>
+        where unit_id = #{unitId}
+    </select>
+
+    <select id="selectEngProductEngineeringListByCategoryId" parameterType="Long" resultMap="EngProductEngineeringResult">
+        <include refid="selectEngProductEngineeringVo"/>
+        where category_id = #{categoryId}
+    </select>
+
+    <select id="selectEngProductEngineeringListByLineId" parameterType="Long" resultMap="EngProductEngineeringResult">
+        <include refid="selectEngProductEngineeringVo"/>
+        where line_id = #{lineId}
+    </select>
+
+    <insert id="insertEngProductEngineering" parameterType="EngProductEngineering" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_material
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="materialCode != null and materialCode != ''">material_code,</if>
+            <if test="materialName != null and materialName != ''">material_name,</if>
+            <if test="materialSpec != null">material_spec,</if>
+            <if test="drawNo != null  and drawNo != ''">draw_no,</if>
+            <if test="customerProductNo != null  and customerProductNo != ''">customer_product_no,</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="baseType != null">base_type,</if>
+            <if test="purchaseType != null">purchase_type,</if>
+            <if test="consumeType != null and consumeType != ''">consume_type,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="rateLoss != null">rate_loss,</if>
+            <if test="daysCycletime != null">days_cycletime,</if>
+            <if test="daysLeadtime != null">days_leadtime,</if>
+            <if test="daysPosttime != null">days_posttime,</if>
+            <if test="status != null">status,</if>
+            <if test="quantityQualified != null">quantity_qualified,</if>
+            <if test="quantityScraped != null">quantity_scraped,</if>
+            <if test="quantityExpired != null">quantity_expired,</if>
+            <if test="quantityFrozen != null">quantity_frozen,</if>
+            <if test="quantityPending != null">quantity_pending,</if>
+            <if test="quantityBooked != null">quantity_booked,</if>
+            <if test="houseId != null">house_id,</if>
+            <if test="positionId != null">position_id,</if>
+            <if test="priceLast != null">price_last,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="materialCode != null and materialCode != ''">#{materialCode},</if>
+            <if test="materialName != null and materialName != ''">#{materialName},</if>
+            <if test="materialSpec != null">#{materialSpec},</if>
+            <if test="drawNo != null  and drawNo != ''">#{drawNo},</if>
+            <if test="customerProductNo != null  and customerProductNo != ''">#{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">#{abroadProductNo},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="baseType != null">#{baseType},</if>
+            <if test="purchaseType != null">#{purchaseType},</if>
+            <if test="consumeType != null and consumeType != ''">#{consumeType},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="rateLoss != null">#{rateLoss},</if>
+            <if test="daysCycletime != null">#{daysCycletime},</if>
+            <if test="daysLeadtime != null">#{daysLeadtime},</if>
+            <if test="daysPosttime != null">#{daysPosttime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="quantityQualified != null">#{quantityQualified},</if>
+            <if test="quantityScraped != null">#{quantityScraped},</if>
+            <if test="quantityExpired != null">#{quantityExpired},</if>
+            <if test="quantityFrozen != null">#{quantityFrozen},</if>
+            <if test="quantityPending != null">#{quantityPending},</if>
+            <if test="quantityBooked != null">#{quantityBooked},</if>
+            <if test="houseId != null">#{houseId},</if>
+            <if test="positionId != null">#{positionId},</if>
+            <if test="priceLast != null">#{priceLast},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngProductEngineering" parameterType="EngProductEngineering">
+        update eng_material
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="materialCode != null and materialCode != ''">material_code = #{materialCode},</if>
+            <if test="materialName != null and materialName != ''">material_name = #{materialName},</if>
+            <if test="materialSpec != null">material_spec = #{materialSpec},</if>
+            <if test="drawNo != null  and drawNo != ''">draw_no=#{drawNo},</if>
+            <if test="customerProductNo != null  and customerProductNo != ''">customer_product_no=#{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no=#{abroadProductNo},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="baseType != null">base_type = #{baseType},</if>
+            <if test="purchaseType != null">purchase_type = #{purchaseType},</if>
+            <if test="consumeType != null and consumeType != ''">consume_type = #{consumeType},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="rateLoss != null">rate_loss = #{rateLoss},</if>
+            <if test="daysCycletime != null">days_cycletime = #{daysCycletime},</if>
+            <if test="daysLeadtime != null">days_leadtime = #{daysLeadtime},</if>
+            <if test="daysPosttime != null">days_posttime = #{daysPosttime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="quantityQualified != null">quantity_qualified = #{quantityQualified},</if>
+            <if test="quantityScraped != null">quantity_scraped = #{quantityScraped},</if>
+            <if test="quantityExpired != null">quantity_expired = #{quantityExpired},</if>
+            <if test="quantityFrozen != null">quantity_frozen = #{quantityFrozen},</if>
+            <if test="quantityPending != null">quantity_pending = #{quantityPending},</if>
+            <if test="quantityBooked != null">quantity_booked = #{quantityBooked},</if>
+            <if test="houseId != null">house_id = #{houseId},</if>
+            <if test="positionId != null">position_id = #{positionId},</if>
+            <if test="priceLast != null">price_last = #{priceLast},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngProductEngineeringById" parameterType="Long">
+        delete from eng_material where id = #{id}
+    </delete>
+
+    <delete id="deleteEngProductEngineeringByIds" parameterType="String">
+        delete from eng_material where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngProductEngineeringByUnitId" parameterType="Long">
+        delete from eng_material where unit_id = #{unitId}
+    </delete>
+
+    <delete id="deleteEngProductEngineeringByCategoryId" parameterType="Long">
+        delete from eng_material where category_id = #{categoryId}
+    </delete>
+
+    <delete id="deleteEngProductEngineeringByLineId" parameterType="Long">
+        delete from eng_material where line_id = #{lineId}
+    </delete>
+</mapper>

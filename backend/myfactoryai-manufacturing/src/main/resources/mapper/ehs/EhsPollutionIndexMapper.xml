@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ehs.mapper.EhsPollutionIndexMapper">
+    
+    <resultMap type="EhsPollutionIndex" id="EhsPollutionIndexResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="status"    column="status"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="limitGreen"    column="limit_green"    />
+        <result property="limitYellow"    column="limit_yellow"    />
+        <result property="limitRed"    column="limit_red"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEhsPollutionIndexVo">
+        select id, name, status, unit_id, limit_green, limit_yellow, limit_red, remark, create_by, create_time, update_by, update_time from ehs_pollution_index
+    </sql>
+
+    <select id="selectEhsPollutionIndexList" parameterType="EhsPollutionIndex" resultMap="EhsPollutionIndexResult">
+        <include refid="selectEhsPollutionIndexVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="limitGreen != null "> and limit_green = #{limitGreen}</if>
+            <if test="limitYellow != null "> and limit_yellow = #{limitYellow}</if>
+            <if test="limitRed != null "> and limit_red = #{limitRed}</if>
+        </where>
+    </select>
+    
+    <select id="selectEhsPollutionIndexById" parameterType="Long" resultMap="EhsPollutionIndexResult">
+        <include refid="selectEhsPollutionIndexVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEhsPollutionIndexListByUnitId" parameterType="Long" resultMap="EhsPollutionIndexResult">
+        <include refid="selectEhsPollutionIndexVo"/>
+        where unit_id = #{unitId}
+    </select>
+        
+    <insert id="insertEhsPollutionIndex" parameterType="EhsPollutionIndex" useGeneratedKeys="true" keyProperty="id">
+        insert into ehs_pollution_index
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">name,</if>
+            <if test="status != null">status,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="limitGreen != null">limit_green,</if>
+            <if test="limitYellow != null">limit_yellow,</if>
+            <if test="limitRed != null">limit_red,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="status != null">#{status},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="limitGreen != null">#{limitGreen},</if>
+            <if test="limitYellow != null">#{limitYellow},</if>
+            <if test="limitRed != null">#{limitRed},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEhsPollutionIndex" parameterType="EhsPollutionIndex">
+        update ehs_pollution_index
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="limitGreen != null">limit_green = #{limitGreen},</if>
+            <if test="limitYellow != null">limit_yellow = #{limitYellow},</if>
+            <if test="limitRed != null">limit_red = #{limitRed},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEhsPollutionIndexById" parameterType="Long">
+        delete from ehs_pollution_index where id = #{id}
+    </delete>
+
+    <delete id="deleteEhsPollutionIndexByIds" parameterType="String">
+        delete from ehs_pollution_index where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEhsPollutionIndexByUnitId" parameterType="Long">
+        delete from ehs_pollution_index where unit_id = #{unitId}
+    </delete>
+</mapper>

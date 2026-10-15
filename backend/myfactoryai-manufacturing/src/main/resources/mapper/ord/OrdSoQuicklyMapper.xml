@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ord.mapper.OrdSoQuicklyMapper">
+    
+    <resultMap type="OrdSoQuickly" id="OrdSoQuicklyResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="price"    column="price"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="invoicePatternId"    column="invoice_pattern_id"    />
+        <result property="contractNo"    column="contract_no"    />
+        <result property="orderDay"    column="order_day"    />
+        <result property="salesId"    column="sales_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectOrdSoQuicklyVo">
+        select id, bill_no, status, customer_id, product_id, product_name, product_spec, unit_id, price, quantity, invoice_pattern_id, contract_no, order_day, sales_id, remark, create_by, create_time, update_by, update_time from ord_so_quickly
+    </sql>
+
+    <select id="selectOrdSoQuicklyList" parameterType="OrdSoQuickly" resultMap="OrdSoQuicklyResult">
+        <include refid="selectOrdSoQuicklyVo"/>
+        <where>
+            and status in (0,4,8,9,13)
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="contractNo != null  and contractNo != ''"> and contract_no like concat('%', #{contractNo}, '%')</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectOrdSoQuicklyById" parameterType="Long" resultMap="OrdSoQuicklyResult">
+        <include refid="selectOrdSoQuicklyVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectOrdSoQuicklyListByCustomerId" parameterType="Long" resultMap="OrdSoQuicklyResult">
+        <include refid="selectOrdSoQuicklyVo"/>
+        where customer_id = #{customerId}
+    </select>
+
+    <select id="selectOrdSoQuicklyListByProductId" parameterType="Long" resultMap="OrdSoQuicklyResult">
+        <include refid="selectOrdSoQuicklyVo"/>
+        where product_id = #{productId}
+    </select>
+
+    <select id="selectOrdSoQuicklyListByInvoicePatternId" parameterType="Long" resultMap="OrdSoQuicklyResult">
+        <include refid="selectOrdSoQuicklyVo"/>
+        where invoice_pattern_id = #{invoicePatternId}
+    </select>
+
+    <select id="selectOrdSoQuicklyListBySalesId" parameterType="Long" resultMap="OrdSoQuicklyResult">
+        <include refid="selectOrdSoQuicklyVo"/>
+        where sales_id = #{salesId}
+    </select>
+        
+    <insert id="insertOrdSoQuickly" parameterType="OrdSoQuickly" useGeneratedKeys="true" keyProperty="id">
+        insert into ord_so_quickly
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="price != null">price,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="invoicePatternId != null">invoice_pattern_id,</if>
+            <if test="contractNo != null">contract_no,</if>
+            <if test="orderDay != null">order_day,</if>
+            <if test="salesId != null">sales_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="price != null">#{price},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="invoicePatternId != null">#{invoicePatternId},</if>
+            <if test="contractNo != null">#{contractNo},</if>
+            <if test="orderDay != null">#{orderDay},</if>
+            <if test="salesId != null">#{salesId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateOrdSoQuickly" parameterType="OrdSoQuickly">
+        update ord_so_quickly
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="invoicePatternId != null">invoice_pattern_id = #{invoicePatternId},</if>
+            <if test="contractNo != null">contract_no = #{contractNo},</if>
+            <if test="orderDay != null">order_day = #{orderDay},</if>
+            <if test="salesId != null">sales_id = #{salesId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOrdSoQuicklyById" parameterType="Long">
+        delete from ord_so_quickly where id = #{id}
+    </delete>
+
+    <delete id="deleteOrdSoQuicklyByIds" parameterType="String">
+        delete from ord_so_quickly where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteOrdSoQuicklyByCustomerId" parameterType="Long">
+        delete from ord_so_quickly where customer_id = #{customerId}
+    </delete>
+
+    <delete id="deleteOrdSoQuicklyByProductId" parameterType="Long">
+        delete from ord_so_quickly where product_id = #{productId}
+    </delete>
+
+    <delete id="deleteOrdSoQuicklyByInvoicePatternId" parameterType="Long">
+        delete from ord_so_quickly where invoice_pattern_id = #{invoicePatternId}
+    </delete>
+
+    <delete id="deleteOrdSoQuicklyBySalesId" parameterType="Long">
+        delete from ord_so_quickly where sales_id = #{salesId}
+    </delete>
+</mapper>

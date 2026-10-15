@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.pln.mapper.PlnWoRoutingMapper">
+    
+    <resultMap type="PlnWoRouting" id="PlnWoRoutingResult">
+        <result property="id"    column="id"    />
+        <result property="woId"    column="wo_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="processId"    column="process_id"    />
+        <result property="lastSeqNo"    column="last_seq_no"    />
+        <result property="nextSeqNo"    column="next_seq_no"    />
+        <result property="secondsFixed"    column="seconds_fixed"    />
+        <result property="secondsVariable"    column="seconds_variable"    />
+        <result property="secondsRm"    column="seconds_rm"    />
+        <result property="secondsSetup"    column="seconds_setup"    />
+        <result property="secondsStacking"    column="seconds_stacking"    />
+        <result property="secondsTransfer"    column="seconds_transfer"    />
+        <result property="secondsBuffer"    column="seconds_buffer"    />
+        <result property="lineType"    column="line_type"    />
+        <result property="processType"    column="process_type"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectPlnWoRoutingVo">
+        select id, wo_id, seq_no, line_id, process_id, last_seq_no, next_seq_no, seconds_fixed, seconds_variable, seconds_rm, seconds_setup, seconds_stacking, seconds_transfer, seconds_buffer, line_type, process_type, remark, create_by, create_time, update_by, update_time from pln_wo_routing
+    </sql>
+
+    <select id="selectPlnWoRoutingList" parameterType="PlnWoRouting" resultMap="PlnWoRoutingResult">
+        <include refid="selectPlnWoRoutingVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="woId != null "> and wo_id = #{woId}</if>
+            <if test="seqNo != null "> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+            <if test="processId != null "> and process_id = #{processId}</if>
+            <if test="lastSeqNo != null "> and last_seq_no like concat('%', #{lastSeqNo}, '%')</if>
+            <if test="nextSeqNo != null "> and next_seq_no like concat('%', #{nextSeqNo}, '%')</if>
+            <if test="secondsFixed != null "> and seconds_fixed = #{secondsFixed}</if>
+            <if test="secondsVariable != null "> and seconds_variable = #{secondsVariable}</if>
+            <if test="secondsRm != null "> and seconds_rm = #{secondsRm}</if>
+            <if test="secondsSetup != null "> and seconds_setup = #{secondsSetup}</if>
+            <if test="secondsStacking != null "> and seconds_stacking = #{secondsStacking}</if>
+            <if test="secondsTransfer != null "> and seconds_transfer = #{secondsTransfer}</if>
+            <if test="secondsBuffer != null "> and seconds_buffer = #{secondsBuffer}</if>
+            <if test="lineType != null "> and line_type = #{lineType}</if>
+            <if test="processType != null "> and process_type = #{processType}</if>
+        </where>
+    </select>
+    
+    <select id="selectPlnWoRoutingById" parameterType="Long" resultMap="PlnWoRoutingResult">
+        <include refid="selectPlnWoRoutingVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectPlnWoRoutingListByWoId" parameterType="Long" resultMap="PlnWoRoutingResult">
+        <include refid="selectPlnWoRoutingVo"/>
+        where wo_id = #{woId}
+    </select>
+
+    <select id="selectPlnWoRoutingFirstByWoId" parameterType="Long" resultMap="PlnWoRoutingResult">
+        <include refid="selectPlnWoRoutingVo"/>
+        where wo_id = #{woId}
+        order by seq_no
+        limit 1
+    </select>
+
+    <select id="selectPlnWoRoutingListByLineId" parameterType="Long" resultMap="PlnWoRoutingResult">
+        <include refid="selectPlnWoRoutingVo"/>
+        where line_id = #{lineId}
+    </select>
+
+    <select id="selectPlnWoRoutingListByProcessId" parameterType="Long" resultMap="PlnWoRoutingResult">
+        <include refid="selectPlnWoRoutingVo"/>
+        where process_id = #{processId}
+    </select>
+        
+    <insert id="insertPlnWoRouting" parameterType="PlnWoRouting" useGeneratedKeys="true" keyProperty="id">
+        insert into pln_wo_routing
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="woId != null">wo_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="processId != null">process_id,</if>
+            <if test="lastSeqNo != null">last_seq_no,</if>
+            <if test="nextSeqNo != null">next_seq_no,</if>
+            <if test="secondsFixed != null">seconds_fixed,</if>
+            <if test="secondsVariable != null">seconds_variable,</if>
+            <if test="secondsRm != null">seconds_rm,</if>
+            <if test="secondsSetup != null">seconds_setup,</if>
+            <if test="secondsStacking != null">seconds_stacking,</if>
+            <if test="secondsTransfer != null">seconds_transfer,</if>
+            <if test="secondsBuffer != null">seconds_buffer,</if>
+            <if test="lineType != null">line_type,</if>
+            <if test="processType != null">process_type,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="woId != null">#{woId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="processId != null">#{processId},</if>
+            <if test="lastSeqNo != null">#{lastSeqNo},</if>
+            <if test="nextSeqNo != null">#{nextSeqNo},</if>
+            <if test="secondsFixed != null">#{secondsFixed},</if>
+            <if test="secondsVariable != null">#{secondsVariable},</if>
+            <if test="secondsRm != null">#{secondsRm},</if>
+            <if test="secondsSetup != null">#{secondsSetup},</if>
+            <if test="secondsStacking != null">#{secondsStacking},</if>
+            <if test="secondsTransfer != null">#{secondsTransfer},</if>
+            <if test="secondsBuffer != null">#{secondsBuffer},</if>
+            <if test="lineType != null">#{lineType},</if>
+            <if test="processType != null">#{processType},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePlnWoRouting" parameterType="PlnWoRouting">
+        update pln_wo_routing
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="woId != null">wo_id = #{woId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="processId != null">process_id = #{processId},</if>
+            <if test="lastSeqNo != null">last_seq_no = #{lastSeqNo},</if>
+            <if test="nextSeqNo != null">next_seq_no = #{nextSeqNo},</if>
+            <if test="secondsFixed != null">seconds_fixed = #{secondsFixed},</if>
+            <if test="secondsVariable != null">seconds_variable = #{secondsVariable},</if>
+            <if test="secondsRm != null">seconds_rm = #{secondsRm},</if>
+            <if test="secondsSetup != null">seconds_setup = #{secondsSetup},</if>
+            <if test="secondsStacking != null">seconds_stacking = #{secondsStacking},</if>
+            <if test="secondsTransfer != null">seconds_transfer = #{secondsTransfer},</if>
+            <if test="secondsBuffer != null">seconds_buffer = #{secondsBuffer},</if>
+            <if test="lineType != null">line_type = #{lineType},</if>
+            <if test="processType != null">process_type = #{processType},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePlnWoRoutingById" parameterType="Long">
+        delete from pln_wo_routing where id = #{id}
+    </delete>
+
+    <delete id="deletePlnWoRoutingByIds" parameterType="String">
+        delete from pln_wo_routing where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deletePlnWoRoutingByWoId" parameterType="Long">
+        delete from pln_wo_routing where wo_id = #{woId}
+    </delete>
+
+    <delete id="deletePlnWoRoutingByLineId" parameterType="Long">
+        delete from pln_wo_routing where line_id = #{lineId}
+    </delete>
+
+    <delete id="deletePlnWoRoutingByProcessId" parameterType="Long">
+        delete from pln_wo_routing where process_id = #{processId}
+    </delete>
+</mapper>

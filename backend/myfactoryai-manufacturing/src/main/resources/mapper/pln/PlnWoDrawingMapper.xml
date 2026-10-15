@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.pln.mapper.PlnWoDrawingMapper">
+    
+    <resultMap type="PlnWoDrawing" id="PlnWoDrawingResult">
+        <result property="id"    column="id"    />
+        <result property="woId"    column="wo_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="description"    column="description"    />
+        <result property="drawingUrl"    column="drawing_url"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectPlnWoDrawingVo">
+        select id, wo_id, seq_no, description, drawing_url, remark, create_by, create_time, update_by, update_time from pln_wo_drawing
+    </sql>
+
+    <select id="selectPlnWoDrawingList" parameterType="PlnWoDrawing" resultMap="PlnWoDrawingResult">
+        <include refid="selectPlnWoDrawingVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="woId != null "> and wo_id = #{woId}</if>
+            <if test="seqNo != null "> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="drawingUrl != null  and drawingUrl != ''"> and drawing_url = #{drawingUrl}</if>
+        </where>
+    </select>
+    
+    <select id="selectPlnWoDrawingById" parameterType="Long" resultMap="PlnWoDrawingResult">
+        <include refid="selectPlnWoDrawingVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectPlnWoDrawingListByWoId" parameterType="Long" resultMap="PlnWoDrawingResult">
+        <include refid="selectPlnWoDrawingVo"/>
+        where wo_id = #{woId}
+    </select>
+        
+    <insert id="insertPlnWoDrawing" parameterType="PlnWoDrawing" useGeneratedKeys="true" keyProperty="id">
+        insert into pln_wo_drawing
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="woId != null">wo_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="description != null and description != ''">description,</if>
+            <if test="drawingUrl != null and drawingUrl != ''">drawing_url,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="woId != null">#{woId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="description != null and description != ''">#{description},</if>
+            <if test="drawingUrl != null and drawingUrl != ''">#{drawingUrl},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePlnWoDrawing" parameterType="PlnWoDrawing">
+        update pln_wo_drawing
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="woId != null">wo_id = #{woId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
+            <if test="drawingUrl != null and drawingUrl != ''">drawing_url = #{drawingUrl},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePlnWoDrawingById" parameterType="Long">
+        delete from pln_wo_drawing where id = #{id}
+    </delete>
+
+    <delete id="deletePlnWoDrawingByIds" parameterType="String">
+        delete from pln_wo_drawing where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deletePlnWoDrawingByWoId" parameterType="Long">
+        delete from pln_wo_drawing where wo_id = #{woId}
+    </delete>
+</mapper>

@@ -1,0 +1,77 @@
+package net.factoryopen.myfactoryai.manufacturing.ehs.mapper;
+
+import java.util.List;
+import net.factoryopen.myfactoryai.manufacturing.ehs.domain.EhsPollutionIndex;
+
+/**
+ * 污染排放指标Mapper接口
+ * 
+ * @author admin
+ * @date 2024-07-04
+ */
+public interface EhsPollutionIndexMapper 
+{
+    /**
+     * 查询污染排放指标
+     * 
+     * @param id 污染排放指标主键
+     * @return 污染排放指标
+     */
+    public EhsPollutionIndex selectEhsPollutionIndexById(Long id);
+
+    /**
+     * 查询污染排放指标列表
+     * 
+     * @param ehsPollutionIndex 污染排放指标
+     * @return 污染排放指标集合
+     */
+    public List<EhsPollutionIndex> selectEhsPollutionIndexList(EhsPollutionIndex ehsPollutionIndex);
+
+    /**
+     * 查询污染排放指标列表
+     *
+     * @param unitId 单位
+     * @return 污染排放指标集合
+     */
+    public List<EhsPollutionIndex> selectEhsPollutionIndexListByUnitId(Long unitId);
+
+    /**
+     * 新增污染排放指标
+     * 
+     * @param ehsPollutionIndex 污染排放指标
+     * @return 结果
+     */
+    public int insertEhsPollutionIndex(EhsPollutionIndex ehsPollutionIndex);
+
+    /**
+     * 修改污染排放指标
+     * 
+     * @param ehsPollutionIndex 污染排放指标
+     * @return 结果
+     */
+    public int updateEhsPollutionIndex(EhsPollutionIndex ehsPollutionIndex);
+
+    /**
+     * 删除污染排放指标
+     * 
+     * @param id 污染排放指标主键
+     * @return 结果
+     */
+    public int deleteEhsPollutionIndexById(Long id);
+
+    /**
+     * 批量删除污染排放指标
+     * 
+     * @param ids 需要删除的数据主键集合
+     * @return 结果
+     */
+    public int deleteEhsPollutionIndexByIds(Long[] ids);
+
+    /**
+     * 查询污染排放指标列表
+     *
+     * @param unitId 单位
+     * @return 污染排放指标集合
+     */
+    public int deleteEhsPollutionIndexByUnitId(Long unitId);
+}

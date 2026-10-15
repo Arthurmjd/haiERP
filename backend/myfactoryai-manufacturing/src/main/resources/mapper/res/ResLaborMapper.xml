@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.res.mapper.ResLaborMapper">
+    
+    <resultMap type="ResLabor" id="ResLaborResult">
+        <result property="id"    column="id"    />
+        <result property="workgroupId"    column="workgroup_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectResLaborVo">
+        select id, workgroup_id, user_id, remark, create_by, create_time, update_by, update_time from res_labor
+    </sql>
+
+    <select id="selectResLaborList" parameterType="ResLabor" resultMap="ResLaborResult">
+        <include refid="selectResLaborVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="workgroupId != null "> and workgroup_id = #{workgroupId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+        </where>
+    </select>
+    
+    <select id="selectResLaborById" parameterType="Long" resultMap="ResLaborResult">
+        <include refid="selectResLaborVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectResLaborListByWorkgroupId" parameterType="Long" resultMap="ResLaborResult">
+        <include refid="selectResLaborVo"/>
+        where workgroup_id = #{workgroupId}
+    </select>
+
+    <select id="selectResLaborListByUserId" parameterType="Long" resultMap="ResLaborResult">
+        <include refid="selectResLaborVo"/>
+        where user_id = #{userId}
+    </select>
+        
+    <insert id="insertResLabor" parameterType="ResLabor" useGeneratedKeys="true" keyProperty="id">
+        insert into res_labor
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="workgroupId != null">workgroup_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="workgroupId != null">#{workgroupId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateResLabor" parameterType="ResLabor">
+        update res_labor
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="workgroupId != null">workgroup_id = #{workgroupId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteResLaborById" parameterType="Long">
+        delete from res_labor where id = #{id}
+    </delete>
+
+    <delete id="deleteResLaborByIds" parameterType="String">
+        delete from res_labor where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteResLaborByWorkgroupId" parameterType="Long">
+        delete from res_labor where workgroup_id = #{workgroupId}
+    </delete>
+
+    <delete id="deleteResLaborByUserId" parameterType="Long">
+        delete from res_labor where user_id = #{userId}
+    </delete>
+</mapper>

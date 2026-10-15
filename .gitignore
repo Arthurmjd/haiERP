@@ -1,0 +1,20 @@
+/.idea/
+/.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+/backend/**/target/
+/backend/**/logs/
+/backend/logs/
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.vite/
+
+# Historical reference dump; the demo uses the other SQL files.
+/sql/myfactoryai-free.sql
+
+*.log
+.env
+.env.*
+!.env.example

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.sup.mapper.SupBuyersMapper">
+    
+    <resultMap type="SupBuyers" id="SupBuyersResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="status"    column="status"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSupBuyersVo">
+        select id, user_id, status, dept_id, remark, create_by, create_time, update_by, update_time from sup_buyers
+    </sql>
+
+    <select id="selectSupBuyersList" parameterType="SupBuyers" resultMap="SupBuyersResult">
+        <include refid="selectSupBuyersVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+    </select>
+    
+    <select id="selectSupBuyersById" parameterType="Long" resultMap="SupBuyersResult">
+        <include refid="selectSupBuyersVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSupBuyersListByUserId" parameterType="Long" resultMap="SupBuyersResult">
+        <include refid="selectSupBuyersVo"/>
+        where user_id = #{userId}
+    </select>
+        
+    <insert id="insertSupBuyers" parameterType="SupBuyers" useGeneratedKeys="true" keyProperty="id">
+        insert into sup_buyers
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="status != null">status,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSupBuyers" parameterType="SupBuyers">
+        update sup_buyers
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSupBuyersById" parameterType="Long">
+        delete from sup_buyers where id = #{id}
+    </delete>
+
+    <delete id="deleteSupBuyersByIds" parameterType="String">
+        delete from sup_buyers where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSupBuyersByUserId" parameterType="Long">
+        delete from sup_buyers where user_id = #{userId}
+    </delete>
+</mapper>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.idx.mapper.HomQcdMapper">
+
+    <resultMap type="HomQcd" id="HomQcdResult">
+        <result property="id" column="id"/>
+        <result property="yield" column="yield"/>
+        <result property="fpy" column="fpy"/>
+        <result property="inventoryMoney" column="inventory_money"/>
+        <result property="lotCount" column="lot_count"/>
+        <result property="completionRate" column="completion_rate"/>
+        <result property="cycleTime" column="cycle_time"/>
+    </resultMap>
+
+    <sql id="selectHomQcdVo">
+        select id, yield, fpy, inventory_money, lot_count, completion_rate, cycle_time from hom_qcd
+    </sql>
+
+    <select id="selectHomQcdList" parameterType="HomQcd" resultMap="HomQcdResult">
+        <include refid="selectHomQcdVo"/>
+        <where>
+            <if test="yield != null ">and yield = #{yield}</if>
+            <if test="fpy != null ">and fpy = #{fpy}</if>
+            <if test="inventoryMoney != null ">and inventory_money = #{inventoryMoney}</if>
+            <if test="lotCount != null ">and lot_count = #{lotCount}</if>
+            <if test="completionRate != null ">and completion_rate = #{completionRate}</if>
+            <if test="cycleTime != null ">and cycle_time = #{cycleTime}</if>
+        </where>
+    </select>
+
+    <select id="selectHomQcdById" parameterType="Long" resultMap="HomQcdResult">
+        <include refid="selectHomQcdVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertHomQcd" parameterType="HomQcd">
+        insert into hom_qcd
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="yield != null">yield,</if>
+            <if test="fpy != null">fpy,</if>
+            <if test="inventoryMoney != null">inventory_money,</if>
+            <if test="lotCount != null">lot_count,</if>
+            <if test="completionRate != null">completion_rate,</if>
+            <if test="cycleTime != null">cycle_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="yield != null">#{yield},</if>
+            <if test="fpy != null">#{fpy},</if>
+            <if test="inventoryMoney != null">#{inventoryMoney},</if>
+            <if test="lotCount != null">#{lotCount},</if>
+            <if test="completionRate != null">#{completionRate},</if>
+            <if test="cycleTime != null">#{cycleTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateHomQcd" parameterType="HomQcd">
+        update hom_qcd
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="yield != null">yield = #{yield},</if>
+            <if test="fpy != null">fpy = #{fpy},</if>
+            <if test="inventoryMoney != null">inventory_money = #{inventoryMoney},</if>
+            <if test="lotCount != null">lot_count = #{lotCount},</if>
+            <if test="completionRate != null">completion_rate = #{completionRate},</if>
+            <if test="cycleTime != null">cycle_time = #{cycleTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteHomQcdById" parameterType="Long">
+        delete from hom_qcd where id = #{id}
+    </delete>
+
+    <delete id="deleteHomQcdByIds" parameterType="String">
+        delete from hom_qcd where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

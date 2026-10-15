@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.del.mapper.DelSupplierAddressMapper">
+    
+    <resultMap type="DelSupplierAddress" id="DelSupplierAddressResult">
+        <result property="id"    column="id"    />
+        <result property="supplierId"    column="supplier_id"    />
+        <result property="address"    column="address"    />
+        <result property="contact"    column="contact"    />
+        <result property="phone"    column="phone"    />
+        <result property="Longitude"    column="Longitude"    />
+        <result property="latitude"    column="latitude"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectDelSupplierAddressVo">
+        select id, supplier_id, address, contact, phone, Longitude, latitude, remark, create_by, create_time, update_by, update_time from del_supplier_address
+    </sql>
+
+    <select id="selectDelSupplierAddressList" parameterType="DelSupplierAddress" resultMap="DelSupplierAddressResult">
+        <include refid="selectDelSupplierAddressVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="Longitude != null "> and Longitude = #{Longitude}</if>
+            <if test="latitude != null "> and latitude = #{latitude}</if>
+        </where>
+    </select>
+    
+    <select id="selectDelSupplierAddressById" parameterType="Long" resultMap="DelSupplierAddressResult">
+        <include refid="selectDelSupplierAddressVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectDelSupplierAddressListBySupplierId" parameterType="Long" resultMap="DelSupplierAddressResult">
+        <include refid="selectDelSupplierAddressVo"/>
+        where supplier_id = #{supplierId}
+    </select>
+        
+    <insert id="insertDelSupplierAddress" parameterType="DelSupplierAddress" useGeneratedKeys="true" keyProperty="id">
+        insert into del_supplier_address
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="supplierId != null">supplier_id,</if>
+            <if test="address != null">address,</if>
+            <if test="contact != null">contact,</if>
+            <if test="phone != null">phone,</if>
+            <if test="Longitude != null">Longitude,</if>
+            <if test="latitude != null">latitude,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="supplierId != null">#{supplierId},</if>
+            <if test="address != null">#{address},</if>
+            <if test="contact != null">#{contact},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="Longitude != null">#{Longitude},</if>
+            <if test="latitude != null">#{latitude},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDelSupplierAddress" parameterType="DelSupplierAddress">
+        update del_supplier_address
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="contact != null">contact = #{contact},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="Longitude != null">Longitude = #{Longitude},</if>
+            <if test="latitude != null">latitude = #{latitude},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDelSupplierAddressById" parameterType="Long">
+        delete from del_supplier_address where id = #{id}
+    </delete>
+
+    <delete id="deleteDelSupplierAddressByIds" parameterType="String">
+        delete from del_supplier_address where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteDelSupplierAddressBySupplierId" parameterType="Long">
+        delete from del_supplier_address where supplier_id = #{supplierId}
+    </delete>
+</mapper>

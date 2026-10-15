@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.sup.mapper.SupPoMapper">
+    
+    <resultMap type="SupPo" id="SupPoResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="purchasingType"    column="purchasing_type"    />
+        <result property="supplierId"    column="supplier_id"    />
+        <result property="amountUntaxed"    column="amount_untaxed"    />
+        <result property="amountTaxed"    column="amount_taxed"    />
+        <result property="invoicePatternId"    column="invoice_pattern_id"    />
+        <result property="payPatternId"    column="pay_pattern_id"    />
+        <result property="currencyId"    column="currency_id"    />
+        <result property="shipmentTypeId"    column="shipment_type_id"    />
+        <result property="exchangeRate"    column="exchange_rate"    />
+        <result property="orderDay"    column="order_day"    />
+        <result property="contactId"    column="contact_id"    />
+        <result property="buyerId"    column="buyer_id"    />
+        <result property="buyerDeptId"    column="buyer_dept_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSupPoVo">
+        select id, bill_no, status, purchasing_type, supplier_id,
+               amount_untaxed, amount_taxed, invoice_pattern_id, pay_pattern_id, currency_id, shipment_type_id, exchange_rate, order_day, contact_id, buyer_id, buyer_dept_id,
+               remark, create_by, create_time, update_by, update_time
+        from sup_po
+    </sql>
+
+    <select id="selectSupPoList" parameterType="SupPo" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+             and status in (0,3,4,5,6,7,8,9,10,11,12,13)
+            <if test="purchasingType != null "> and purchasing_type = #{purchasingType}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="buyerId != null "> and buyer_id = #{buyerId}</if>
+            <if test="buyerDeptId != null "> and buyer_dept_id = #{buyerDeptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectSupPoDraftList" parameterType="SupPo" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+             and status =0
+            <if test="purchasingType != null "> and purchasing_type = #{purchasingType}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="buyerId != null "> and buyer_id = #{buyerId}</if>
+            <if test="buyerDeptId != null "> and buyer_dept_id = #{buyerDeptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectSupPoPublishingList" parameterType="SupPo" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+             and status in (0,1,2,3,4)
+            <if test="purchasingType != null "> and purchasing_type = #{purchasingType}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="buyerId != null "> and buyer_id = #{buyerId}</if>
+            <if test="buyerDeptId != null "> and buyer_dept_id = #{buyerDeptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectSupPoProcessingList" parameterType="SupPo" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+             and status in (5,6,7,8,9,10,11,12,13)
+            <if test="purchasingType != null "> and purchasing_type = #{purchasingType}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="buyerId != null "> and buyer_id = #{buyerId}</if>
+            <if test="buyerDeptId != null "> and buyer_dept_id = #{buyerDeptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectSupPoFinishingList" parameterType="SupPo" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+             and status =16
+            <if test="purchasingType != null "> and purchasing_type = #{purchasingType}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="buyerId != null "> and buyer_id = #{buyerId}</if>
+            <if test="buyerDeptId != null "> and buyer_dept_id = #{buyerDeptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectSupPoHistoryList" parameterType="SupPo" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+             and status in (14,15,17,18)
+            <if test="purchasingType != null "> and purchasing_type = #{purchasingType}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="buyerId != null "> and buyer_id = #{buyerId}</if>
+            <if test="buyerDeptId != null "> and buyer_dept_id = #{buyerDeptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectSupPoAllList" parameterType="SupPo" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            <if test="purchasingType != null "> and purchasing_type = #{purchasingType}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="buyerId != null "> and buyer_id = #{buyerId}</if>
+            <if test="buyerDeptId != null "> and buyer_dept_id = #{buyerDeptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectSupPoById" parameterType="Long" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSupPoListBySupplierId" parameterType="Long" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        where supplier_id = #{supplierId}
+    </select>
+
+    <select id="selectSupPoListByInvoicePatternId" parameterType="Long" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        where invoice_pattern_id = #{invoicePatternId}
+    </select>
+
+    <select id="selectSupPoListByPayPatternId" parameterType="Long" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        where pay_pattern_id = #{payPatternId}
+    </select>
+
+    <select id="selectSupPoListByCurrencyId" parameterType="Long" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        where currency_id = #{currencyId}
+    </select>
+
+    <select id="selectSupPoListByShipmentTypeId" parameterType="Long" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        where shipment_type_id = #{shipmentTypeId}
+    </select>
+
+    <select id="selectSupPoListByContactId" parameterType="Long" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        where contact_id = #{contactId}
+    </select>
+
+    <select id="selectSupPoListByBuyerId" parameterType="Long" resultMap="SupPoResult">
+        <include refid="selectSupPoVo"/>
+        where buyer_id = #{buyerId}
+    </select>
+        
+    <insert id="insertSupPo" parameterType="SupPo" useGeneratedKeys="true" keyProperty="id">
+        insert into sup_po
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="purchasingType != null">purchasing_type,</if>
+            <if test="supplierId != null">supplier_id,</if>
+            <if test="amountUntaxed != null">amount_untaxed,</if>
+            <if test="amountTaxed != null">amount_taxed,</if>
+            <if test="invoicePatternId != null">invoice_pattern_id,</if>
+            <if test="payPatternId != null">pay_pattern_id,</if>
+            <if test="currencyId != null">currency_id,</if>
+            <if test="shipmentTypeId != null">shipment_type_id,</if>
+            <if test="exchangeRate != null">exchange_rate,</if>
+            <if test="orderDay != null">order_day,</if>
+            <if test="contactId != null">contact_id,</if>
+            <if test="buyerId != null">buyer_id,</if>
+            <if test="buyerDeptId != null">buyer_dept_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="purchasingType != null">#{purchasingType},</if>
+            <if test="supplierId != null">#{supplierId},</if>
+            <if test="amountUntaxed != null">#{amountUntaxed},</if>
+            <if test="amountTaxed != null">#{amountTaxed},</if>
+            <if test="invoicePatternId != null">#{invoicePatternId},</if>
+            <if test="payPatternId != null">#{payPatternId},</if>
+            <if test="currencyId != null">#{currencyId},</if>
+            <if test="shipmentTypeId != null">#{shipmentTypeId},</if>
+            <if test="exchangeRate != null">#{exchangeRate},</if>
+            <if test="orderDay != null">#{orderDay},</if>
+            <if test="contactId != null">#{contactId},</if>
+            <if test="buyerId != null">#{buyerId},</if>
+            <if test="buyerDeptId != null">#{buyerDeptId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSupPo" parameterType="SupPo">
+        update sup_po
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="purchasingType != null">purchasing_type = #{purchasingType},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="amountUntaxed != null">amount_untaxed = #{amountUntaxed},</if>
+            <if test="amountTaxed != null">amount_taxed = #{amountTaxed},</if>
+            <if test="invoicePatternId != null">invoice_pattern_id = #{invoicePatternId},</if>
+            <if test="payPatternId != null">pay_pattern_id = #{payPatternId},</if>
+            <if test="currencyId != null">currency_id = #{currencyId},</if>
+            <if test="shipmentTypeId != null">shipment_type_id = #{shipmentTypeId},</if>
+            <if test="exchangeRate != null">exchange_rate = #{exchangeRate},</if>
+            <if test="orderDay != null">order_day = #{orderDay},</if>
+            <if test="contactId != null">contact_id = #{contactId},</if>
+            <if test="buyerId != null">buyer_id = #{buyerId},</if>
+            <if test="buyerDeptId != null">buyer_dept_id = #{buyerDeptId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSupPoById" parameterType="Long">
+        delete from sup_po where id = #{id}
+    </delete>
+
+    <delete id="deleteSupPoByIds" parameterType="String">
+        delete from sup_po where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSupPoBySupplierId" parameterType="Long">
+        delete from sup_po where supplier_id = #{supplierId}
+    </delete>
+
+    <delete id="deleteSupPoByInvoicePatternId" parameterType="Long">
+        delete from sup_po where invoice_pattern_id = #{invoicePatternId}
+    </delete>
+
+    <delete id="deleteSupPoByPayPatternId" parameterType="Long">
+        delete from sup_po where pay_pattern_id = #{payPatternId}
+    </delete>
+
+    <delete id="deleteSupPoByCurrencyId" parameterType="Long">
+        delete from sup_po where currency_id = #{currencyId}
+    </delete>
+
+    <delete id="deleteSupPoByShipmentTypeId" parameterType="Long">
+        delete from sup_po where shipment_type_id = #{shipmentTypeId}
+    </delete>
+
+    <delete id="deleteSupPoByContactId" parameterType="Long">
+        delete from sup_po where contact_id = #{contactId}
+    </delete>
+
+    <delete id="deleteSupPoByBuyerId" parameterType="Long">
+        delete from sup_po where buyer_id = #{buyerId}
+    </delete>
+</mapper>

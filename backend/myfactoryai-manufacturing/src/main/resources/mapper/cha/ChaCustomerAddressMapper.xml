@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.cha.mapper.ChaCustomerAddressMapper">
+    
+    <resultMap type="ChaCustomerAddress" id="ChaCustomerAddressResult">
+        <result property="id"    column="id"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="address"    column="address"    />
+        <result property="contact"    column="contact"    />
+        <result property="phone"    column="phone"    />
+        <result property="Longitude"    column="Longitude"    />
+        <result property="latitude"    column="latitude"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectChaCustomerAddressVo">
+        select id, customer_id, address, contact, phone, Longitude, latitude, remark, create_by, create_time, update_by, update_time from cha_customer_address
+    </sql>
+
+    <select id="selectChaCustomerAddressList" parameterType="ChaCustomerAddress" resultMap="ChaCustomerAddressResult">
+        <include refid="selectChaCustomerAddressVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="Longitude != null "> and Longitude = #{Longitude}</if>
+            <if test="latitude != null "> and latitude = #{latitude}</if>
+        </where>
+    </select>
+    
+    <select id="selectChaCustomerAddressById" parameterType="Long" resultMap="ChaCustomerAddressResult">
+        <include refid="selectChaCustomerAddressVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectChaCustomerAddressListByCustomerId" parameterType="Long" resultMap="ChaCustomerAddressResult">
+        <include refid="selectChaCustomerAddressVo"/>
+        where customer_id = #{customerId}
+    </select>
+        
+    <insert id="insertChaCustomerAddress" parameterType="ChaCustomerAddress" useGeneratedKeys="true" keyProperty="id">
+        insert into cha_customer_address
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customerId != null">customer_id,</if>
+            <if test="address != null">address,</if>
+            <if test="contact != null">contact,</if>
+            <if test="phone != null">phone,</if>
+            <if test="Longitude != null">Longitude,</if>
+            <if test="latitude != null">latitude,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerId != null">#{customerId},</if>
+            <if test="address != null">#{address},</if>
+            <if test="contact != null">#{contact},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="Longitude != null">#{Longitude},</if>
+            <if test="latitude != null">#{latitude},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateChaCustomerAddress" parameterType="ChaCustomerAddress">
+        update cha_customer_address
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="contact != null">contact = #{contact},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="Longitude != null">Longitude = #{Longitude},</if>
+            <if test="latitude != null">latitude = #{latitude},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteChaCustomerAddressById" parameterType="Long">
+        delete from cha_customer_address where id = #{id}
+    </delete>
+
+    <delete id="deleteChaCustomerAddressByIds" parameterType="String">
+        delete from cha_customer_address where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteChaCustomerAddressByCustomerId" parameterType="Long">
+        delete from cha_customer_address where customer_id = #{customerId}
+    </delete>
+</mapper>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngProductBomMapper">
+    
+    <resultMap type="EngProductBom" id="EngProductBomResult">
+        <result property="id"    column="id"    />
+        <result property="productId"    column="product_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialCode"    column="material_code"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialSpec"    column="material_spec"    />
+        <result property="materialSize"    column="material_size"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="compoundId"    column="compound_id"    />
+        <result property="standardQuantity"    column="standard_quantity"    />
+        <result property="lossRate"    column="loss_rate"    />
+        <result property="consumeType"    column="consume_type"    />
+        <result property="enableMust"    column="enable_must"    />
+        <result property="enableReplace"    column="enable_replace"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="calculateType"    column="calculate_type"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngProductBomVo">
+        select id, product_id, seq_no, material_id, material_code, material_name, material_spec, material_size, draw_no, category_id, compound_id, standard_quantity,
+               loss_rate, consume_type, enable_must, enable_replace, line_id, calculate_type,
+               remark, create_by, create_time, update_by, update_time
+        from eng_product_bom
+    </sql>
+
+    <select id="selectEngProductBomList" parameterType="EngProductBom" resultMap="EngProductBomResult">
+        <include refid="selectEngProductBomVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="seqNo != null "> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="materialCode != null  and materialCode != ''"> and material_code like concat('%', #{materialCode}, '%')</if>
+            <if test="materialName != null  and materialName != ''"> and material_name like concat('%', #{materialName}, '%')</if>
+            <if test="materialSpec != null  and materialSpec != ''"> and material_spec like concat('%', #{materialSpec}, '%')</if>
+            <if test="materialSize != null  and materialSize != ''"> and material_size like concat('%', #{materialSize}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="compoundId != null "> and compound_id = #{compoundId}</if>
+            <if test="standardQuantity != null "> and standard_quantity = #{standardQuantity}</if>
+            <if test="lossRate != null "> and loss_rate = #{lossRate}</if>
+            <if test="consumeType != null "> and consume_type = #{consumeType}</if>
+            <if test="enableMust != null  and enableMust != ''"> and enable_must = #{enableMust}</if>
+            <if test="enableReplace != null  and enableReplace != ''"> and enable_replace = #{enableReplace}</if>
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+            <if test="calculateType != null  and calculateType != ''"> and calculate_type = #{calculateType}</if>
+        </where>
+    </select>
+    
+    <select id="selectEngProductBomById" parameterType="Long" resultMap="EngProductBomResult">
+        <include refid="selectEngProductBomVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngProductBomListByProductId" parameterType="Long" resultMap="EngProductBomResult">
+        <include refid="selectEngProductBomVo"/>
+        where product_id = #{productId}
+    </select>
+
+    <select id="selectEngProductBomListByMaterialId" parameterType="Long" resultMap="EngProductBomResult">
+        <include refid="selectEngProductBomVo"/>
+        where material_id = #{materialId}
+    </select>
+        
+    <insert id="insertEngProductBom" parameterType="EngProductBom" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_product_bom
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="productId != null">product_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="materialCode != null  and materialCode != ''">material_code,</if>
+            <if test="materialName != null and materialName != ''">material_name,</if>
+            <if test="materialSpec != null">material_spec,</if>
+            <if test="materialSize != null  and materialSize != ''">material_size,</if>
+            <if test="drawNo != null  and drawNo != ''">draw_no,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="compoundId != null ">compound_id,</if>
+            <if test="standardQuantity != null">standard_quantity,</if>
+            <if test="lossRate != null">loss_rate,</if>
+            <if test="consumeType != null">consume_type,</if>
+            <if test="enableMust != null">enable_must,</if>
+            <if test="enableReplace != null">enable_replace,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="calculateType != null and calculateType != ''">calculate_type,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="productId != null">#{productId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="materialCode != null  and materialCode != ''">#{materialCode},</if>
+            <if test="materialName != null and materialName != ''">#{materialName},</if>
+            <if test="materialSpec != null">#{materialSpec},</if>
+            <if test="materialSize != null  and materialSize != ''">#{materialSize},</if>
+            <if test="drawNo != null  and drawNo != ''">#{drawNo},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="compoundId != null ">#{compoundId},</if>
+            <if test="standardQuantity != null">#{standardQuantity},</if>
+            <if test="lossRate != null">#{lossRate},</if>
+            <if test="consumeType != null">#{consumeType},</if>
+            <if test="enableMust != null">#{enableMust},</if>
+            <if test="enableReplace != null">#{enableReplace},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="calculateType != null and calculateType != ''">#{calculateType},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngProductBom" parameterType="EngProductBom">
+        update eng_product_bom
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="materialCode != null  and materialCode != ''">material_code = #{materialCode},</if>
+            <if test="materialName != null and materialName != ''">material_name = #{materialName},</if>
+            <if test="materialSpec != null">material_spec = #{materialSpec},</if>
+            <if test="materialSize != null  and materialSize != ''">material_size = #{materialSize},</if>
+            <if test="drawNo != null  and drawNo != ''">draw_no=#{drawNo},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="compoundId != null ">compound_id = #{compoundId},</if>
+            <if test="standardQuantity != null">standard_quantity = #{standardQuantity},</if>
+            <if test="lossRate != null">loss_rate = #{lossRate},</if>
+            <if test="consumeType != null">consume_type = #{consumeType},</if>
+            <if test="enableMust != null">enable_must = #{enableMust},</if>
+            <if test="enableReplace != null">enable_replace = #{enableReplace},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="calculateType != null and calculateType != ''">calculate_type = #{calculateType},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngProductBomById" parameterType="Long">
+        delete from eng_product_bom where id = #{id}
+    </delete>
+
+    <delete id="deleteEngProductBomByIds" parameterType="String">
+        delete from eng_product_bom where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngProductBomByProductId" parameterType="Long">
+        delete from eng_product_bom where product_id = #{productId}
+    </delete>
+
+    <delete id="deleteEngProductBomByMaterialId" parameterType="Long">
+        delete from eng_product_bom where material_id = #{materialId}
+    </delete>
+</mapper>

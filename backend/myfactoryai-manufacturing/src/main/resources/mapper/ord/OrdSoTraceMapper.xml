@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ord.mapper.OrdSoTraceMapper">
+    
+    <resultMap type="OrdSoTrace" id="OrdSoTraceResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="contractNo"    column="contract_no"    />
+        <result property="amountUntaxed"    column="amount_untaxed"    />
+        <result property="amountTaxed"    column="amount_taxed"    />
+        <result property="invoicePatternId"    column="invoice_pattern_id"    />
+        <result property="payPatternId"    column="pay_pattern_id"    />
+        <result property="currencyId"    column="currency_id"    />
+        <result property="shipmentTypeId"    column="shipment_type_id"    />
+        <result property="exchangeRate"    column="exchange_rate"    />
+        <result property="orderDay"    column="order_day"    />
+        <result property="addressId"    column="address_id"    />
+        <result property="contactId"    column="contact_id"    />
+        <result property="soType"    column="so_type"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="salesId"    column="sales_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectOrdSoTraceVo">
+        select id, bill_no, status, customer_id, contract_no, amount_untaxed, amount_taxed, invoice_pattern_id, pay_pattern_id, currency_id, shipment_type_id, exchange_rate, order_day, address_id, contact_id, so_type, project_id, sales_id, dept_id, remark, create_by, create_time, update_by, update_time from ord_so
+    </sql>
+
+    <select id="selectOrdSoTraceList" parameterType="OrdSoTrace" resultMap="OrdSoTraceResult">
+        <include refid="selectOrdSoTraceVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+                 and status in (4,5,6,7,8,9,10,11,12,13,14,15)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="contractNo != null "> and contract_no = #{contractNo}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="soType != null "> and so_type = #{soType}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectOrdSoTraceById" parameterType="Long" resultMap="OrdSoTraceResult">
+        <include refid="selectOrdSoTraceVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectOrdSoTraceListByCustomerId" parameterType="Long" resultMap="OrdSoTraceResult">
+        <include refid="selectOrdSoTraceVo"/>
+        where customer_id = #{customerId}
+    </select>
+
+    <select id="selectOrdSoTraceListByInvoicePatternId" parameterType="Long" resultMap="OrdSoTraceResult">
+        <include refid="selectOrdSoTraceVo"/>
+        where invoice_pattern_id = #{invoicePatternId}
+    </select>
+
+    <select id="selectOrdSoTraceListByPayPatternId" parameterType="Long" resultMap="OrdSoTraceResult">
+        <include refid="selectOrdSoTraceVo"/>
+        where pay_pattern_id = #{payPatternId}
+    </select>
+
+    <select id="selectOrdSoTraceListByCurrencyId" parameterType="Long" resultMap="OrdSoTraceResult">
+        <include refid="selectOrdSoTraceVo"/>
+        where currency_id = #{currencyId}
+    </select>
+
+    <select id="selectOrdSoTraceListByShipmentTypeId" parameterType="Long" resultMap="OrdSoTraceResult">
+        <include refid="selectOrdSoTraceVo"/>
+        where shipment_type_id = #{shipmentTypeId}
+    </select>
+
+    <select id="selectOrdSoTraceListByAddressId" parameterType="Long" resultMap="OrdSoTraceResult">
+        <include refid="selectOrdSoTraceVo"/>
+        where address_id = #{addressId}
+    </select>
+
+    <select id="selectOrdSoTraceListByContactId" parameterType="Long" resultMap="OrdSoTraceResult">
+        <include refid="selectOrdSoTraceVo"/>
+        where contact_id = #{contactId}
+    </select>
+
+    <select id="selectOrdSoTraceListByProjectId" parameterType="Long" resultMap="OrdSoTraceResult">
+        <include refid="selectOrdSoTraceVo"/>
+        where project_id = #{projectId}
+    </select>
+
+    <select id="selectOrdSoTraceListBySalesId" parameterType="Long" resultMap="OrdSoTraceResult">
+        <include refid="selectOrdSoTraceVo"/>
+        where sales_id = #{salesId}
+    </select>
+
+    <select id="selectOrdSoTraceListByDeptId" parameterType="Long" resultMap="OrdSoTraceResult">
+        <include refid="selectOrdSoTraceVo"/>
+        where dept_id = #{deptId}
+    </select>
+        
+    <insert id="insertOrdSoTrace" parameterType="OrdSoTrace" useGeneratedKeys="true" keyProperty="id">
+        insert into ord_so
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="contractNo != null">contract_no,</if>
+            <if test="amountUntaxed != null">amount_untaxed,</if>
+            <if test="amountTaxed != null">amount_taxed,</if>
+            <if test="invoicePatternId != null">invoice_pattern_id,</if>
+            <if test="payPatternId != null">pay_pattern_id,</if>
+            <if test="currencyId != null">currency_id,</if>
+            <if test="shipmentTypeId != null">shipment_type_id,</if>
+            <if test="exchangeRate != null">exchange_rate,</if>
+            <if test="orderDay != null">order_day,</if>
+            <if test="addressId != null">address_id,</if>
+            <if test="contactId != null">contact_id,</if>
+            <if test="soType != null">so_type,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="salesId != null">sales_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="contractNo != null">#{contractNo},</if>
+            <if test="amountUntaxed != null">#{amountUntaxed},</if>
+            <if test="amountTaxed != null">#{amountTaxed},</if>
+            <if test="invoicePatternId != null">#{invoicePatternId},</if>
+            <if test="payPatternId != null">#{payPatternId},</if>
+            <if test="currencyId != null">#{currencyId},</if>
+            <if test="shipmentTypeId != null">#{shipmentTypeId},</if>
+            <if test="exchangeRate != null">#{exchangeRate},</if>
+            <if test="orderDay != null">#{orderDay},</if>
+            <if test="addressId != null">#{addressId},</if>
+            <if test="contactId != null">#{contactId},</if>
+            <if test="soType != null">#{soType},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="salesId != null">#{salesId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateOrdSoTrace" parameterType="OrdSoTrace">
+        update ord_so
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="contractNo != null">contract_no = #{contractNo},</if>
+            <if test="amountUntaxed != null">amount_untaxed = #{amountUntaxed},</if>
+            <if test="amountTaxed != null">amount_taxed = #{amountTaxed},</if>
+            <if test="invoicePatternId != null">invoice_pattern_id = #{invoicePatternId},</if>
+            <if test="payPatternId != null">pay_pattern_id = #{payPatternId},</if>
+            <if test="currencyId != null">currency_id = #{currencyId},</if>
+            <if test="shipmentTypeId != null">shipment_type_id = #{shipmentTypeId},</if>
+            <if test="exchangeRate != null">exchange_rate = #{exchangeRate},</if>
+            <if test="orderDay != null">order_day = #{orderDay},</if>
+            <if test="addressId != null">address_id = #{addressId},</if>
+            <if test="contactId != null">contact_id = #{contactId},</if>
+            <if test="soType != null">so_type = #{soType},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="salesId != null">sales_id = #{salesId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOrdSoTraceById" parameterType="Long">
+        delete from ord_so where id = #{id}
+    </delete>
+
+    <delete id="deleteOrdSoTraceByIds" parameterType="String">
+        delete from ord_so where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteOrdSoTraceByCustomerId" parameterType="Long">
+        delete from ord_so where customer_id = #{customerId}
+    </delete>
+
+    <delete id="deleteOrdSoTraceByInvoicePatternId" parameterType="Long">
+        delete from ord_so where invoice_pattern_id = #{invoicePatternId}
+    </delete>
+
+    <delete id="deleteOrdSoTraceByPayPatternId" parameterType="Long">
+        delete from ord_so where pay_pattern_id = #{payPatternId}
+    </delete>
+
+    <delete id="deleteOrdSoTraceByCurrencyId" parameterType="Long">
+        delete from ord_so where currency_id = #{currencyId}
+    </delete>
+
+    <delete id="deleteOrdSoTraceByShipmentTypeId" parameterType="Long">
+        delete from ord_so where shipment_type_id = #{shipmentTypeId}
+    </delete>
+
+    <delete id="deleteOrdSoTraceByAddressId" parameterType="Long">
+        delete from ord_so where address_id = #{addressId}
+    </delete>
+
+    <delete id="deleteOrdSoTraceByContactId" parameterType="Long">
+        delete from ord_so where contact_id = #{contactId}
+    </delete>
+
+    <delete id="deleteOrdSoTraceByProjectId" parameterType="Long">
+        delete from ord_so where project_id = #{projectId}
+    </delete>
+
+    <delete id="deleteOrdSoTraceBySalesId" parameterType="Long">
+        delete from ord_so where sales_id = #{salesId}
+    </delete>
+
+    <delete id="deleteOrdSoTraceByDeptId" parameterType="Long">
+        delete from ord_so where dept_id = #{deptId}
+    </delete>
+</mapper>

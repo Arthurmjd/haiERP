@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngProcessCategoryMapper">
+    
+    <resultMap type="EngProcessCategory" id="EngProcessCategoryResult">
+        <result property="id"    column="id"    />
+        <result property="categoryName"    column="category_name"    />
+        <result property="categoryDesc"    column="category_desc"    />
+        <result property="categorySeq"    column="category_seq"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngProcessCategoryVo">
+        select id, category_name, category_desc, category_seq, remark, create_by, create_time, update_by, update_time from eng_process_category
+    </sql>
+
+    <select id="selectEngProcessCategoryList" parameterType="EngProcessCategory" resultMap="EngProcessCategoryResult">
+        <include refid="selectEngProcessCategoryVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+            <if test="categoryDesc != null  and categoryDesc != ''"> and category_desc like concat('%', #{categoryDesc}, '%')</if>
+            <if test="categorySeq != null "> and category_seq = #{categorySeq}</if>
+        </where>
+        order by category_seq
+    </select>
+    
+    <select id="selectEngProcessCategoryById" parameterType="Long" resultMap="EngProcessCategoryResult">
+        <include refid="selectEngProcessCategoryVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertEngProcessCategory" parameterType="EngProcessCategory" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_process_category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">category_name,</if>
+            <if test="categoryDesc != null and categoryDesc != ''">category_desc,</if>
+            <if test="categorySeq != null">category_seq,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">#{categoryName},</if>
+            <if test="categoryDesc != null and categoryDesc != ''">#{categoryDesc},</if>
+            <if test="categorySeq != null">#{categorySeq},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngProcessCategory" parameterType="EngProcessCategory">
+        update eng_process_category
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">category_name = #{categoryName},</if>
+            <if test="categoryDesc != null and categoryDesc != ''">category_desc = #{categoryDesc},</if>
+            <if test="categorySeq != null">category_seq = #{categorySeq},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngProcessCategoryById" parameterType="Long">
+        delete from eng_process_category where id = #{id}
+    </delete>
+
+    <delete id="deleteEngProcessCategoryByIds" parameterType="String">
+        delete from eng_process_category where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

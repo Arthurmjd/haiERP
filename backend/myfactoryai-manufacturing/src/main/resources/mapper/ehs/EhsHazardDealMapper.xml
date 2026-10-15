@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ehs.mapper.EhsHazardDealMapper">
+    
+    <resultMap type="EhsHazardDeal" id="EhsHazardDealResult">
+        <result property="id"    column="id"    />
+        <result property="hazardId"    column="hazard_id"    />
+        <result property="dealDesc"    column="deal_desc"    />
+        <result property="dealLevel"    column="deal_level"    />
+        <result property="day"    column="day"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="employeeId"    column="employee_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEhsHazardDealVo">
+        select id, hazard_id, deal_desc, deal_level, day, dept_id, employee_id, remark, create_by, create_time, update_by, update_time from ehs_hazard_deal
+    </sql>
+
+    <select id="selectEhsHazardDealList" parameterType="EhsHazardDeal" resultMap="EhsHazardDealResult">
+        <include refid="selectEhsHazardDealVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="hazardId != null "> and hazard_id = #{hazardId}</if>
+            <if test="dealDesc != null  and dealDesc != ''"> and deal_desc like concat('%', #{dealDesc}, '%')</if>
+            <if test="dealLevel != null  and dealLevel != ''"> and deal_level = #{dealLevel}</if>
+            <if test="day != null  and day != ''"> and day = #{day}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="employeeId != null "> and employee_id = #{employeeId}</if>
+        </where>
+    </select>
+    
+    <select id="selectEhsHazardDealById" parameterType="Long" resultMap="EhsHazardDealResult">
+        <include refid="selectEhsHazardDealVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEhsHazardDealListByHazardId" parameterType="Long" resultMap="EhsHazardDealResult">
+        <include refid="selectEhsHazardDealVo"/>
+        where hazard_id = #{hazardId}
+    </select>
+
+    <select id="selectEhsHazardDealListByDeptId" parameterType="Long" resultMap="EhsHazardDealResult">
+        <include refid="selectEhsHazardDealVo"/>
+        where dept_id = #{deptId}
+    </select>
+
+    <select id="selectEhsHazardDealListByEmployeeId" parameterType="Long" resultMap="EhsHazardDealResult">
+        <include refid="selectEhsHazardDealVo"/>
+        where employee_id = #{employeeId}
+    </select>
+        
+    <insert id="insertEhsHazardDeal" parameterType="EhsHazardDeal" useGeneratedKeys="true" keyProperty="id">
+        insert into ehs_hazard_deal
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="hazardId != null">hazard_id,</if>
+            <if test="dealDesc != null and dealDesc != ''">deal_desc,</if>
+            <if test="dealLevel != null and dealLevel != ''">deal_level,</if>
+            <if test="day != null and day != ''">day,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="employeeId != null">employee_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="hazardId != null">#{hazardId},</if>
+            <if test="dealDesc != null and dealDesc != ''">#{dealDesc},</if>
+            <if test="dealLevel != null and dealLevel != ''">#{dealLevel},</if>
+            <if test="day != null and day != ''">#{day},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="employeeId != null">#{employeeId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEhsHazardDeal" parameterType="EhsHazardDeal">
+        update ehs_hazard_deal
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="hazardId != null">hazard_id = #{hazardId},</if>
+            <if test="dealDesc != null and dealDesc != ''">deal_desc = #{dealDesc},</if>
+            <if test="dealLevel != null and dealLevel != ''">deal_level = #{dealLevel},</if>
+            <if test="day != null and day != ''">day = #{day},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="employeeId != null">employee_id = #{employeeId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEhsHazardDealById" parameterType="Long">
+        delete from ehs_hazard_deal where id = #{id}
+    </delete>
+
+    <delete id="deleteEhsHazardDealByIds" parameterType="String">
+        delete from ehs_hazard_deal where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEhsHazardDealByHazardId" parameterType="Long">
+        delete from ehs_hazard_deal where hazard_id = #{hazardId}
+    </delete>
+
+    <delete id="deleteEhsHazardDealByDeptId" parameterType="Long">
+        delete from ehs_hazard_deal where dept_id = #{deptId}
+    </delete>
+
+    <delete id="deleteEhsHazardDealByEmployeeId" parameterType="Long">
+        delete from ehs_hazard_deal where employee_id = #{employeeId}
+    </delete>
+</mapper>

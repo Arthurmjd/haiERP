@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ord.mapper.OrdContractItemMapper">
+    
+    <resultMap type="OrdContractItem" id="OrdContractItemResult">
+        <result property="id"    column="id"    />
+        <result property="contractId"    column="contract_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="status"    column="status"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productCode"    column="product_code"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="customerProductNo"    column="customer_product_no"    />
+        <result property="abroadProductNo"    column="abroad_product_no"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantityOrder"    column="quantity_order"    />
+        <result property="price"    column="price"    />
+        <result property="discountPrice"    column="discount_price"    />
+        <result property="amount"    column="amount"    />
+        <result property="discountRate"    column="discount_rate"    />
+        <result property="finalAmount"    column="final_amount"    />
+        <result property="quantityDelivering"    column="quantity_delivering"    />
+        <result property="quantityDelivered"    column="quantity_delivered"    />
+        <result property="quantitySubcontract"    column="quantity_subcontract"    />
+        <result property="quantitySubcontracted"    column="quantity_subcontracted"    />
+        <result property="quantityMps"    column="quantity_mps"    />
+        <result property="quantityManufactured"    column="quantity_manufactured"    />
+        <result property="priority"    column="priority"    />
+        <result property="needDay"    column="need_day"    />
+        <result property="promiseDay"    column="promise_day"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectOrdContractItemVo">
+        select id, contract_id, seq_no, status, product_id, product_code, product_name, product_spec, draw_no, customer_product_no, abroad_product_no,
+               unit_id, quantity_order, price, discount_price, amount, discount_rate, final_amount,
+               quantity_delivering, quantity_delivered, quantity_subcontract, quantity_subcontracted, quantity_mps, quantity_manufactured,
+               priority, need_day, promise_day, remark, create_by, create_time, update_by, update_time
+        from ord_contract_item
+    </sql>
+
+    <select id="selectOrdContractItemList" parameterType="OrdContractItem" resultMap="OrdContractItemResult">
+        <include refid="selectOrdContractItemVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="contractId != null "> and contract_id = #{contractId}</if>
+            <if test="seqNo != null  and seqNo != ''"> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''"> and abroad_product_no like concat('%', #{abroadProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityOrder != null "> and quantity_order = #{quantityOrder}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="discountPrice != null "> and discount_price = #{discountPrice}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="discountRate != null "> and discount_rate = #{discountRate}</if>
+            <if test="finalAmount != null "> and final_amount = #{finalAmount}</if>
+            <if test="quantityDelivering != null"> and quantity_delivering = #{quantityDelivering},</if>
+            <if test="quantityDelivered != null"> and quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantitySubcontract != null"> and quantity_subcontract = #{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null"> and quantity_subcontracted = #{quantitySubcontracted},</if>
+            <if test="quantityMps != null"> and quantity_mps = #{quantityMps},</if>
+            <if test="quantityManufactured != null"> and quantity_manufactured = #{quantityManufactured},</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+        </where>
+    </select>
+    
+    <select id="selectOrdContractItemById" parameterType="Long" resultMap="OrdContractItemResult">
+        <include refid="selectOrdContractItemVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectOrdContractItemListByContractId" parameterType="Long" resultMap="OrdContractItemResult">
+        <include refid="selectOrdContractItemVo"/>
+        where contract_id = #{contractId}
+    </select>
+
+    <select id="selectOrdContractItemListByProductId" parameterType="Long" resultMap="OrdContractItemResult">
+        <include refid="selectOrdContractItemVo"/>
+        where product_id = #{productId}
+    </select>
+        
+    <insert id="insertOrdContractItem" parameterType="OrdContractItem" useGeneratedKeys="true" keyProperty="id">
+        insert into ord_contract_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="contractId != null">contract_id,</if>
+            <if test="seqNo != null and seqNo != ''">seq_no,</if>
+            <if test="status != null">status,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productCode != null">product_code,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="drawNo != null">draw_no,</if>
+            <if test="customerProductNo != null">customer_product_no,</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantityOrder != null">quantity_order,</if>
+            <if test="price != null">price,</if>
+            <if test="discountPrice != null">discount_price,</if>
+            <if test="amount != null">amount,</if>
+            <if test="discountRate != null">discount_rate,</if>
+            <if test="finalAmount != null">final_amount,</if>
+            <if test="quantityDelivering != null">quantity_delivering,</if>
+            <if test="quantityDelivered != null">quantity_delivered,</if>
+            <if test="quantitySubcontract != null">quantity_subcontract,</if>
+            <if test="quantitySubcontracted != null">quantity_subcontracted,</if>
+            <if test="quantityMps != null">quantity_mps,</if>
+            <if test="quantityManufactured != null">quantity_Manufactured,</if>
+            <if test="priority != null">priority,</if>
+            <if test="needDay != null">need_day,</if>
+            <if test="promiseDay != null">promise_day,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="contractId != null">#{contractId},</if>
+            <if test="seqNo != null and seqNo != ''">#{seqNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productCode != null">#{productCode},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="drawNo != null">#{drawNo},</if>
+            <if test="customerProductNo != null">#{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">#{abroadProductNo},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantityOrder != null">#{quantityOrder},</if>
+            <if test="price != null">#{price},</if>
+            <if test="discountPrice != null">#{discountPrice},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="discountRate != null">#{discountRate},</if>
+            <if test="finalAmount != null">#{finalAmount},</if>
+            <if test="quantityDelivering != null">#{quantityDelivering},</if>
+            <if test="quantityDelivered != null">#{quantityDelivered},</if>
+            <if test="quantitySubcontract != null">#{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null">#{quantitySubcontracted},</if>
+            <if test="quantityMps != null">#{quantityMps},</if>
+            <if test="quantityManufactured != null">#{quantityManufactured},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="needDay != null">#{needDay},</if>
+            <if test="promiseDay != null">#{promiseDay},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateOrdContractItem" parameterType="OrdContractItem">
+        update ord_contract_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="contractId != null">contract_id = #{contractId},</if>
+            <if test="seqNo != null and seqNo != ''">seq_no = #{seqNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productCode != null">product_code = #{productCode},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="drawNo != null">draw_no = #{drawNo},</if>
+            <if test="customerProductNo != null">customer_product_no = #{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no=#{abroadProductNo},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantityOrder != null">quantity_order = #{quantityOrder},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="discountPrice != null">discount_price = #{discountPrice},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="discountRate != null">discount_rate = #{discountRate},</if>
+            <if test="finalAmount != null">final_amount = #{finalAmount},</if>
+            <if test="quantityDelivering != null">quantity_delivering = #{quantityDelivering},</if>
+            <if test="quantityDelivered != null">quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantitySubcontract != null">quantity_subcontract = #{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null">quantity_subcontracted = #{quantitySubcontracted},</if>
+            <if test="quantityMps != null">quantity_mps = #{quantityMps},</if>
+            <if test="quantityManufactured != null">quantity_manufactured = #{quantityManufactured},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="needDay != null">need_day = #{needDay},</if>
+            <if test="promiseDay != null">promise_day = #{promiseDay},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOrdContractItemById" parameterType="Long">
+        delete from ord_contract_item where id = #{id}
+    </delete>
+
+    <delete id="deleteOrdContractItemByIds" parameterType="String">
+        delete from ord_contract_item where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteOrdContractItemBySoId" parameterType="Long">
+        delete from ord_contract_item where contract_id = #{contractId}
+    </delete>
+
+    <delete id="deleteOrdContractItemByProductId" parameterType="Long">
+        delete from ord_contract_item where product_id = #{productId}
+    </delete>
+</mapper>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.snc.mapper.SncGrItemMapper">
+    
+    <resultMap type="SncGrItem" id="SncGrItemResult">
+        <result property="id"    column="id"    />
+        <result property="grId"    column="gr_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="status"    column="status"    />
+        <result property="poId"    column="po_id"    />
+        <result property="poItemId"    column="po_item_id"    />
+        <result property="materialCode"    column="material_code"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialSpec"    column="material_spec"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSncGrItemVo">
+        select id, gr_id, seq_no, status, po_id, po_item_id, material_id, material_code, material_name, material_spec, unit_id, quantity,
+               remark, create_by, create_time, update_by, update_time
+        from snc_gr_item
+    </sql>
+
+    <select id="selectSncGrItemList" parameterType="SncGrItem" resultMap="SncGrItemResult">
+        <include refid="selectSncGrItemVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="grId != null "> and gr_id = #{grId}</if>
+            <if test="seqNo != null "> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="poId != null "> and po_id = #{poId}</if>
+            <if test="poItemId != null "> and po_item_id = #{poItemId}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="materialCode != null  and materialCode != ''"> and material_code like concat('%', #{materialCode}, '%')</if>
+            <if test="materialName != null  and materialName != ''"> and material_name like concat('%', #{materialName}, '%')</if>
+            <if test="materialSpec != null  and materialSpec != ''"> and material_spec like concat('%', #{materialSpec}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+        </where>
+    </select>
+    
+    <select id="selectSncGrItemById" parameterType="Long" resultMap="SncGrItemResult">
+        <include refid="selectSncGrItemVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSncGrItemListByGrId" parameterType="Long" resultMap="SncGrItemResult">
+        <include refid="selectSncGrItemVo"/>
+        where gr_id = #{grId}
+    </select>
+
+    <select id="selectSncGrItemListByPoId" parameterType="Long" resultMap="SncGrItemResult">
+        <include refid="selectSncGrItemVo"/>
+        where po_id = #{poId}
+    </select>
+
+    <select id="selectSncGrItemListByPoItemId" parameterType="Long" resultMap="SncGrItemResult">
+        <include refid="selectSncGrItemVo"/>
+        where po_item_id = #{poItemId}
+    </select>
+        
+    <insert id="insertSncGrItem" parameterType="SncGrItem" useGeneratedKeys="true" keyProperty="id">
+        insert into snc_gr_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="grId != null">gr_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="status != null">status,</if>
+            <if test="poId != null">po_id,</if>
+            <if test="poItemId != null">po_item_id,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="materialCode != null and materialCode != ''">material_code,</if>
+            <if test="materialName != null">material_name,</if>
+            <if test="materialSpec != null">material_spec,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="grId != null">#{grId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="poId != null">#{poId},</if>
+            <if test="poItemId != null">#{poItemId},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="materialCode != null and materialCode != ''">#{materialCode},</if>
+            <if test="materialName != null">#{materialName},</if>
+            <if test="materialSpec != null">#{materialSpec},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSncGrItem" parameterType="SncGrItem">
+        update snc_gr_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="grId != null">gr_id = #{grId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="poId != null">po_id = #{poId},</if>
+            <if test="poItemId != null">po_item_id = #{poItemId},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="materialCode != null and materialCode != ''">material_code = #{materialCode},</if>
+            <if test="materialName != null">material_name = #{materialName},</if>
+            <if test="materialSpec != null">material_spec = #{materialSpec},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSncGrItemById" parameterType="Long">
+        delete from snc_gr_item where id = #{id}
+    </delete>
+
+    <delete id="deleteSncGrItemByIds" parameterType="String">
+        delete from snc_gr_item where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSncGrItemByGrId" parameterType="Long">
+        delete from snc_gr_item where gr_id = #{grId}
+    </delete>
+
+    <delete id="deleteSncGrItemByPoId" parameterType="Long">
+        delete from snc_gr_item where po_id = #{poId}
+    </delete>
+
+    <delete id="deleteSncGrItemByPoItemId" parameterType="Long">
+        delete from snc_gr_item where po_item_id = #{poItemId}
+    </delete>
+</mapper>

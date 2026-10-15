@@ -1,0 +1,61 @@
+package net.factoryopen.myfactoryai.manufacturing.qua.mapper;
+
+import java.util.List;
+import net.factoryopen.myfactoryai.manufacturing.qua.domain.QuaExceptionCategorytype;
+
+/**
+ * 异常分类管理Mapper接口
+ * 
+ * @author jitfactory-generator
+ * @date 2024-07-04
+ */
+public interface QuaExceptionCategorytypeMapper 
+{
+    /**
+     * 查询异常分类管理
+     * 
+     * @param id 异常分类管理主键
+     * @return 异常分类管理
+     */
+    public QuaExceptionCategorytype selectQuaExceptionCategorytypeById(Long id);
+
+    /**
+     * 查询异常分类管理列表
+     * 
+     * @param quaExceptionCategorytype 异常分类管理
+     * @return 异常分类管理集合
+     */
+    public List<QuaExceptionCategorytype> selectQuaExceptionCategorytypeList(QuaExceptionCategorytype quaExceptionCategorytype);
+
+    /**
+     * 新增异常分类管理
+     * 
+     * @param quaExceptionCategorytype 异常分类管理
+     * @return 结果
+     */
+    public int insertQuaExceptionCategorytype(QuaExceptionCategorytype quaExceptionCategorytype);
+
+    /**
+     * 修改异常分类管理
+     * 
+     * @param quaExceptionCategorytype 异常分类管理
+     * @return 结果
+     */
+    public int updateQuaExceptionCategorytype(QuaExceptionCategorytype quaExceptionCategorytype);
+
+    /**
+     * 删除异常分类管理
+     * 
+     * @param id 异常分类管理主键
+     * @return 结果
+     */
+    public int deleteQuaExceptionCategorytypeById(Long id);
+
+    /**
+     * 批量删除异常分类管理
+     * 
+     * @param ids 需要删除的数据主键集合
+     * @return 结果
+     */
+    public int deleteQuaExceptionCategorytypeByIds(Long[] ids);
+}

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngMaterialInventoryMapper">
+    
+    <resultMap type="EngMaterialInventory" id="EngMaterialInventoryResult">
+        <result property="id"    column="id"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="enableLot"    column="enable_lot"    />
+        <result property="safeStockLevel"    column="safe_stock_level"    />
+        <result property="topStockLevel"    column="top_stock_level"    />
+        <result property="expiredDays"    column="expired_days"    />
+        <result property="dullDays"    column="dull_days"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngMaterialInventoryVo">
+        select id, material_id, enable_lot, safe_stock_level, top_stock_level, expired_days, dull_days,
+               remark, create_by, create_time, update_by, update_time
+        from eng_material_inventory
+    </sql>
+
+    <select id="selectEngMaterialInventoryList" parameterType="EngMaterialInventory" resultMap="EngMaterialInventoryResult">
+        <include refid="selectEngMaterialInventoryVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="enableLot != null  and enableLot != ''"> and enable_lot = #{enableLot}</if>
+            <if test="safeStockLevel != null "> and safe_stock_level = #{safeStockLevel}</if>
+            <if test="topStockLevel != null "> and top_stock_level = #{topStockLevel}</if>
+            <if test="expiredDays != null "> and expired_days = #{expiredDays}</if>
+            <if test="dullDays != null "> and dull_days = #{dullDays}</if>
+        </where>
+    </select>
+    
+    <select id="selectEngMaterialInventoryById" parameterType="Long" resultMap="EngMaterialInventoryResult">
+        <include refid="selectEngMaterialInventoryVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngMaterialInventoryListByMaterialId" parameterType="Long" resultMap="EngMaterialInventoryResult">
+        <include refid="selectEngMaterialInventoryVo"/>
+        where material_id = #{materialId}
+    </select>
+
+    <select id="selectEngMaterialInventoryListByHouseId" parameterType="Long" resultMap="EngMaterialInventoryResult">
+        <include refid="selectEngMaterialInventoryVo"/>
+        where house_id = #{houseId}
+    </select>
+
+    <select id="selectEngMaterialInventoryListByPositionId" parameterType="Long" resultMap="EngMaterialInventoryResult">
+        <include refid="selectEngMaterialInventoryVo"/>
+        where position_id = #{positionId}
+    </select>
+        
+    <insert id="insertEngMaterialInventory" parameterType="EngMaterialInventory" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_material_inventory
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="materialId != null">material_id,</if>
+            <if test="enableLot != null">enable_lot,</if>
+            <if test="safeStockLevel != null">safe_stock_level,</if>
+            <if test="topStockLevel != null">top_stock_level,</if>
+            <if test="expiredDays != null">expired_days,</if>
+            <if test="dullDays != null">dull_days,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="materialId != null">#{materialId},</if>
+            <if test="enableLot != null">#{enableLot},</if>
+            <if test="safeStockLevel != null">#{safeStockLevel},</if>
+            <if test="topStockLevel != null">#{topStockLevel},</if>
+            <if test="expiredDays != null">#{expiredDays},</if>
+            <if test="dullDays != null">#{dullDays},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngMaterialInventory" parameterType="EngMaterialInventory">
+        update eng_material_inventory
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="enableLot != null">enable_lot = #{enableLot},</if>
+            <if test="safeStockLevel != null">safe_stock_level = #{safeStockLevel},</if>
+            <if test="topStockLevel != null">top_stock_level = #{topStockLevel},</if>
+            <if test="expiredDays != null">expired_days = #{expiredDays},</if>
+            <if test="dullDays != null">dull_days = #{dullDays},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngMaterialInventoryById" parameterType="Long">
+        delete from eng_material_inventory where id = #{id}
+    </delete>
+
+    <delete id="deleteEngMaterialInventoryByIds" parameterType="String">
+        delete from eng_material_inventory where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngMaterialInventoryByMaterialId" parameterType="Long">
+        delete from eng_material_inventory where material_id = #{materialId}
+    </delete>
+
+    <delete id="deleteEngMaterialInventoryByHouseId" parameterType="Long">
+        delete from eng_material_inventory where house_id = #{houseId}
+    </delete>
+
+    <delete id="deleteEngMaterialInventoryByPositionId" parameterType="Long">
+        delete from eng_material_inventory where position_id = #{positionId}
+    </delete>
+</mapper>

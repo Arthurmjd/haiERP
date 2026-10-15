@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.res.mapper.ResLineMapper">
+    
+    <resultMap type="ResLine" id="ResLineResult">
+        <result property="id"    column="id"    />
+        <result property="lineName"    column="line_name"    />
+        <result property="lineType"    column="line_type"    />
+        <result property="supplierId"    column="supplier_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectResLineVo">
+        select id, line_name, line_type, supplier_id, remark, create_by, create_time, update_by, update_time from res_line
+    </sql>
+
+    <select id="selectResLineList" parameterType="ResLine" resultMap="ResLineResult">
+        <include refid="selectResLineVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="lineName != null  and lineName != ''"> and line_name like concat('%', #{lineName}, '%')</if>
+            <if test="lineType != null "> and line_type = #{lineType}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+        </where>
+    </select>
+    
+    <select id="selectResLineById" parameterType="Long" resultMap="ResLineResult">
+        <include refid="selectResLineVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectResLineListBySupplierId" parameterType="Long" resultMap="ResLineResult">
+        <include refid="selectResLineVo"/>
+        where supplier_id = #{supplierId}
+    </select>
+        
+    <insert id="insertResLine" parameterType="ResLine" useGeneratedKeys="true" keyProperty="id">
+        insert into res_line
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="lineName != null">line_name,</if>
+            <if test="lineType != null">line_type,</if>
+            <if test="supplierId != null">supplier_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="lineName != null">#{lineName},</if>
+            <if test="lineType != null">#{lineType},</if>
+            <if test="supplierId != null">#{supplierId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateResLine" parameterType="ResLine">
+        update res_line
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="lineName != null">line_name = #{lineName},</if>
+            <if test="lineType != null">line_type = #{lineType},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteResLineById" parameterType="Long">
+        delete from res_line where id = #{id}
+    </delete>
+
+    <delete id="deleteResLineByIds" parameterType="String">
+        delete from res_line where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteResLineBySupplierId" parameterType="Long">
+        delete from res_line where supplier_id = #{supplierId}
+    </delete>
+</mapper>

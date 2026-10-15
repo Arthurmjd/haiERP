@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.del.mapper.DelSupplierContactMapper">
+    
+    <resultMap type="DelSupplierContact" id="DelSupplierContactResult">
+        <result property="id"    column="id"    />
+        <result property="supplierId"    column="supplier_id"    />
+        <result property="contact"    column="contact"    />
+        <result property="cellphone1"    column="cellphone1"    />
+        <result property="cellphone2"    column="cellphone2"    />
+        <result property="wechat"    column="wechat"    />
+        <result property="email"    column="email"    />
+        <result property="telephone"    column="telephone"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectDelSupplierContactVo">
+        select id, supplier_id, contact, cellphone1, cellphone2, wechat, email, telephone, remark, create_by, create_time, update_by, update_time from del_supplier_contact
+    </sql>
+
+    <select id="selectDelSupplierContactList" parameterType="DelSupplierContact" resultMap="DelSupplierContactResult">
+        <include refid="selectDelSupplierContactVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="supplierId != null "> and supplier_id = #{supplierId}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="cellphone1 != null  and cellphone1 != ''"> and cellphone1 = #{cellphone1}</if>
+            <if test="cellphone2 != null  and cellphone2 != ''"> and cellphone2 = #{cellphone2}</if>
+            <if test="wechat != null  and wechat != ''"> and wechat = #{wechat}</if>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="telephone != null  and telephone != ''"> and telephone = #{telephone}</if>
+        </where>
+    </select>
+    
+    <select id="selectDelSupplierContactById" parameterType="Long" resultMap="DelSupplierContactResult">
+        <include refid="selectDelSupplierContactVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectDelSupplierContactListBySupplierId" parameterType="Long" resultMap="DelSupplierContactResult">
+        <include refid="selectDelSupplierContactVo"/>
+        where supplier_id = #{supplierId}
+    </select>
+        
+    <insert id="insertDelSupplierContact" parameterType="DelSupplierContact" useGeneratedKeys="true" keyProperty="id">
+        insert into del_supplier_contact
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="supplierId != null">supplier_id,</if>
+            <if test="contact != null">contact,</if>
+            <if test="cellphone1 != null">cellphone1,</if>
+            <if test="cellphone2 != null">cellphone2,</if>
+            <if test="wechat != null">wechat,</if>
+            <if test="email != null">email,</if>
+            <if test="telephone != null">telephone,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="supplierId != null">#{supplierId},</if>
+            <if test="contact != null">#{contact},</if>
+            <if test="cellphone1 != null">#{cellphone1},</if>
+            <if test="cellphone2 != null">#{cellphone2},</if>
+            <if test="wechat != null">#{wechat},</if>
+            <if test="email != null">#{email},</if>
+            <if test="telephone != null">#{telephone},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDelSupplierContact" parameterType="DelSupplierContact">
+        update del_supplier_contact
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="contact != null">contact = #{contact},</if>
+            <if test="cellphone1 != null">cellphone1 = #{cellphone1},</if>
+            <if test="cellphone2 != null">cellphone2 = #{cellphone2},</if>
+            <if test="wechat != null">wechat = #{wechat},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="telephone != null">telephone = #{telephone},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDelSupplierContactById" parameterType="Long">
+        delete from del_supplier_contact where id = #{id}
+    </delete>
+
+    <delete id="deleteDelSupplierContactByIds" parameterType="String">
+        delete from del_supplier_contact where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteDelSupplierContactBySupplierId" parameterType="Long">
+        delete from del_supplier_contact where supplier_id = #{supplierId}
+    </delete>
+</mapper>

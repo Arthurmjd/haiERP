@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngProcessMapper">
+    
+    <resultMap type="EngProcess" id="EngProcessResult">
+        <result property="categoryId"    column="category_id"    />
+        <result property="id"    column="id"    />
+        <result property="processCode"    column="process_code"    />
+        <result property="processName"    column="process_name"    />
+        <result property="processSeq"    column="process_seq"    />
+        <result property="processType"    column="process_type"    />
+        <result property="secondsFixed"    column="seconds_fixed"    />
+        <result property="secondsVariable"    column="seconds_variable"    />
+        <result property="secondsRm"    column="seconds_rm"    />
+        <result property="secondsSetup"    column="seconds_setup"    />
+        <result property="secondsStacking"    column="seconds_stacking"    />
+        <result property="secondsTransfer"    column="seconds_transfer"    />
+        <result property="secondsBuffer"    column="seconds_buffer"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngProcessVo">
+        select category_id, id, process_code, process_name, process_seq, process_type, seconds_fixed, seconds_variable, seconds_rm, seconds_setup, seconds_stacking, seconds_transfer, seconds_buffer, remark, create_by, create_time, update_by, update_time from eng_process
+    </sql>
+
+    <select id="selectEngProcessList" parameterType="EngProcess" resultMap="EngProcessResult">
+        <include refid="selectEngProcessVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="processCode != null  and processCode != ''"> and process_code like concat('%', #{processCode}, '%')</if>
+            <if test="processName != null  and processName != ''"> and process_name like concat('%', #{processName}, '%')</if>
+            <if test="processSeq != null "> and process_seq = #{processSeq}</if>
+            <if test="processType != null  and processType != ''"> and process_type = #{processType}</if>
+            <if test="secondsFixed != null "> and seconds_fixed = #{secondsFixed}</if>
+            <if test="secondsVariable != null "> and seconds_variable = #{secondsVariable}</if>
+            <if test="secondsRm != null "> and seconds_rm = #{secondsRm}</if>
+            <if test="secondsSetup != null "> and seconds_setup = #{secondsSetup}</if>
+            <if test="secondsStacking != null "> and seconds_stacking = #{secondsStacking}</if>
+            <if test="secondsTransfer != null "> and seconds_transfer = #{secondsTransfer}</if>
+            <if test="secondsBuffer != null "> and seconds_buffer = #{secondsBuffer}</if>
+        </where>
+        order by category_id,process_seq
+    </select>
+    
+    <select id="selectEngProcessById" parameterType="Long" resultMap="EngProcessResult">
+        <include refid="selectEngProcessVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngProcessListByCategoryId" parameterType="Long" resultMap="EngProcessResult">
+        <include refid="selectEngProcessVo"/>
+        where category_id = #{categoryId}
+    </select>
+        
+    <insert id="insertEngProcess" parameterType="EngProcess" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_process
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">category_id,</if>
+            <if test="processCode != null and processCode != ''">process_code,</if>
+            <if test="processName != null and processName != ''">process_name,</if>
+            <if test="processSeq != null">process_seq,</if>
+            <if test="processType != null and processType != ''">process_type,</if>
+            <if test="secondsFixed != null">seconds_fixed,</if>
+            <if test="secondsVariable != null">seconds_variable,</if>
+            <if test="secondsRm != null">seconds_rm,</if>
+            <if test="secondsSetup != null">seconds_setup,</if>
+            <if test="secondsStacking != null">seconds_stacking,</if>
+            <if test="secondsTransfer != null">seconds_transfer,</if>
+            <if test="secondsBuffer != null">seconds_buffer,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="processCode != null and processCode != ''">#{processCode},</if>
+            <if test="processName != null and processName != ''">#{processName},</if>
+            <if test="processSeq != null">#{processSeq},</if>
+            <if test="processType != null and processType != ''">#{processType},</if>
+            <if test="secondsFixed != null">#{secondsFixed},</if>
+            <if test="secondsVariable != null">#{secondsVariable},</if>
+            <if test="secondsRm != null">#{secondsRm},</if>
+            <if test="secondsSetup != null">#{secondsSetup},</if>
+            <if test="secondsStacking != null">#{secondsStacking},</if>
+            <if test="secondsTransfer != null">#{secondsTransfer},</if>
+            <if test="secondsBuffer != null">#{secondsBuffer},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngProcess" parameterType="EngProcess">
+        update eng_process
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="processCode != null and processCode != ''">process_code = #{processCode},</if>
+            <if test="processName != null and processName != ''">process_name = #{processName},</if>
+            <if test="processSeq != null">process_seq = #{processSeq},</if>
+            <if test="processType != null and processType != ''">process_type = #{processType},</if>
+            <if test="secondsFixed != null">seconds_fixed = #{secondsFixed},</if>
+            <if test="secondsVariable != null">seconds_variable = #{secondsVariable},</if>
+            <if test="secondsRm != null">seconds_rm = #{secondsRm},</if>
+            <if test="secondsSetup != null">seconds_setup = #{secondsSetup},</if>
+            <if test="secondsStacking != null">seconds_stacking = #{secondsStacking},</if>
+            <if test="secondsTransfer != null">seconds_transfer = #{secondsTransfer},</if>
+            <if test="secondsBuffer != null">seconds_buffer = #{secondsBuffer},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngProcessById" parameterType="Long">
+        delete from eng_process where id = #{id}
+    </delete>
+
+    <delete id="deleteEngProcessByIds" parameterType="String">
+        delete from eng_process where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngProcessByCategoryId" parameterType="Long">
+        delete from eng_process where category_id = #{categoryId}
+    </delete>
+</mapper>

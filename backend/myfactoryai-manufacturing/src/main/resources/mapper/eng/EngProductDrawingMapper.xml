@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngProductDrawingMapper">
+    
+    <resultMap type="EngProductDrawing" id="EngProductDrawingResult">
+        <result property="id"    column="id"    />
+        <result property="productId"    column="product_id"    />
+        <result property="description"    column="description"    />
+        <result property="drawingUrl"    column="drawing_url"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngProductDrawingVo">
+        select id, product_id, description, drawing_url, remark, create_by, create_time, update_by, update_time from eng_product_drawing
+    </sql>
+
+    <select id="selectEngProductDrawingList" parameterType="EngProductDrawing" resultMap="EngProductDrawingResult">
+        <include refid="selectEngProductDrawingVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="drawingUrl != null  and drawingUrl != ''"> and drawing_url = #{drawingUrl}</if>
+        </where>
+    </select>
+    
+    <select id="selectEngProductDrawingById" parameterType="Long" resultMap="EngProductDrawingResult">
+        <include refid="selectEngProductDrawingVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngProductDrawingListByProductId" parameterType="Long" resultMap="EngProductDrawingResult">
+        <include refid="selectEngProductDrawingVo"/>
+        where product_id = #{productId}
+    </select>
+        
+    <insert id="insertEngProductDrawing" parameterType="EngProductDrawing" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_product_drawing
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="productId != null">product_id,</if>
+            <if test="description != null and description != ''">description,</if>
+            <if test="drawingUrl != null and drawingUrl != ''">drawing_url,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="productId != null">#{productId},</if>
+            <if test="description != null and description != ''">#{description},</if>
+            <if test="drawingUrl != null and drawingUrl != ''">#{drawingUrl},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngProductDrawing" parameterType="EngProductDrawing">
+        update eng_product_drawing
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
+            <if test="drawingUrl != null and drawingUrl != ''">drawing_url = #{drawingUrl},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngProductDrawingById" parameterType="Long">
+        delete from eng_product_drawing where id = #{id}
+    </delete>
+
+    <delete id="deleteEngProductDrawingByIds" parameterType="String">
+        delete from eng_product_drawing where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngProductDrawingByProductId" parameterType="Long">
+        delete from eng_product_drawing where product_id = #{productId}
+    </delete>
+</mapper>

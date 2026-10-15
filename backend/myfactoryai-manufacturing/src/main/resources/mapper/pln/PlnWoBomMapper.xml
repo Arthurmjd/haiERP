@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.pln.mapper.PlnWoBomMapper">
+    
+    <resultMap type="PlnWoBom" id="PlnWoBomResult">
+        <result property="id"    column="id"    />
+        <result property="woId"    column="wo_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="standardQuantity"    column="standard_quantity"    />
+        <result property="lossRate"    column="loss_rate"    />
+        <result property="consumeType"    column="consume_type"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectPlnWoBomVo">
+        select id, wo_id, seq_no, material_id, standard_quantity, loss_rate, consume_type, remark, create_by, create_time, update_by, update_time from pln_wo_bom
+    </sql>
+
+    <select id="selectPlnWoBomList" parameterType="PlnWoBom" resultMap="PlnWoBomResult">
+        <include refid="selectPlnWoBomVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="woId != null "> and wo_id = #{woId}</if>
+            <if test="seqNo != null "> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="standardQuantity != null "> and standard_quantity = #{standardQuantity}</if>
+            <if test="lossRate != null "> and loss_rate = #{lossRate}</if>
+            <if test="consumeType != null "> and consume_type = #{consumeType}</if>
+        </where>
+    </select>
+    
+    <select id="selectPlnWoBomById" parameterType="Long" resultMap="PlnWoBomResult">
+        <include refid="selectPlnWoBomVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectPlnWoBomListByWoId" parameterType="Long" resultMap="PlnWoBomResult">
+        <include refid="selectPlnWoBomVo"/>
+        where wo_id = #{woId}
+    </select>
+
+    <select id="selectPlnWoBomListByMaterialId" parameterType="Long" resultMap="PlnWoBomResult">
+        <include refid="selectPlnWoBomVo"/>
+        where material_id = #{materialId}
+    </select>
+        
+    <insert id="insertPlnWoBom" parameterType="PlnWoBom" useGeneratedKeys="true" keyProperty="id">
+        insert into pln_wo_bom
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="woId != null">wo_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="standardQuantity != null">standard_quantity,</if>
+            <if test="lossRate != null">loss_rate,</if>
+            <if test="consumeType != null">consume_type,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="woId != null">#{woId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="standardQuantity != null">#{standardQuantity},</if>
+            <if test="lossRate != null">#{lossRate},</if>
+            <if test="consumeType != null">#{consumeType},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePlnWoBom" parameterType="PlnWoBom">
+        update pln_wo_bom
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="woId != null">wo_id = #{woId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="standardQuantity != null">standard_quantity = #{standardQuantity},</if>
+            <if test="lossRate != null">loss_rate = #{lossRate},</if>
+            <if test="consumeType != null">consume_type = #{consumeType},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePlnWoBomById" parameterType="Long">
+        delete from pln_wo_bom where id = #{id}
+    </delete>
+
+    <delete id="deletePlnWoBomByIds" parameterType="String">
+        delete from pln_wo_bom where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deletePlnWoBomByWoId" parameterType="Long">
+        delete from pln_wo_bom where wo_id = #{woId}
+    </delete>
+
+    <delete id="deletePlnWoBomByMaterialId" parameterType="Long">
+        delete from pln_wo_bom where material_id = #{materialId}
+    </delete>
+</mapper>

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.snc.mapper.SncInventoryMapper">
+    
+    <resultMap type="SncInventory" id="SncInventoryResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="houseId"    column="house_id"    />
+        <result property="positionId"    column="position_id"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialCode"    column="material_code"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialSpec"    column="material_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="customerProductNo"    column="customer_product_no"    />
+        <result property="abroadProductNo"    column="abroad_product_no"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="price"    column="price"    />
+        <result property="amount"    column="amount"    />
+        <result property="houseType"    column="house_type"    />
+        <result property="timeExpired"    column="time_expired"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSncInventoryVo">
+        select id, bill_no, house_id, position_id, material_id, material_code, material_name, material_spec, draw_no, customer_product_no, abroad_product_no,
+               unit_id, quantity, price, amount, house_type, time_expired,
+               remark, create_by, create_time, update_by, update_time
+        from snc_inventory
+    </sql>
+
+    <select id="selectSncInventoryList" parameterType="SncInventory" resultMap="SncInventoryResult">
+        <include refid="selectSncInventoryVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            <if test="houseId != null "> and house_id = #{houseId}</if>
+            <if test="positionId != null "> and position_id = #{positionId}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="materialCode != null  and materialCode != ''"> and material_code like concat('%', #{materialCode}, '%')</if>
+            <if test="materialName != null  and materialName != ''"> and material_name like concat('%', #{materialName}, '%')</if>
+            <if test="materialSpec != null  and materialSpec != ''"> and material_spec like concat('%', #{materialSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''"> and abroad_product_no like concat('%', #{abroadProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="houseType != null"> and house_type = #{houseType}</if>
+            <if test="timeExpired != null "> and time_expired = #{timeExpired}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectSncInventoryById" parameterType="Long" resultMap="SncInventoryResult">
+        <include refid="selectSncInventoryVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSncInventoryListByPositionAndMaterial"  resultMap="SncInventoryResult">
+        <include refid="selectSncInventoryVo"/>
+        <where>
+            <if test="houseId != null "> and house_id = #{houseId}</if>
+            <if test="positionId != null "> and position_id = #{positionId}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+        </where>
+        order by bill_no
+    </select>
+
+    <select id="selectSncInventoryListByHouseId" parameterType="Long" resultMap="SncInventoryResult">
+        <include refid="selectSncInventoryVo"/>
+        where house_id = #{houseId}
+    </select>
+
+    <select id="selectSncInventoryListByPositionId" parameterType="Long" resultMap="SncInventoryResult">
+        <include refid="selectSncInventoryVo"/>
+        where position_id = #{positionId}
+    </select>
+
+    <select id="selectSncInventoryListByMaterialId" parameterType="Long" resultMap="SncInventoryResult">
+        <include refid="selectSncInventoryVo"/>
+        where material_id = #{materialId}
+    </select>
+        
+    <insert id="insertSncInventory" parameterType="SncInventory" useGeneratedKeys="true" keyProperty="id">
+        insert into snc_inventory
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null">bill_no,</if>
+            <if test="houseId != null">house_id,</if>
+            <if test="positionId != null">position_id,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="materialCode != null and materialCode != ''">material_code,</if>
+            <if test="materialName != null">material_name,</if>
+            <if test="materialSpec != null">material_spec,</if>
+            <if test="drawNo != null">draw_no,</if>
+            <if test="customerProductNo != null">customer_product_no,</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="price != null">price,</if>
+            <if test="amount != null">amount,</if>
+            <if test="houseType != null">house_type,</if>
+            <if test="timeExpired != null">time_expired,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null">#{billNo},</if>
+            <if test="houseId != null">#{houseId},</if>
+            <if test="positionId != null">#{positionId},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="materialCode != null and materialCode != ''">#{materialCode},</if>
+            <if test="materialName != null">#{materialName},</if>
+            <if test="materialSpec != null">#{materialSpec},</if>
+            <if test="drawNo != null">#{drawNo},</if>
+            <if test="customerProductNo != null">#{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">#{abroadProductNo},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="price != null">#{price},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="houseType != null">#{houseType},</if>
+            <if test="timeExpired != null">#{timeExpired},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSncInventory" parameterType="SncInventory">
+        update snc_inventory
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null">bill_no = #{billNo},</if>
+            <if test="houseId != null">house_id = #{houseId},</if>
+            <if test="positionId != null">position_id = #{positionId},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="materialCode != null and materialCode != ''">material_code = #{materialCode},</if>
+            <if test="materialName != null">material_name = #{materialName},</if>
+            <if test="materialSpec != null">material_spec = #{materialSpec},</if>
+            <if test="drawNo != null">draw_no = #{drawNo},</if>
+            <if test="customerProductNo != null">customer_product_no = #{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no=#{abroadProductNo},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="houseType != null">house_type = #{houseType},</if>
+            <if test="timeExpired != null">time_expired = #{timeExpired},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSncInventoryById" parameterType="Long">
+        delete from snc_inventory where id = #{id}
+    </delete>
+
+    <delete id="deleteSncInventoryByIds" parameterType="String">
+        delete from snc_inventory where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSncInventoryByHouseId" parameterType="Long">
+        delete from snc_inventory where house_id = #{houseId}
+    </delete>
+
+    <delete id="deleteSncInventoryByPositionId" parameterType="Long">
+        delete from snc_inventory where position_id = #{positionId}
+    </delete>
+
+    <delete id="deleteSncInventoryByMaterialId" parameterType="Long">
+        delete from snc_inventory where material_id = #{materialId}
+    </delete>
+</mapper>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ehs.mapper.EhsPowerConsumingMapper">
+    
+    <resultMap type="EhsPowerConsuming" id="EhsPowerConsumingResult">
+        <result property="id"    column="id"    />
+        <result property="foodieId"    column="foodie_id"    />
+        <result property="day"    column="day"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEhsPowerConsumingVo">
+        select id, foodie_id, day, quantity, unit_id, remark, create_by, create_time, update_by, update_time from ehs_power_consuming
+    </sql>
+
+    <select id="selectEhsPowerConsumingList" parameterType="EhsPowerConsuming" resultMap="EhsPowerConsumingResult">
+        <include refid="selectEhsPowerConsumingVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="foodieId != null "> and foodie_id = #{foodieId}</if>
+            <if test="day != null  and day != ''"> and day = #{day}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+        </where>
+    </select>
+    
+    <select id="selectEhsPowerConsumingById" parameterType="Long" resultMap="EhsPowerConsumingResult">
+        <include refid="selectEhsPowerConsumingVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEhsPowerConsumingListByFoodieId" parameterType="Long" resultMap="EhsPowerConsumingResult">
+        <include refid="selectEhsPowerConsumingVo"/>
+        where foodie_id = #{foodieId}
+    </select>
+
+    <select id="selectEhsPowerConsumingListByUnitId" parameterType="Long" resultMap="EhsPowerConsumingResult">
+        <include refid="selectEhsPowerConsumingVo"/>
+        where unit_id = #{unitId}
+    </select>
+        
+    <insert id="insertEhsPowerConsuming" parameterType="EhsPowerConsuming" useGeneratedKeys="true" keyProperty="id">
+        insert into ehs_power_consuming
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="foodieId != null">foodie_id,</if>
+            <if test="day != null and day != ''">day,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="foodieId != null">#{foodieId},</if>
+            <if test="day != null and day != ''">#{day},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEhsPowerConsuming" parameterType="EhsPowerConsuming">
+        update ehs_power_consuming
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="foodieId != null">foodie_id = #{foodieId},</if>
+            <if test="day != null and day != ''">day = #{day},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEhsPowerConsumingById" parameterType="Long">
+        delete from ehs_power_consuming where id = #{id}
+    </delete>
+
+    <delete id="deleteEhsPowerConsumingByIds" parameterType="String">
+        delete from ehs_power_consuming where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEhsPowerConsumingByFoodieId" parameterType="Long">
+        delete from ehs_power_consuming where foodie_id = #{foodieId}
+    </delete>
+
+    <delete id="deleteEhsPowerConsumingByUnitId" parameterType="Long">
+        delete from ehs_power_consuming where unit_id = #{unitId}
+    </delete>
+</mapper>

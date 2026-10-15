@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngProductRoutingdrawingMapper">
+    
+    <resultMap type="EngProductRoutingdrawing" id="EngProductRoutingdrawingResult">
+        <result property="id"    column="id"    />
+        <result property="routingId"    column="routing_id"    />
+        <result property="description"    column="description"    />
+        <result property="drawingUrl"    column="drawing_url"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngProductRoutingdrawingVo">
+        select id, routing_id, description, drawing_url, remark, create_by, create_time, update_by, update_time from eng_product_routingdrawing
+    </sql>
+
+    <select id="selectEngProductRoutingdrawingList" parameterType="EngProductRoutingdrawing" resultMap="EngProductRoutingdrawingResult">
+        <include refid="selectEngProductRoutingdrawingVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="routingId != null "> and routing_id = #{routingId}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="drawingUrl != null  and drawingUrl != ''"> and drawing_url = #{drawingUrl}</if>
+        </where>
+    </select>
+    
+    <select id="selectEngProductRoutingdrawingById" parameterType="Long" resultMap="EngProductRoutingdrawingResult">
+        <include refid="selectEngProductRoutingdrawingVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngProductRoutingdrawingListByRoutingId" parameterType="Long" resultMap="EngProductRoutingdrawingResult">
+        <include refid="selectEngProductRoutingdrawingVo"/>
+        where routing_id = #{routingId}
+    </select>
+        
+    <insert id="insertEngProductRoutingdrawing" parameterType="EngProductRoutingdrawing" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_product_routingdrawing
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="routingId != null">routing_id,</if>
+            <if test="description != null and description != ''">description,</if>
+            <if test="drawingUrl != null and drawingUrl != ''">drawing_url,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="routingId != null">#{routingId},</if>
+            <if test="description != null and description != ''">#{description},</if>
+            <if test="drawingUrl != null and drawingUrl != ''">#{drawingUrl},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngProductRoutingdrawing" parameterType="EngProductRoutingdrawing">
+        update eng_product_routingdrawing
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="routingId != null">routing_id = #{routingId},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
+            <if test="drawingUrl != null and drawingUrl != ''">drawing_url = #{drawingUrl},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngProductRoutingdrawingById" parameterType="Long">
+        delete from eng_product_routingdrawing where id = #{id}
+    </delete>
+
+    <delete id="deleteEngProductRoutingdrawingByIds" parameterType="String">
+        delete from eng_product_routingdrawing where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngProductRoutingdrawingByRoutingId" parameterType="Long">
+        delete from eng_product_routingdrawing where routing_id = #{routingId}
+    </delete>
+</mapper>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.res.mapper.ResMachineTypeMapper">
+    
+    <resultMap type="ResMachineType" id="ResMachineTypeResult">
+        <result property="id"    column="id"    />
+        <result property="typeName"    column="type_name"    />
+        <result property="takt"    column="takt"    />
+        <result property="taktSecsize"    column="takt_secsize"    />
+        <result property="supplierName"    column="supplier_name"    />
+        <result property="supplierContact"    column="supplier_contact"    />
+        <result property="supplierTel"    column="supplier_tel"    />
+        <result property="plcProtocol"    column="plc_protocol"    />
+        <result property="plcSupplier"    column="plc_supplier"    />
+        <result property="plcSpec"    column="plc_spec"    />
+        <result property="icoUrl"    column="ico_url"    />
+        <result property="xleft"    column="xleft"    />
+        <result property="ytop"    column="ytop"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectResMachineTypeVo">
+        select id, type_name, takt, takt_secsize, supplier_name, supplier_contact, supplier_tel, plc_protocol, plc_supplier, plc_spec, ico_url, xleft, ytop, create_by, create_time, update_by, update_time, remark from res_machine_type
+    </sql>
+
+    <select id="selectResMachineTypeList" parameterType="ResMachineType" resultMap="ResMachineTypeResult">
+        <include refid="selectResMachineTypeVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="typeName != null  and typeName != ''"> and type_name like concat('%', #{typeName}, '%')</if>
+            <if test="takt != null "> and takt = #{takt}</if>
+            <if test="taktSecsize != null "> and takt_secsize = #{taktSecsize}</if>
+            <if test="supplierName != null  and supplierName != ''"> and supplier_name like concat('%', #{supplierName}, '%')</if>
+            <if test="supplierContact != null  and supplierContact != ''"> and supplier_contact = #{supplierContact}</if>
+            <if test="supplierTel != null  and supplierTel != ''"> and supplier_tel = #{supplierTel}</if>
+            <if test="plcProtocol != null  and plcProtocol != ''"> and plc_protocol = #{plcProtocol}</if>
+            <if test="plcSupplier != null  and plcSupplier != ''"> and plc_supplier = #{plcSupplier}</if>
+            <if test="plcSpec != null  and plcSpec != ''"> and plc_spec like concat('%', #{plcSpec}, '%')</if>
+            <if test="icoUrl != null  and icoUrl != ''"> and ico_url = #{icoUrl}</if>
+            <if test="xleft != null "> and xleft = #{xleft}</if>
+            <if test="ytop != null "> and ytop = #{ytop}</if>
+        </where>
+    </select>
+    
+    <select id="selectResMachineTypeById" parameterType="Long" resultMap="ResMachineTypeResult">
+        <include refid="selectResMachineTypeVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertResMachineType" parameterType="ResMachineType" useGeneratedKeys="true" keyProperty="id">
+        insert into res_machine_type
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="typeName != null and typeName != ''">type_name,</if>
+            <if test="takt != null">takt,</if>
+            <if test="taktSecsize != null">takt_secsize,</if>
+            <if test="supplierName != null">supplier_name,</if>
+            <if test="supplierContact != null">supplier_contact,</if>
+            <if test="supplierTel != null">supplier_tel,</if>
+            <if test="plcProtocol != null">plc_protocol,</if>
+            <if test="plcSupplier != null">plc_supplier,</if>
+            <if test="plcSpec != null">plc_spec,</if>
+            <if test="icoUrl != null">ico_url,</if>
+            <if test="xleft != null">xleft,</if>
+            <if test="ytop != null">ytop,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="typeName != null and typeName != ''">#{typeName},</if>
+            <if test="takt != null">#{takt},</if>
+            <if test="taktSecsize != null">#{taktSecsize},</if>
+            <if test="supplierName != null">#{supplierName},</if>
+            <if test="supplierContact != null">#{supplierContact},</if>
+            <if test="supplierTel != null">#{supplierTel},</if>
+            <if test="plcProtocol != null">#{plcProtocol},</if>
+            <if test="plcSupplier != null">#{plcSupplier},</if>
+            <if test="plcSpec != null">#{plcSpec},</if>
+            <if test="icoUrl != null">#{icoUrl},</if>
+            <if test="xleft != null">#{xleft},</if>
+            <if test="ytop != null">#{ytop},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateResMachineType" parameterType="ResMachineType">
+        update res_machine_type
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="typeName != null and typeName != ''">type_name = #{typeName},</if>
+            <if test="takt != null">takt = #{takt},</if>
+            <if test="taktSecsize != null">takt_secsize = #{taktSecsize},</if>
+            <if test="supplierName != null">supplier_name = #{supplierName},</if>
+            <if test="supplierContact != null">supplier_contact = #{supplierContact},</if>
+            <if test="supplierTel != null">supplier_tel = #{supplierTel},</if>
+            <if test="plcProtocol != null">plc_protocol = #{plcProtocol},</if>
+            <if test="plcSupplier != null">plc_supplier = #{plcSupplier},</if>
+            <if test="plcSpec != null">plc_spec = #{plcSpec},</if>
+            <if test="icoUrl != null">ico_url = #{icoUrl},</if>
+            <if test="xleft != null">xleft = #{xleft},</if>
+            <if test="ytop != null">ytop = #{ytop},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteResMachineTypeById" parameterType="Long">
+        delete from res_machine_type where id = #{id}
+    </delete>
+
+    <delete id="deleteResMachineTypeByIds" parameterType="String">
+        delete from res_machine_type where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.res.mapper.ResWorkgroupMachineMapper">
+    
+    <resultMap type="ResWorkgroupMachine" id="ResWorkgroupMachineResult">
+        <result property="id"    column="id"    />
+        <result property="groupId"    column="group_id"    />
+        <result property="machineId"    column="machine_id"    />
+        <result property="machineName"    column="machine_name"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectResWorkgroupMachineVo">
+        select a.id, a.group_id, a.machine_id, b.machine_name, a.remark, a.create_by, a.create_time, a.update_by, a.update_time
+        from res_workgroup_machine a
+        left join res_machine b on b.id=a.machine_id
+    </sql>
+
+    <select id="selectResWorkgroupMachineList" parameterType="ResWorkgroupMachine" resultMap="ResWorkgroupMachineResult">
+        <include refid="selectResWorkgroupMachineVo"/>
+        <where>
+            <if test="id != null "> and a.id = #{id}</if>
+            <if test="groupId != null "> and a.group_id = #{groupId}</if>
+            <if test="machineId != null "> and a.machine_id = #{machineId}</if>
+        </where>
+    </select>
+    
+    <select id="selectResWorkgroupMachineById" parameterType="Long" resultMap="ResWorkgroupMachineResult">
+        <include refid="selectResWorkgroupMachineVo"/>
+        where a.id = #{id}
+    </select>
+
+    <select id="selectStartableMachineListByGroupId" parameterType="Long" resultMap="ResWorkgroupMachineResult">
+        select a.id, a.group_id, a.machine_id, b.machine_name, a.remark, a.create_by, a.create_time, a.update_by, a.update_time
+        from res_workgroup_machine a
+        left join res_machine b on b.id=a.machine_id
+        where b.is_busy='0' and a.group_id=#{groupId}
+    </select>
+
+    <select id="selectResWorkgroupMachineListByGroupId" parameterType="Long" resultMap="ResWorkgroupMachineResult">
+        <include refid="selectResWorkgroupMachineVo"/>
+        where a.group_id = #{groupId}
+    </select>
+
+    <select id="selectResWorkgroupMachineListByMachineId" parameterType="Long" resultMap="ResWorkgroupMachineResult">
+        <include refid="selectResWorkgroupMachineVo"/>
+        where a.machine_id = #{machineId}
+    </select>
+        
+    <insert id="insertResWorkgroupMachine" parameterType="ResWorkgroupMachine" useGeneratedKeys="true" keyProperty="id">
+        insert into res_workgroup_machine
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="groupId != null">group_id,</if>
+            <if test="machineId != null">machine_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="groupId != null">#{groupId},</if>
+            <if test="machineId != null">#{machineId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateResWorkgroupMachine" parameterType="ResWorkgroupMachine">
+        update res_workgroup_machine
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="groupId != null">group_id = #{groupId},</if>
+            <if test="machineId != null">machine_id = #{machineId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteResWorkgroupMachineById" parameterType="Long">
+        delete from res_workgroup_machine where id = #{id}
+    </delete>
+
+    <delete id="deleteResWorkgroupMachineByIds" parameterType="String">
+        delete from res_workgroup_machine where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteResWorkgroupMachineByGroupId" parameterType="Long">
+        delete from res_workgroup_machine where group_id = #{groupId}
+    </delete>
+
+    <delete id="deleteResWorkgroupMachineByMachineId" parameterType="Long">
+        delete from res_workgroup_machine where machine_id = #{machineId}
+    </delete>
+</mapper>

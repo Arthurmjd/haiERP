@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngMaterialReplacableMapper">
+    
+    <resultMap type="EngMaterialReplacable" id="EngMaterialReplacableResult">
+        <result property="id"    column="id"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="prioritySeq"    column="priority_seq"    />
+        <result property="replacableMaterialId"    column="replacable_material_id"    />
+        <result property="replacableRate"    column="replacable_rate"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngMaterialReplacableVo">
+        select id, material_id, priority_seq, replacable_material_id, replacable_rate, remark, create_by, create_time, update_by, update_time from eng_material_replacable
+    </sql>
+
+    <select id="selectEngMaterialReplacableList" parameterType="EngMaterialReplacable" resultMap="EngMaterialReplacableResult">
+        <include refid="selectEngMaterialReplacableVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="prioritySeq != null "> and priority_seq = #{prioritySeq}</if>
+            <if test="replacableMaterialId != null "> and replacable_material_id = #{replacableMaterialId}</if>
+            <if test="replacableRate != null "> and replacable_rate = #{replacableRate}</if>
+        </where>
+    </select>
+    
+    <select id="selectEngMaterialReplacableById" parameterType="Long" resultMap="EngMaterialReplacableResult">
+        <include refid="selectEngMaterialReplacableVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngMaterialReplacableListByMaterialId" parameterType="Long" resultMap="EngMaterialReplacableResult">
+        <include refid="selectEngMaterialReplacableVo"/>
+        where material_id = #{materialId}
+    </select>
+
+    <select id="selectEngMaterialReplacableListByReplacableMaterialId" parameterType="Long" resultMap="EngMaterialReplacableResult">
+        <include refid="selectEngMaterialReplacableVo"/>
+        where replacable_material_id = #{replacableMaterialId}
+    </select>
+        
+    <insert id="insertEngMaterialReplacable" parameterType="EngMaterialReplacable" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_material_replacable
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="materialId != null">material_id,</if>
+            <if test="prioritySeq != null">priority_seq,</if>
+            <if test="replacableMaterialId != null">replacable_material_id,</if>
+            <if test="replacableRate != null">replacable_rate,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="materialId != null">#{materialId},</if>
+            <if test="prioritySeq != null">#{prioritySeq},</if>
+            <if test="replacableMaterialId != null">#{replacableMaterialId},</if>
+            <if test="replacableRate != null">#{replacableRate},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngMaterialReplacable" parameterType="EngMaterialReplacable">
+        update eng_material_replacable
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="prioritySeq != null">priority_seq = #{prioritySeq},</if>
+            <if test="replacableMaterialId != null">replacable_material_id = #{replacableMaterialId},</if>
+            <if test="replacableRate != null">replacable_rate = #{replacableRate},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngMaterialReplacableById" parameterType="Long">
+        delete from eng_material_replacable where id = #{id}
+    </delete>
+
+    <delete id="deleteEngMaterialReplacableByIds" parameterType="String">
+        delete from eng_material_replacable where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngMaterialReplacableByMaterialId" parameterType="Long">
+        delete from eng_material_replacable where material_id = #{materialId}
+    </delete>
+
+    <delete id="deleteEngMaterialReplacableByReplacableMaterialId" parameterType="Long">
+        delete from eng_material_replacable where replacable_material_id = #{replacableMaterialId}
+    </delete>
+</mapper>

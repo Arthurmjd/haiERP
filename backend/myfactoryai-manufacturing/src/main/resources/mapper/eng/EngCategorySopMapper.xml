@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngCategorySopMapper">
+    
+    <resultMap type="EngCategorySop" id="EngCategorySopResult">
+        <result property="id"    column="id"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="stepSeq"    column="step_seq"    />
+        <result property="stepTitle"    column="step_title"    />
+        <result property="description"    column="description"    />
+        <result property="sopUrl"    column="sop_url"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngCategorySopVo">
+        select id, category_id, step_seq, step_title, description, sop_url, remark, create_by, create_time, update_by, update_time from eng_category_sop
+    </sql>
+
+    <select id="selectEngCategorySopList" parameterType="EngCategorySop" resultMap="EngCategorySopResult">
+        <include refid="selectEngCategorySopVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="stepSeq != null "> and step_seq = #{stepSeq}</if>
+            <if test="stepTitle != null  and stepTitle != ''"> and step_title = #{stepTitle}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="sopUrl != null  and sopUrl != ''"> and sop_url = #{sopUrl}</if>
+        </where>
+    </select>
+    
+    <select id="selectEngCategorySopById" parameterType="Long" resultMap="EngCategorySopResult">
+        <include refid="selectEngCategorySopVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngCategorySopListByCategoryId" parameterType="Long" resultMap="EngCategorySopResult">
+        <include refid="selectEngCategorySopVo"/>
+        where category_id = #{categoryId}
+    </select>
+        
+    <insert id="insertEngCategorySop" parameterType="EngCategorySop" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_category_sop
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">category_id,</if>
+            <if test="stepSeq != null">step_seq,</if>
+            <if test="stepTitle != null and stepTitle != ''">step_title,</if>
+            <if test="description != null and description != ''">description,</if>
+            <if test="sopUrl != null and sopUrl != ''">sop_url,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="stepSeq != null">#{stepSeq},</if>
+            <if test="stepTitle != null and stepTitle != ''">#{stepTitle},</if>
+            <if test="description != null and description != ''">#{description},</if>
+            <if test="sopUrl != null and sopUrl != ''">#{sopUrl},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngCategorySop" parameterType="EngCategorySop">
+        update eng_category_sop
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="stepSeq != null">step_seq = #{stepSeq},</if>
+            <if test="stepTitle != null and stepTitle != ''">step_title = #{stepTitle},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
+            <if test="sopUrl != null and sopUrl != ''">sop_url = #{sopUrl},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngCategorySopById" parameterType="Long">
+        delete from eng_category_sop where id = #{id}
+    </delete>
+
+    <delete id="deleteEngCategorySopByIds" parameterType="String">
+        delete from eng_category_sop where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngCategorySopByCategoryId" parameterType="Long">
+        delete from eng_category_sop where category_id = #{categoryId}
+    </delete>
+</mapper>

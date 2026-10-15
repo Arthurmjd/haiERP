@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngMaterialPurchasingMapper">
+    
+    <resultMap type="EngMaterialPurchasing" id="EngMaterialPurchasingResult">
+        <result property="id"    column="id"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="availableDays"    column="available_days"    />
+        <result property="leadtimeBuyday"    column="leadtime_buyday"    />
+        <result property="quantityMinisize"    column="quantity_minisize"    />
+        <result property="quantityEconosize"    column="quantity_econosize"    />
+        <result property="lastPrice"    column="last_price"    />
+        <result property="lastDate"    column="last_date"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngMaterialPurchasingVo">
+        select id, material_id, available_days, leadtime_buyday, quantity_minisize, quantity_econosize, last_price, last_date, remark, create_by, create_time, update_by, update_time from eng_material_purchasing
+    </sql>
+
+    <select id="selectEngMaterialPurchasingList" parameterType="EngMaterialPurchasing" resultMap="EngMaterialPurchasingResult">
+        <include refid="selectEngMaterialPurchasingVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="availableDays != null "> and available_days = #{availableDays}</if>
+            <if test="leadtimeBuyday != null "> and leadtime_buyday = #{leadtimeBuyday}</if>
+            <if test="quantityMinisize != null "> and quantity_minisize = #{quantityMinisize}</if>
+            <if test="quantityEconosize != null "> and quantity_econosize = #{quantityEconosize}</if>
+            <if test="lastPrice != null "> and last_price = #{lastPrice}</if>
+            <if test="lastDate != null "> and last_date = #{lastDate}</if>
+        </where>
+    </select>
+    
+    <select id="selectEngMaterialPurchasingById" parameterType="Long" resultMap="EngMaterialPurchasingResult">
+        <include refid="selectEngMaterialPurchasingVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngMaterialPurchasingListByMaterialId" parameterType="Long" resultMap="EngMaterialPurchasingResult">
+        <include refid="selectEngMaterialPurchasingVo"/>
+        where material_id = #{materialId}
+    </select>
+        
+    <insert id="insertEngMaterialPurchasing" parameterType="EngMaterialPurchasing" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_material_purchasing
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="materialId != null">material_id,</if>
+            <if test="availableDays != null">available_days,</if>
+            <if test="leadtimeBuyday != null">leadtime_buyday,</if>
+            <if test="quantityMinisize != null">quantity_minisize,</if>
+            <if test="quantityEconosize != null">quantity_econosize,</if>
+            <if test="lastPrice != null">last_price,</if>
+            <if test="lastDate != null">last_date,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="materialId != null">#{materialId},</if>
+            <if test="availableDays != null">#{availableDays},</if>
+            <if test="leadtimeBuyday != null">#{leadtimeBuyday},</if>
+            <if test="quantityMinisize != null">#{quantityMinisize},</if>
+            <if test="quantityEconosize != null">#{quantityEconosize},</if>
+            <if test="lastPrice != null">#{lastPrice},</if>
+            <if test="lastDate != null">#{lastDate},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngMaterialPurchasing" parameterType="EngMaterialPurchasing">
+        update eng_material_purchasing
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="availableDays != null">available_days = #{availableDays},</if>
+            <if test="leadtimeBuyday != null">leadtime_buyday = #{leadtimeBuyday},</if>
+            <if test="quantityMinisize != null">quantity_minisize = #{quantityMinisize},</if>
+            <if test="quantityEconosize != null">quantity_econosize = #{quantityEconosize},</if>
+            <if test="lastPrice != null">last_price = #{lastPrice},</if>
+            <if test="lastDate != null">last_date = #{lastDate},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngMaterialPurchasingById" parameterType="Long">
+        delete from eng_material_purchasing where id = #{id}
+    </delete>
+
+    <delete id="deleteEngMaterialPurchasingByIds" parameterType="String">
+        delete from eng_material_purchasing where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngMaterialPurchasingByMaterialId" parameterType="Long">
+        delete from eng_material_purchasing where material_id = #{materialId}
+    </delete>
+</mapper>

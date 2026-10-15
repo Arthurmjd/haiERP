@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ord.mapper.OrdSoFinanceMapper">
+    
+    <resultMap type="OrdSoFinance" id="OrdSoFinanceResult">
+        <result property="id"    column="id"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="contractNo"    column="contract_no"    />
+        <result property="soId"    column="so_id"    />
+        <result property="soNo"    column="so_no"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="status"    column="status"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productCode"    column="product_code"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="customerProductNo"    column="customer_product_no"    />
+        <result property="cProductName"    column="c_product_name"    />
+        <result property="cProductSpec"    column="c_product_spec"    />
+        <result property="cDrawNo"    column="c_draw_no"    />
+        <result property="cCustomerProductNo"    column="c_customer_product_no"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantityOrder"    column="quantity_order"    />
+        <result property="price"    column="price"    />
+        <result property="amount"    column="amount"    />
+        <result property="quantityDelivered"    column="quantity_delivered"    />
+        <result property="quantityInvoiced"    column="quantity_invoiced"    />
+        <result property="amountInvoiced"    column="amount_invoiced"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectOrdSoFinanceVo">
+        select a.id, b.contract_no, c.customer_name, so_id, b.bill_no as so_no, seq_no,
+               a.status, product_id, product_code, product_name, product_spec, draw_no, customer_product_no,
+               c_product_name, c_product_spec, c_draw_no, c_customer_product_no,
+               unit_id, quantity_order, price, amount, quantity_delivered, quantity_invoiced, amount_invoiced,
+               promise_day, a.remark, a.create_by, a.create_time, a.update_by, a.update_time
+        from ord_so_item a
+        left join ord_so b on b.id=a.so_id
+        left join cha_customer c on c.id=b.customer_id
+    </sql>
+
+    <select id="selectOrdSoFinanceList" parameterType="OrdSoFinance" resultMap="OrdSoFinanceResult">
+        <include refid="selectOrdSoFinanceVo"/>
+        <where>
+            <if test="id != null "> and a.id = #{id}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="seqNo != null  and seqNo != ''"> and seq_no like concat('%', #{seqNo}, '%')</if>
+                 and a.status in (4,5,6,7,8,9,10,11,12,13,15,16,17,18)
+            <if test="status != null "> and a.status = #{status}</if>
+            <if test="contractNo != null  and contractNo != ''"> and contract_no like concat('%', #{contractNo}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null  and productCode != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="cProductName != null  and cProductName != ''"> and c_product_name like concat('%', #{cProductName}, '%')</if>
+            <if test="cProductSpec != null  and cProductSpec != ''"> and c_product_spec like concat('%', #{cProductSpec}, '%')</if>
+            <if test="cDrawNo != null  and cDrawNo != ''"> and c_draw_no like concat('%', #{cDrawNo}, '%')</if>
+            <if test="cCustomerProductNo != null  and cCustomerProductNo != ''"> and c_customer_product_no like concat('%', #{cCustomerProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityOrder != null "> and quantity_order = #{quantityOrder}</if>
+            <if test="quantityDelivered != null"> and quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantityInvoiced != null"> and quantity_invoiced = #{quantityInvoiced},</if>
+            <if test="amountInvoiced != null"> and amount_invoiced = #{amountInvoiced},</if>
+        </where>
+        order by customer_name,contract_no,so_id,seq_no
+    </select>
+
+    <select id="selectOrdSoFinanceListAll" parameterType="OrdSoFinance" resultMap="OrdSoFinanceResult">
+        <include refid="selectOrdSoFinanceVo"/>
+        <where>
+            <if test="id != null "> and a.id = #{id}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="seqNo != null  and seqNo != ''"> and seq_no like concat('%', #{seqNo}, '%')</if>
+            and a.status in (1,2,3,4,5,6,7,8,9,10,11,12,13,15,16,17,18)
+            <if test="status != null "> and a.status = #{status}</if>
+            <if test="contractNo != null  and contractNo != ''"> and contract_no like concat('%', #{contractNo}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null  and productCode != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="cProductName != null  and cProductName != ''"> and c_product_name like concat('%', #{cProductName}, '%')</if>
+            <if test="cProductSpec != null  and cProductSpec != ''"> and c_product_spec like concat('%', #{cProductSpec}, '%')</if>
+            <if test="cDrawNo != null  and cDrawNo != ''"> and c_draw_no like concat('%', #{cDrawNo}, '%')</if>
+            <if test="cCustomerProductNo != null  and cCustomerProductNo != ''"> and c_customer_product_no like concat('%', #{cCustomerProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityOrder != null "> and quantity_order = #{quantityOrder}</if>
+            <if test="quantityDelivered != null"> and quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantityInvoiced != null"> and quantity_invoiced = #{quantityInvoiced},</if>
+            <if test="amountInvoiced != null"> and amount_invoiced = #{amountInvoiced},</if>
+        </where>
+        order by customer_name,contract_no,so_id,seq_no
+    </select>
+    
+    <select id="selectOrdSoFinanceById" parameterType="Long" resultMap="OrdSoFinanceResult">
+        <include refid="selectOrdSoFinanceVo"/>
+        where a.id = #{id}
+    </select>
+
+    <select id="selectOrdSoFinanceListBySoId" parameterType="Long" resultMap="OrdSoFinanceResult">
+        <include refid="selectOrdSoFinanceVo"/>
+        where so_id = #{soId}
+    </select>
+
+    <select id="selectOrdSoFinanceListByProductId" parameterType="Long" resultMap="OrdSoFinanceResult">
+        <include refid="selectOrdSoFinanceVo"/>
+        where product_id = #{productId}
+    </select>
+
+    <update id="updateOrdSoFinance" parameterType="OrdSoFinance">
+        update ord_so_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="soId != null">so_id = #{soId},</if>
+            <if test="seqNo != null and seqNo != ''">seq_no = #{seqNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productCode != null">product_code = #{productCode},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="drawNo != null">draw_no = #{drawNo},</if>
+            <if test="customerProductNo != null">customer_product_no = #{customerProductNo},</if>
+            <if test="cProductName != null">c_product_name = #{cProductName},</if>
+            <if test="cProductSpec != null">c_product_spec = #{cProductSpec},</if>
+            <if test="cDrawNo != null">c_draw_no = #{cDrawNo},</if>
+            <if test="cCustomerProductNo">c_customer_product_no = #{cCustomerProductNo},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantityOrder != null">quantity_order = #{quantityOrder},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="quantityDelivered != null">quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantityInvoiced != null">quantity_invoiced = #{quantityInvoiced},</if>
+            <if test="amountInvoiced != null">amount_invoiced = #{amountInvoiced},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+</mapper>

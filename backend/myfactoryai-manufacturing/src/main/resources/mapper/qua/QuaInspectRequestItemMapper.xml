@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.qua.mapper.QuaInspectRequestItemMapper">
+    
+    <resultMap type="QuaInspectRequestItem" id="QuaInspectRequestItemResult">
+        <result property="id"    column="id"    />
+        <result property="requestId"    column="request_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="status"    column="status"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialCode"    column="material_code"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialSpec"    column="material_spec"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="sourceId"    column="source_id"    />
+        <result property="quantityQcExceptional"    column="quantity_qc_exceptional"    />
+        <result property="quantityQcGood"    column="quantity_qc_good"    />
+        <result property="quantityQcNg"    column="quantity_qc_ng"    />
+        <result property="quantityQcRedisp"    column="quantity_qc_redisp"    />
+        <result property="quantityQcRework"    column="quantity_qc_rework"    />
+        <result property="quantityQcPending"    column="quantity_qc_pending"    />
+        <result property="quantityQcAod"    column="quantity_qc_aod"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectQuaInspectRequestItemVo">
+        select id, request_id, seq_no, status, material_id, material_code, material_name, material_spec, unit_id, quantity, source_id,
+               quantity_qc_exceptional, quantity_qc_good, quantity_qc_ng, quantity_qc_redisp, quantity_qc_rework, quantity_qc_pending, quantity_qc_aod,
+               remark, create_by, create_time, update_by, update_time
+        from qua_inspect_request_item
+    </sql>
+
+    <select id="selectQuaInspectRequestItemList" parameterType="QuaInspectRequestItem" resultMap="QuaInspectRequestItemResult">
+        <include refid="selectQuaInspectRequestItemVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="requestId != null "> and request_id = #{requestId}</if>
+            <if test="seqNo != null "> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="materialCode != null  and materialCode != ''"> and material_code like concat('%', #{materialCode}, '%')</if>
+            <if test="materialName != null  and materialName != ''"> and material_name like concat('%', #{materialName}, '%')</if>
+            <if test="materialSpec != null  and materialSpec != ''"> and material_spec like concat('%', #{materialSpec}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="sourceId != null "> and source_id = #{sourceId}</if>
+            <if test="quantityQcExceptional != null "> and quantity_qc_exceptional = #{quantityQcExceptional}</if>
+            <if test="quantityQcGood != null "> and quantity_qc_good = #{quantityQcGood}</if>
+            <if test="quantityQcNg != null "> and quantity_qc_ng = #{quantityQcNg}</if>
+            <if test="quantityQcRedisp != null "> and quantity_qc_redisp = #{quantityQcRedisp}</if>
+            <if test="quantityQcRework != null "> and quantity_qc_rework = #{quantityQcRework}</if>
+            <if test="quantityQcPending != null "> and quantity_qc_pending = #{quantityQcPending}</if>
+            <if test="quantityQcAod != null "> and quantity_qc_aod = #{quantityQcAod}</if>
+        </where>
+    </select>
+    
+    <select id="selectQuaInspectRequestItemById" parameterType="Long" resultMap="QuaInspectRequestItemResult">
+        <include refid="selectQuaInspectRequestItemVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectQuaInspectRequestItemListByRequestId" parameterType="Long" resultMap="QuaInspectRequestItemResult">
+        <include refid="selectQuaInspectRequestItemVo"/>
+        where request_id = #{requestId}
+    </select>
+
+    <select id="selectQuaInspectRequestItemListByMaterialId" parameterType="Long" resultMap="QuaInspectRequestItemResult">
+        <include refid="selectQuaInspectRequestItemVo"/>
+        where material_id = #{materialId}
+    </select>
+        
+    <insert id="insertQuaInspectRequestItem" parameterType="QuaInspectRequestItem" useGeneratedKeys="true" keyProperty="id">
+        insert into qua_inspect_request_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="requestId != null">request_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="status != null">status,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="materialCode != null and materialCode != ''">material_code,</if>
+            <if test="materialName != null">material_name,</if>
+            <if test="materialSpec != null">material_spec,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="sourceId != null">source_id,</if>
+            <if test="quantityQcExceptional != null ">quantity_qc_exceptional,</if>
+            <if test="quantityQcGood != null ">quantity_qc_good,</if>
+            <if test="quantityQcNg != null ">quantity_qc_ng,</if>
+            <if test="quantityQcRedisp != null ">quantity_qc_redisp,</if>
+            <if test="quantityQcRework != null ">quantity_qc_rework,</if>
+            <if test="quantityQcPending != null ">quantity_qc_pending,</if>
+            <if test="quantityQcAod != null ">quantity_qc_aod,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="requestId != null">#{requestId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="materialCode != null and materialCode != ''">#{materialCode},</if>
+            <if test="materialName != null">#{materialName},</if>
+            <if test="materialSpec != null">#{materialSpec},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="sourceId != null">#{sourceId},</if>
+            <if test="quantityQcExceptional != null ">#{quantityQcExceptional},</if>
+            <if test="quantityQcGood != null ">#{quantityQcGood}</if>
+            <if test="quantityQcNg != null ">#{quantityQcNg}</if>
+            <if test="quantityQcRedisp != null ">#{quantityQcRedisp}</if>
+            <if test="quantityQcRework != null ">#{quantityQcRework}</if>
+            <if test="quantityQcPending != null ">#{quantityQcPending}</if>
+            <if test="quantityQcAod != null ">#{quantityQcAod}</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateQuaInspectRequestItem" parameterType="QuaInspectRequestItem">
+        update qua_inspect_request_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="requestId != null">request_id = #{requestId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="materialCode != null and materialCode != ''">material_code = #{materialCode},</if>
+            <if test="materialName != null">material_name = #{materialName},</if>
+            <if test="materialSpec != null">material_spec = #{materialSpec},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="sourceId != null">source_id = #{sourceId},</if>
+            <if test="quantityQcExceptional != null "> quantity_qc_exceptional = #{quantityQcExceptional},</if>
+            <if test="quantityQcGood != null ">quantity_qc_good = #{quantityQcGood},</if>
+            <if test="quantityQcNg != null ">quantity_qc_ng = #{quantityQcNg},</if>
+            <if test="quantityQcRedisp != null ">quantity_qc_redisp = #{quantityQcRedisp},</if>
+            <if test="quantityQcRework != null ">quantity_qc_rework = #{quantityQcRework},</if>
+            <if test="quantityQcPending != null ">quantity_qc_pending = #{quantityQcPending},</if>
+            <if test="quantityQcAod != null ">quantity_qc_aod = #{quantityQcAod},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteQuaInspectRequestItemById" parameterType="Long">
+        delete from qua_inspect_request_item where id = #{id}
+    </delete>
+
+    <delete id="deleteQuaInspectRequestItemByIds" parameterType="String">
+        delete from qua_inspect_request_item where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteQuaInspectRequestItemByRequestId" parameterType="Long">
+        delete from qua_inspect_request_item where request_id = #{requestId}
+    </delete>
+
+    <delete id="deleteQuaInspectRequestItemByMaterialId" parameterType="Long">
+        delete from qua_inspect_request_item where material_id = #{materialId}
+    </delete>
+</mapper>

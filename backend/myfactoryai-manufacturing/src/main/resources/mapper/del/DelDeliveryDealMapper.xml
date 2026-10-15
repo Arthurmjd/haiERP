@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.del.mapper.DelDeliveryDealMapper">
+    
+    <resultMap type="DelDeliveryDeal" id="DelDeliveryDealResult">
+        <result property="id"    column="id"    />
+        <result property="soId"    column="so_id"    />
+        <result property="soNo"    column="so_no"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="status"    column="status"    />
+        <result property="contractNo"    column="contract_no"    />
+        <result property="customerNo"    column="customer_code"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productCode"    column="product_code"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="customerProductNo"    column="customer_product_no"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantityOrder"    column="quantity_order"    />
+        <result property="price"    column="price"    />
+        <result property="discountPrice"    column="discount_price"    />
+        <result property="amount"    column="amount"    />
+        <result property="discountRate"    column="discount_rate"    />
+        <result property="finalAmount"    column="final_amount"    />
+        <result property="quantityDelivering"    column="quantity_delivering"    />
+        <result property="quantityDelivered"    column="quantity_delivered"    />
+        <result property="quantitySubcontract"    column="quantity_subcontract"    />
+        <result property="quantitySubcontracted"    column="quantity_subcontracted"    />
+        <result property="quantityMps"    column="quantity_mps"    />
+        <result property="quantityManufactured"    column="quantity_manufactured"    />
+        <result property="quantityInvoiced"    column="quantity_invoiced"    />
+        <result property="amountInvoiced"    column="amount_invoiced"    />
+        <result property="priority"    column="priority"    />
+        <result property="needDay"    column="need_day"    />
+        <result property="promiseDay"    column="promise_day"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectDelDeliveryDealVo">
+        select a.id, b.contract_no, c.customer_code as customer_no, c.customer_name, so_id, b.bill_no as so_no, seq_no,
+               a.status, product_id, product_code, product_name, product_spec, draw_no, customer_product_no, unit_id,
+               quantity_order, price, discount_price, amount, discount_rate, final_amount,
+               quantity_delivering, quantity_delivered, quantity_subcontract, quantity_subcontracted, quantity_mps, quantity_manufactured, quantity_invoiced, amount_invoiced,
+               priority, need_day, promise_day, a.remark, a.create_by, a.create_time, a.update_by, a.update_time
+        from ord_so_item a
+        left join ord_so b on b.id=a.so_id
+        left join cha_customer c on c.id=b.customer_id
+    </sql>
+
+    <select id="selectDelDeliveryDealList" parameterType="DelDeliveryDeal" resultMap="DelDeliveryDealResult">
+        <include refid="selectDelDeliveryDealVo"/>
+        <where>
+            <if test="id != null "> and a.id = #{id}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="seqNo != null  and seqNo != ''"> and seq_no like concat('%', #{seqNo}, '%')</if>
+                 and a.status in (4,5,6,7,8,9,10,11,12)
+            <if test="status != null "> and a.status = #{status}</if>
+            <if test="soNo != null  and soNo != ''"> and so_no like concat('%', #{soNo}, '%')</if>
+            <if test="contractNo != null  and contractNo != ''"> and contract_no like concat('%', #{contractNo}, '%')</if>
+            <if test="customerNo != null  and customerNo != ''"> and customer_no like concat('%', #{customerNo}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null  and productCode != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityOrder != null "> and quantity_order = #{quantityOrder}</if>
+            <if test="quantityDelivering != null"> and quantity_delivering = #{quantityDelivering},</if>
+            <if test="quantityDelivered != null"> and quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantitySubcontract != null"> and quantity_subcontract = #{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null"> and quantity_subcontracted = #{quantitySubcontracted},</if>
+            <if test="quantityMps != null"> and quantity_mps = #{quantityMps},</if>
+            <if test="quantityInvoiced != null"> and quantity_invoiced = #{quantityInvoiced},</if>
+            <if test="amountInvoiced != null"> and amount_invoiced = #{amountInvoiced},</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryDealDraftList" parameterType="DelDeliveryDeal" resultMap="DelDeliveryDealResult">
+        <include refid="selectDelDeliveryDealVo"/>
+        <where>
+            <if test="id != null "> and a.id = #{id}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="seqNo != null  and seqNo != ''"> and seq_no like concat('%', #{seqNo}, '%')</if>
+            and a.status = 0
+            <if test="contractNo != null  and contractNo != ''"> and contract_no like concat('%', #{contractNo}, '%')</if>
+            <if test="customerNo != null  and customerNo != ''"> and customer_no like concat('%', #{customerNo}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null  and productCode != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityOrder != null "> and quantity_order = #{quantityOrder}</if>
+            <if test="quantityDelivering != null"> and quantity_delivering = #{quantityDelivering},</if>
+            <if test="quantityDelivered != null"> and quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantitySubcontract != null"> and quantity_subcontract = #{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null"> and quantity_subcontracted = #{quantitySubcontracted},</if>
+            <if test="quantityMps != null"> and quantity_mps = #{quantityMps},</if>
+            <if test="quantityManufactured != null"> and quantity_manufactured = #{quantityManufactured},</if>
+            <if test="quantityInvoiced != null"> and quantity_invoiced = #{quantityInvoiced},</if>
+            <if test="amountInvoiced != null"> and amount_invoiced = #{amountInvoiced},</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryDealPublishingList" parameterType="DelDeliveryDeal" resultMap="DelDeliveryDealResult">
+        <include refid="selectDelDeliveryDealVo"/>
+        <where>
+            <if test="id != null "> and a.id = #{id}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="seqNo != null  and seqNo != ''"> and seq_no like concat('%', #{seqNo}, '%')</if>
+            and a.status in (0,1,2,3,4)
+            <if test="status != null "> and a.status = #{status}</if>
+            <if test="contractNo != null  and contractNo != ''"> and contract_no like concat('%', #{contractNo}, '%')</if>
+            <if test="customerNo != null  and customerNo != ''"> and customer_no like concat('%', #{customerNo}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null  and productCode != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityOrder != null "> and quantity_order = #{quantityOrder}</if>
+            <if test="quantityDelivering != null"> and quantity_delivering = #{quantityDelivering},</if>
+            <if test="quantityDelivered != null"> and quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantitySubcontract != null"> and quantity_subcontract = #{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null"> and quantity_subcontracted = #{quantitySubcontracted},</if>
+            <if test="quantityMps != null"> and quantity_mps = #{quantityMps},</if>
+            <if test="quantityManufactured != null"> and quantity_manufactured = #{quantityManufactured},</if>
+            <if test="quantityInvoiced != null"> and quantity_invoiced = #{quantityInvoiced},</if>
+            <if test="amountInvoiced != null"> and amount_invoiced = #{amountInvoiced},</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryDealPublishedList" parameterType="DelDeliveryDeal" resultMap="DelDeliveryDealResult">
+        <include refid="selectDelDeliveryDealVo"/>
+        <where>
+            <if test="id != null "> and a.id = #{id}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="seqNo != null  and seqNo != ''"> and seq_no like concat('%', #{seqNo}, '%')</if>
+            and a.status in (4,5,6,7,8,9,10,11,12,13,15,16,17,18)
+            <if test="status != null "> and a.status = #{status}</if>
+            <if test="contractNo != null  and contractNo != ''"> and contract_no like concat('%', #{contractNo}, '%')</if>
+            <if test="customerNo != null  and customerNo != ''"> and customer_no like concat('%', #{customerNo}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null  and productCode != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityOrder != null "> and quantity_order = #{quantityOrder}</if>
+            <if test="quantityDelivering != null"> and quantity_delivering = #{quantityDelivering},</if>
+            <if test="quantityDelivered != null"> and quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantitySubcontract != null"> and quantity_subcontract = #{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null"> and quantity_subcontracted = #{quantitySubcontracted},</if>
+            <if test="quantityMps != null"> and quantity_mps = #{quantityMps},</if>
+            <if test="quantityManufactured != null"> and quantity_manufactured = #{quantityManufactured},</if>
+            <if test="quantityInvoiced != null"> and quantity_invoiced = #{quantityInvoiced},</if>
+            <if test="amountInvoiced != null"> and amount_invoiced = #{amountInvoiced},</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryDealProcessingList" parameterType="DelDeliveryDeal" resultMap="DelDeliveryDealResult">
+        <include refid="selectDelDeliveryDealVo"/>
+        <where>
+            <if test="id != null "> and a.id = #{id}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="seqNo != null  and seqNo != ''"> and seq_no like concat('%', #{seqNo}, '%')</if>
+            and a.status in (5,6,7,8,9,10,11,12,13)
+            <if test="status != null "> and a.status = #{status}</if>
+            <if test="contractNo != null  and contractNo != ''"> and contract_no like concat('%', #{contractNo}, '%')</if>
+            <if test="customerNo != null  and customerNo != ''"> and customer_no like concat('%', #{customerNo}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null  and productCode != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityOrder != null "> and quantity_order = #{quantityOrder}</if>
+            <if test="quantityDelivering != null"> and quantity_delivering = #{quantityDelivering},</if>
+            <if test="quantityDelivered != null"> and quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantitySubcontract != null"> and quantity_subcontract = #{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null"> and quantity_subcontracted = #{quantitySubcontracted},</if>
+            <if test="quantityMps != null"> and quantity_mps = #{quantityMps},</if>
+            <if test="quantityManufactured != null"> and quantity_manufactured = #{quantityManufactured},</if>
+            <if test="quantityInvoiced != null"> and quantity_invoiced = #{quantityInvoiced},</if>
+            <if test="amountInvoiced != null"> and amount_invoiced = #{amountInvoiced},</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryDealFinishingList" parameterType="DelDeliveryDeal" resultMap="DelDeliveryDealResult">
+        <include refid="selectDelDeliveryDealVo"/>
+        <where>
+            <if test="id != null "> and a.id = #{id}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="seqNo != null  and seqNo != ''"> and seq_no like concat('%', #{seqNo}, '%')</if>
+            and a.status = 16
+            <if test="contractNo != null  and contractNo != ''"> and contract_no like concat('%', #{contractNo}, '%')</if>
+            <if test="customerNo != null  and customerNo != ''"> and customer_no like concat('%', #{customerNo}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null  and productCode != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityOrder != null "> and quantity_order = #{quantityOrder}</if>
+            <if test="quantityDelivering != null"> and quantity_delivering = #{quantityDelivering},</if>
+            <if test="quantityDelivered != null"> and quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantitySubcontract != null"> and quantity_subcontract = #{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null"> and quantity_subcontracted = #{quantitySubcontracted},</if>
+            <if test="quantityMps != null"> and quantity_mps = #{quantityMps},</if>
+            <if test="quantityManufactured != null"> and quantity_manufactured = #{quantityManufactured},</if>
+            <if test="quantityInvoiced != null"> and quantity_invoiced = #{quantityInvoiced},</if>
+            <if test="amountInvoiced != null"> and amount_invoiced = #{amountInvoiced},</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryDealHistoryList" parameterType="DelDeliveryDeal" resultMap="DelDeliveryDealResult">
+        <include refid="selectDelDeliveryDealVo"/>
+        <where>
+            <if test="id != null "> and a.id = #{id}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="seqNo != null  and seqNo != ''"> and seq_no like concat('%', #{seqNo}, '%')</if>
+            and a.status in (14,15,17,18)
+            <if test="status != null "> and a.status = #{status}</if>
+            <if test="contractNo != null  and contractNo != ''"> and contract_no like concat('%', #{contractNo}, '%')</if>
+            <if test="customerNo != null  and customerNo != ''"> and customer_no like concat('%', #{customerNo}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null  and productCode != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityOrder != null "> and quantity_order = #{quantityOrder}</if>
+            <if test="quantityDelivering != null"> and quantity_delivering = #{quantityDelivering},</if>
+            <if test="quantityDelivered != null"> and quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantitySubcontract != null"> and quantity_subcontract = #{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null"> and quantity_subcontracted = #{quantitySubcontracted},</if>
+            <if test="quantityMps != null"> and quantity_mps = #{quantityMps},</if>
+            <if test="quantityManufactured != null"> and quantity_manufactured = #{quantityManufactured},</if>
+            <if test="quantityInvoiced != null"> and quantity_invoiced = #{quantityInvoiced},</if>
+            <if test="amountInvoiced != null"> and amount_invoiced = #{amountInvoiced},</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryDealAllList" parameterType="DelDeliveryDeal" resultMap="DelDeliveryDealResult">
+        <include refid="selectDelDeliveryDealVo"/>
+        <where>
+            <if test="id != null "> and a.id = #{id}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="seqNo != null  and seqNo != ''"> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="status != null "> and a.status = #{status}</if>
+            <if test="contractNo != null  and contractNo != ''"> and contract_no like concat('%', #{contractNo}, '%')</if>
+            <if test="customerNo != null  and customerNo != ''"> and customer_no like concat('%', #{customerNo}, '%')</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null  and productCode != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityOrder != null "> and quantity_order = #{quantityOrder}</if>
+            <if test="quantityDelivering != null"> and quantity_delivering = #{quantityDelivering},</if>
+            <if test="quantityDelivered != null"> and quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantitySubcontract != null"> and quantity_subcontract = #{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null"> and quantity_subcontracted = #{quantitySubcontracted},</if>
+            <if test="quantityMps != null"> and quantity_mps = #{quantityMps},</if>
+            <if test="quantityManufactured != null"> and quantity_manufactured = #{quantityManufactured},</if>
+            <if test="quantityInvoiced != null"> and quantity_invoiced = #{quantityInvoiced},</if>
+            <if test="amountInvoiced != null"> and amount_invoiced = #{amountInvoiced},</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectDelDeliveryDealById" parameterType="Long" resultMap="DelDeliveryDealResult">
+        <include refid="selectDelDeliveryDealVo"/>
+        where a.id = #{id}
+    </select>
+
+    <select id="selectDelDeliveryDealListBySoId" parameterType="Long" resultMap="DelDeliveryDealResult">
+        <include refid="selectDelDeliveryDealVo"/>
+        where so_id = #{soId}
+    </select>
+
+    <select id="selectDelDeliveryDealListByProductId" parameterType="Long" resultMap="DelDeliveryDealResult">
+        <include refid="selectDelDeliveryDealVo"/>
+        where product_id = #{productId}
+    </select>
+        
+    <insert id="insertDelDeliveryDeal" parameterType="DelDeliveryDeal" useGeneratedKeys="true" keyProperty="id">
+        insert into ord_so_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="soId != null">so_id,</if>
+            <if test="seqNo != null and seqNo != ''">seq_no,</if>
+            <if test="status != null">status,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productCode != null">product_code,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="drawNo != null">draw_no,</if>
+            <if test="customerProductNo != null">customer_product_no,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantityOrder != null">quantity_order,</if>
+            <if test="price != null">price,</if>
+            <if test="discountPrice != null">discount_price,</if>
+            <if test="amount != null">amount,</if>
+            <if test="discountRate != null">discount_rate,</if>
+            <if test="finalAmount != null">final_amount,</if>
+            <if test="quantityDelivering != null">quantity_delivering,</if>
+            <if test="quantityDelivered != null">quantity_delivered,</if>
+            <if test="quantitySubcontract != null">quantity_subcontract,</if>
+            <if test="quantitySubcontracted != null">quantity_subcontracted,</if>
+            <if test="quantityMps != null">quantity_mps,</if>
+            <if test="quantityManufactured != null">quantity_Manufactured,</if>
+            <if test="quantityInvoiced != null">quantity_invoiced,</if>
+            <if test="amountInvoiced != null">amount_invoiced,</if>
+            <if test="priority != null">priority,</if>
+            <if test="needDay != null">need_day,</if>
+            <if test="promiseDay != null">promise_day,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="soId != null">#{soId},</if>
+            <if test="seqNo != null and seqNo != ''">#{seqNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productCode != null">#{productCode},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="drawNo != null">#{drawNo},</if>
+            <if test="customerProductNo != null">#{customerProductNo},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantityOrder != null">#{quantityOrder},</if>
+            <if test="price != null">#{price},</if>
+            <if test="discountPrice != null">#{discountPrice},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="discountRate != null">#{discountRate},</if>
+            <if test="finalAmount != null">#{finalAmount},</if>
+            <if test="quantityDelivering != null">#{quantityDelivering},</if>
+            <if test="quantityDelivered != null">#{quantityDelivered},</if>
+            <if test="quantitySubcontract != null">#{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null">#{quantitySubcontracted},</if>
+            <if test="quantityMps != null">#{quantityMps},</if>
+            <if test="quantityManufactured != null">#{quantityManufactured},</if>
+            <if test="quantityInvoiced != null">#{quantityInvoiced},</if>
+            <if test="amountInvoiced != null">#{amountInvoiced},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="needDay != null">#{needDay},</if>
+            <if test="promiseDay != null">#{promiseDay},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDelDeliveryDeal" parameterType="DelDeliveryDeal">
+        update ord_so_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="soId != null">so_id = #{soId},</if>
+            <if test="seqNo != null and seqNo != ''">seq_no = #{seqNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productCode != null">product_code = #{productCode},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="drawNo != null">draw_no = #{drawNo},</if>
+            <if test="customerProductNo != null">customer_product_no = #{customerProductNo},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantityOrder != null">quantity_order = #{quantityOrder},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="discountPrice != null">discount_price = #{discountPrice},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="discountRate != null">discount_rate = #{discountRate},</if>
+            <if test="finalAmount != null">final_amount = #{finalAmount},</if>
+            <if test="quantityDelivering != null">quantity_delivering = #{quantityDelivering},</if>
+            <if test="quantityDelivered != null">quantity_delivered = #{quantityDelivered},</if>
+            <if test="quantitySubcontract != null">quantity_subcontract = #{quantitySubcontract},</if>
+            <if test="quantitySubcontracted != null">quantity_subcontracted = #{quantitySubcontracted},</if>
+            <if test="quantityMps != null">quantity_mps = #{quantityMps},</if>
+            <if test="quantityManufactured != null">quantity_manufactured = #{quantityManufactured},</if>
+            <if test="quantityInvoiced != null">quantity_invoiced = #{quantityInvoiced},</if>
+            <if test="amountInvoiced != null">amount_invoiced = #{amountInvoiced},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="needDay != null">need_day = #{needDay},</if>
+            <if test="promiseDay != null">promise_day = #{promiseDay},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDelDeliveryDealById" parameterType="Long">
+        delete from ord_so_item where id = #{id}
+    </delete>
+
+    <delete id="deleteDelDeliveryDealByIds" parameterType="String">
+        delete from ord_so_item where a.id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteDelDeliveryDealBySoId" parameterType="Long">
+        delete from ord_so_item where so_id = #{soId}
+    </delete>
+
+    <delete id="deleteDelDeliveryDealByProductId" parameterType="Long">
+        delete from ord_so_item where product_id = #{productId}
+    </delete>
+</mapper>

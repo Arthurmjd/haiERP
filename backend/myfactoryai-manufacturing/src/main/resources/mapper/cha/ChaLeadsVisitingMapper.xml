@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.cha.mapper.ChaLeadsVisitingMapper">
+    
+    <resultMap type="ChaLeadsVisiting" id="ChaLeadsVisitingResult">
+        <result property="id"    column="id"    />
+        <result property="leadId"    column="lead_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="visitDay"    column="visit_day"    />
+        <result property="talkLevel"    column="talk_level"    />
+        <result property="description"    column="description"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectChaLeadsVisitingVo">
+        select id, lead_id, seq_no, visit_day, talk_level, description, remark, create_by, create_time, update_by, update_time from cha_leads_visiting
+    </sql>
+
+    <select id="selectChaLeadsVisitingList" parameterType="ChaLeadsVisiting" resultMap="ChaLeadsVisitingResult">
+        <include refid="selectChaLeadsVisitingVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="leadId != null "> and lead_id = #{leadId}</if>
+            <if test="seqNo != null "> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="visitDay != null "> and visit_day = #{visitDay}</if>
+            <if test="talkLevel != null  and talkLevel != ''"> and talk_level = #{talkLevel}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+        </where>
+    </select>
+    
+    <select id="selectChaLeadsVisitingById" parameterType="Long" resultMap="ChaLeadsVisitingResult">
+        <include refid="selectChaLeadsVisitingVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectChaLeadsVisitingListByLeadId" parameterType="Long" resultMap="ChaLeadsVisitingResult">
+        <include refid="selectChaLeadsVisitingVo"/>
+        where lead_id = #{leadId}
+    </select>
+        
+    <insert id="insertChaLeadsVisiting" parameterType="ChaLeadsVisiting" useGeneratedKeys="true" keyProperty="id">
+        insert into cha_leads_visiting
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="leadId != null">lead_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="visitDay != null">visit_day,</if>
+            <if test="talkLevel != null">talk_level,</if>
+            <if test="description != null">description,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="leadId != null">#{leadId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="visitDay != null">#{visitDay},</if>
+            <if test="talkLevel != null">#{talkLevel},</if>
+            <if test="description != null">#{description},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateChaLeadsVisiting" parameterType="ChaLeadsVisiting">
+        update cha_leads_visiting
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="leadId != null">lead_id = #{leadId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="visitDay != null">visit_day = #{visitDay},</if>
+            <if test="talkLevel != null">talk_level = #{talkLevel},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteChaLeadsVisitingById" parameterType="Long">
+        delete from cha_leads_visiting where id = #{id}
+    </delete>
+
+    <delete id="deleteChaLeadsVisitingByIds" parameterType="String">
+        delete from cha_leads_visiting where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteChaLeadsVisitingByLeadId" parameterType="Long">
+        delete from cha_leads_visiting where lead_id = #{leadId}
+    </delete>
+</mapper>

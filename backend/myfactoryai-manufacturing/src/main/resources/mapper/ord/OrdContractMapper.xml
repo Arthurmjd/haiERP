@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ord.mapper.OrdContractMapper">
+    
+    <resultMap type="OrdContract" id="OrdContractResult">
+        <result property="id"    column="id"    />
+        <result property="contractNo"    column="contract_no"    />
+        <result property="status"    column="status"    />
+        <result property="contractType"    column="contract_type"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productCode"    column="product_code"    />
+        <result property="productQuantity"    column="product_quantity"    />
+        <result property="customerProductNo"    column="customer_product_No"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="amountUntaxed"    column="amount_untaxed"    />
+        <result property="amountTaxed"    column="amount_taxed"    />
+        <result property="invoicePatternId"    column="invoice_pattern_id"    />
+        <result property="payPatternId"    column="pay_pattern_id"    />
+        <result property="currencyId"    column="currency_id"    />
+        <result property="shipmentTypeId"    column="shipment_type_id"    />
+        <result property="exchangeRate"    column="exchange_rate"    />
+        <result property="orderDay"    column="order_day"    />
+        <result property="addressId"    column="address_id"    />
+        <result property="contactId"    column="contact_id"    />
+        <result property="soType"    column="so_type"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="salesId"    column="sales_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectOrdContractVo">
+        select id, contract_no, status, contract_type, product_id, product_code, product_quantity, customer_product_No, customer_id, amount_untaxed, amount_taxed,
+               invoice_pattern_id, pay_pattern_id, currency_id, shipment_type_id, exchange_rate,
+               order_day, address_id, contact_id, so_type, project_id, sales_id, dept_id,
+               remark, create_by, create_time, update_by, update_time
+        from ord_contract
+    </sql>
+
+    <select id="selectOrdContractList" parameterType="OrdContract" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+                 and status in (0,1,2,3,4,5,6,7,8,9,10,11,12,13,16)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="contractType != null "> and contract_type = #{contractType}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="productQuantity != null "> and product_quantity = #{productQuantity}</if>
+            <if test="customerProductNo != null "> and customer_product_no = #{customerProductNo}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="contractNo != null "> and contract_no = #{contractNo}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="soType != null "> and so_type = #{soType}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectOrdContractDraftList" parameterType="OrdContract" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="contractNo != null "> and contract_no = #{contractNo}</if>
+             and status =0
+            <if test="contractType != null "> and contract_type = #{contractType}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="productQuantity != null "> and product_quantity = #{productQuantity}</if>
+            <if test="customerProductNo != null "> and customer_product_no = #{customerProductNo}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="soType != null "> and so_type = #{soType}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectOrdContractPublishingList" parameterType="OrdContract" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            and status in (0,1,2,3,4)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="contractType != null "> and contract_type = #{contractType}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="productQuantity != null "> and product_quantity = #{productQuantity}</if>
+            <if test="customerProductNo != null "> and customer_product_no = #{customerProductNo}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="contractNo != null "> and contract_no = #{contractNo}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="soType != null "> and so_type = #{soType}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectOrdContractProcessingList" parameterType="OrdContract" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            and status in (5,6,7,8,9,10,11,12,13)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="contractType != null "> and contract_type = #{contractType}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="productQuantity != null "> and product_quantity = #{productQuantity}</if>
+            <if test="customerProductNo != null "> and customer_product_no = #{customerProductNo}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="contractNo != null "> and contract_no = #{contractNo}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="soType != null "> and so_type = #{soType}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectOrdContractFinishingList" parameterType="OrdContract" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            and status = 16
+            <if test="contractType != null "> and contract_type = #{contractType}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="productQuantity != null "> and product_quantity = #{productQuantity}</if>
+            <if test="customerProductNo != null "> and customer_product_no = #{customerProductNo}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="contractNo != null "> and contract_no = #{contractNo}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="soType != null "> and so_type = #{soType}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectOrdContractHistoryList" parameterType="OrdContract" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            and status in (14,15,17,18)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="contractType != null "> and contract_type = #{contractType}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="productQuantity != null "> and product_quantity = #{productQuantity}</if>
+            <if test="customerProductNo != null "> and customer_product_no = #{customerProductNo}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="contractNo != null "> and contract_no = #{contractNo}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="soType != null "> and so_type = #{soType}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectOrdContractAllList" parameterType="OrdContract" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="contractType != null "> and contract_type = #{contractType}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="productQuantity != null "> and product_quantity = #{productQuantity}</if>
+            <if test="customerProductNo != null "> and customer_product_no = #{customerProductNo}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="contractNo != null "> and contract_no = #{contractNo}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="soType != null "> and so_type = #{soType}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectOrdContractList4Adult" parameterType="OrdContract" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            and status in (4,5,6,7,8,9,10,11,12,13,14)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="contractType != null "> and contract_type = #{contractType}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="productQuantity != null "> and product_quantity = #{productQuantity}</if>
+            <if test="customerProductNo != null "> and customer_product_no = #{customerProductNo}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="contractNo != null "> and contract_no = #{contractNo}</if>
+            <if test="amountUntaxed != null "> and amount_untaxed = #{amountUntaxed}</if>
+            <if test="amountTaxed != null "> and amount_taxed = #{amountTaxed}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="exchangeRate != null "> and exchange_rate = #{exchangeRate}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contactId != null "> and contact_id = #{contactId}</if>
+            <if test="soType != null "> and so_type = #{soType}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+    </select>
+
+    <select id="selectOrdContractById" parameterType="Long" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectOrdContractListByCustomerId" parameterType="Long" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        where customer_id = #{customerId}
+    </select>
+
+    <select id="selectOrdContractListByInvoicePatternId" parameterType="Long" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        where invoice_pattern_id = #{invoicePatternId}
+    </select>
+
+    <select id="selectOrdContractListByPayPatternId" parameterType="Long" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        where pay_pattern_id = #{payPatternId}
+    </select>
+
+    <select id="selectOrdContractListByCurrencyId" parameterType="Long" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        where currency_id = #{currencyId}
+    </select>
+
+    <select id="selectOrdContractListByShipmentTypeId" parameterType="Long" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        where shipment_type_id = #{shipmentTypeId}
+    </select>
+
+    <select id="selectOrdContractListByAddressId" parameterType="Long" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        where address_id = #{addressId}
+    </select>
+
+    <select id="selectOrdContractListByContactId" parameterType="Long" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        where contact_id = #{contactId}
+    </select>
+
+    <select id="selectOrdContractListByProjectId" parameterType="Long" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        where project_id = #{projectId}
+    </select>
+
+    <select id="selectOrdContractListBySalesId" parameterType="Long" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        where sales_id = #{salesId}
+    </select>
+
+    <select id="selectOrdContractListByDeptId" parameterType="Long" resultMap="OrdContractResult">
+        <include refid="selectOrdContractVo"/>
+        where dept_id = #{deptId}
+    </select>
+        
+    <insert id="insertOrdContract" parameterType="OrdContract" useGeneratedKeys="true" keyProperty="id">
+        insert into ord_contract
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="status != null">status,</if>
+            <if test="contractType != null ">contract_type,</if>
+            <if test="productId != null ">product_id,</if>
+            <if test="productCode != null">product_code,</if>
+            <if test="productQuantity != null ">product_quantity,</if>
+            <if test="customerProductNo != null ">customer_product_no,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="contractNo != null">contract_no,</if>
+            <if test="amountUntaxed != null">amount_untaxed,</if>
+            <if test="amountTaxed != null">amount_taxed,</if>
+            <if test="invoicePatternId != null">invoice_pattern_id,</if>
+            <if test="payPatternId != null">pay_pattern_id,</if>
+            <if test="currencyId != null">currency_id,</if>
+            <if test="shipmentTypeId != null">shipment_type_id,</if>
+            <if test="exchangeRate != null">exchange_rate,</if>
+            <if test="orderDay != null">order_day,</if>
+            <if test="addressId != null">address_id,</if>
+            <if test="contactId != null">contact_id,</if>
+            <if test="soType != null">so_type,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="salesId != null">sales_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="status != null">#{status},</if>
+            <if test="contractType != null ">#{contractType},</if>
+            <if test="productId != null ">#{productId},</if>
+            <if test="productCode != null">#{productCode},</if>
+            <if test="productQuantity != null ">#{productQuantity},</if>
+            <if test="customerProductNo != null ">#{customerProductNo},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="contractNo != null">#{contractNo},</if>
+            <if test="amountUntaxed != null">#{amountUntaxed},</if>
+            <if test="amountTaxed != null">#{amountTaxed},</if>
+            <if test="invoicePatternId != null">#{invoicePatternId},</if>
+            <if test="payPatternId != null">#{payPatternId},</if>
+            <if test="currencyId != null">#{currencyId},</if>
+            <if test="shipmentTypeId != null">#{shipmentTypeId},</if>
+            <if test="exchangeRate != null">#{exchangeRate},</if>
+            <if test="orderDay != null">#{orderDay},</if>
+            <if test="addressId != null">#{addressId},</if>
+            <if test="contactId != null">#{contactId},</if>
+            <if test="soType != null">#{soType},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="salesId != null">#{salesId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateOrdContract" parameterType="OrdContract">
+        update ord_contract
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="status != null">status = #{status},</if>
+            <if test="contractType != null">contract_type = #{contractType},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productCode != null">product_code = #{productCode},</if>
+            <if test="productQuantity != null">product_quantity = #{productQuantity},</if>
+            <if test="customerProductNo != null">customer_product_no = #{customerProductNo},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="contractNo != null">contract_no = #{contractNo},</if>
+            <if test="amountUntaxed != null">amount_untaxed = #{amountUntaxed},</if>
+            <if test="amountTaxed != null">amount_taxed = #{amountTaxed},</if>
+            <if test="invoicePatternId != null">invoice_pattern_id = #{invoicePatternId},</if>
+            <if test="payPatternId != null">pay_pattern_id = #{payPatternId},</if>
+            <if test="currencyId != null">currency_id = #{currencyId},</if>
+            <if test="shipmentTypeId != null">shipment_type_id = #{shipmentTypeId},</if>
+            <if test="exchangeRate != null">exchange_rate = #{exchangeRate},</if>
+            <if test="orderDay != null">order_day = #{orderDay},</if>
+            <if test="addressId != null">address_id = #{addressId},</if>
+            <if test="contactId != null">contact_id = #{contactId},</if>
+            <if test="soType != null">so_type = #{soType},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="salesId != null">sales_id = #{salesId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOrdContractById" parameterType="Long">
+        delete from ord_contract where id = #{id}
+    </delete>
+
+    <delete id="deleteOrdContractByIds" parameterType="String">
+        delete from ord_contract where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteOrdContractByCustomerId" parameterType="Long">
+        delete from ord_contract where customer_id = #{customerId}
+    </delete>
+
+    <delete id="deleteOrdContractByInvoicePatternId" parameterType="Long">
+        delete from ord_contract where invoice_pattern_id = #{invoicePatternId}
+    </delete>
+
+    <delete id="deleteOrdContractByPayPatternId" parameterType="Long">
+        delete from ord_contract where pay_pattern_id = #{payPatternId}
+    </delete>
+
+    <delete id="deleteOrdContractByCurrencyId" parameterType="Long">
+        delete from ord_contract where currency_id = #{currencyId}
+    </delete>
+
+    <delete id="deleteOrdContractByShipmentTypeId" parameterType="Long">
+        delete from ord_contract where shipment_type_id = #{shipmentTypeId}
+    </delete>
+
+    <delete id="deleteOrdContractByAddressId" parameterType="Long">
+        delete from ord_contract where address_id = #{addressId}
+    </delete>
+
+    <delete id="deleteOrdContractByContactId" parameterType="Long">
+        delete from ord_contract where contact_id = #{contactId}
+    </delete>
+
+    <delete id="deleteOrdContractByProjectId" parameterType="Long">
+        delete from ord_contract where project_id = #{projectId}
+    </delete>
+
+    <delete id="deleteOrdContractBySalesId" parameterType="Long">
+        delete from ord_contract where sales_id = #{salesId}
+    </delete>
+
+    <delete id="deleteOrdContractByDeptId" parameterType="Long">
+        delete from ord_contract where dept_id = #{deptId}
+    </delete>
+</mapper>

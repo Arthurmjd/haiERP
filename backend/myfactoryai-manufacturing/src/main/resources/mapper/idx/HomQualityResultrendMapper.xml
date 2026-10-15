@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.idx.mapper.HomQualityResultrendMapper">
+
+    <resultMap type="HomQualityResultrend" id="HomQualityResultrendResult">
+        <result property="id" column="id"/>
+        <result property="day" column="day"/>
+        <result property="quantityScrap" column="quantity_scrap"/>
+        <result property="quantityRedisp" column="quantity_redisp"/>
+        <result property="quantityRework" column="quantity_rework"/>
+        <result property="quantityPending" column="quantity_pending"/>
+        <result property="quantityAod" column="quantity_aod"/>
+    </resultMap>
+
+    <sql id="selectHomQualityResultrendVo">
+        select id, day, quantity_scrap, quantity_redisp, quantity_rework, quantity_pending, quantity_aod from
+        hom_quality_resultrend
+    </sql>
+
+    <select id="selectHomQualityResultrendList" parameterType="HomQualityResultrend"
+            resultMap="HomQualityResultrendResult">
+        <include refid="selectHomQualityResultrendVo"/>
+        <where>
+            <if test="day != null  and day != ''">and day = #{day}</if>
+            <if test="quantityScrap != null ">and quantity_scrap = #{quantityScrap}</if>
+            <if test="quantityRedisp != null ">and quantity_redisp = #{quantityRedisp}</if>
+            <if test="quantityRework != null ">and quantity_rework = #{quantityRework}</if>
+            <if test="quantityPending != null ">and quantity_pending = #{quantityPending}</if>
+            <if test="quantityAod != null ">and quantity_aod = #{quantityAod}</if>
+        </where>
+    </select>
+
+    <select id="selectHomQualityResultrendById" parameterType="Long" resultMap="HomQualityResultrendResult">
+        <include refid="selectHomQualityResultrendVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertHomQualityResultrend" parameterType="HomQualityResultrend" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into hom_quality_resultrend
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="day != null and day != ''">day,</if>
+            <if test="quantityScrap != null">quantity_scrap,</if>
+            <if test="quantityRedisp != null">quantity_redisp,</if>
+            <if test="quantityRework != null">quantity_rework,</if>
+            <if test="quantityPending != null">quantity_pending,</if>
+            <if test="quantityAod != null">quantity_aod,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="day != null and day != ''">#{day},</if>
+            <if test="quantityScrap != null">#{quantityScrap},</if>
+            <if test="quantityRedisp != null">#{quantityRedisp},</if>
+            <if test="quantityRework != null">#{quantityRework},</if>
+            <if test="quantityPending != null">#{quantityPending},</if>
+            <if test="quantityAod != null">#{quantityAod},</if>
+        </trim>
+    </insert>
+
+    <update id="updateHomQualityResultrend" parameterType="HomQualityResultrend">
+        update hom_quality_resultrend
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="day != null and day != ''">day = #{day},</if>
+            <if test="quantityScrap != null">quantity_scrap = #{quantityScrap},</if>
+            <if test="quantityRedisp != null">quantity_redisp = #{quantityRedisp},</if>
+            <if test="quantityRework != null">quantity_rework = #{quantityRework},</if>
+            <if test="quantityPending != null">quantity_pending = #{quantityPending},</if>
+            <if test="quantityAod != null">quantity_aod = #{quantityAod},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteHomQualityResultrendById" parameterType="Long">
+        delete from hom_quality_resultrend where id = #{id}
+    </delete>
+
+    <delete id="deleteHomQualityResultrendByIds" parameterType="String">
+        delete from hom_quality_resultrend where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

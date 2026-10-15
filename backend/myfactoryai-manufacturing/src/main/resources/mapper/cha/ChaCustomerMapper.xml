@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.cha.mapper.ChaCustomerMapper">
+    
+    <resultMap type="ChaCustomer" id="ChaCustomerResult">
+        <result property="id"    column="id"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="customerFullname"    column="customer_fullname"    />
+        <result property="customerAliasname"    column="customer_aliasname"    />
+        <result property="customerCode"    column="customer_code"    />
+        <result property="customerType"    column="customer_type"    />
+        <result property="contact"    column="contact"    />
+        <result property="phone"    column="phone"    />
+        <result property="address"    column="address"    />
+        <result property="payPatternId"    column="pay_pattern_id"    />
+        <result property="invoicePatternId"    column="invoice_pattern_id"    />
+        <result property="currencyId"    column="currency_id"    />
+        <result property="shipmentTypeId"    column="shipment_type_id"    />
+        <result property="salesId"    column="sales_id"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectChaCustomerVo">
+        select id, customer_name, customer_fullname, customer_aliasname, customer_code, customer_type,
+               contact, phone, address, pay_pattern_id, invoice_pattern_id, currency_id, shipment_type_id, sales_id,
+               status, remark, create_by, create_time, update_by, update_time from cha_customer
+    </sql>
+
+    <select id="selectChaCustomerList" parameterType="ChaCustomer" resultMap="ChaCustomerResult">
+        <include refid="selectChaCustomerVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="customerName != null  and customerName != ''"> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="customerFullname != null  and customerFullname != ''"> and customer_fullname like concat('%', #{customerFullname}, '%')</if>
+            <if test="customerAliasname != null  and customerAliasname != ''"> and customer_aliasname like concat('%', #{customerAliasname}, '%')</if>
+            <if test="customerCode != null  and customerCode != ''"> and customer_code like concat('%', #{customerCode}, '%')</if>
+            <if test="customerType != null "> and customer_type = #{customerType}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="address != null  and address != ''"> and address = #{address}</if>
+            <if test="payPatternId != null "> and pay_pattern_id = #{payPatternId}</if>
+            <if test="invoicePatternId != null "> and invoice_pattern_id = #{invoicePatternId}</if>
+            <if test="currencyId != null "> and currency_id = #{currencyId}</if>
+            <if test="shipmentTypeId != null "> and shipment_type_id = #{shipmentTypeId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectChaCustomerById" parameterType="Long" resultMap="ChaCustomerResult">
+        <include refid="selectChaCustomerVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectChaCustomerByName" parameterType="String" resultMap="ChaCustomerResult">
+        <include refid="selectChaCustomerVo"/>
+        where customer_name = #{name} or customer_fullname = #{name} or customer_aliasname = #{name}
+    </select>
+
+    <select id="selectChaCustomerListByPayPatternId" parameterType="Long" resultMap="ChaCustomerResult">
+        <include refid="selectChaCustomerVo"/>
+        where pay_pattern_id = #{payPatternId}
+    </select>
+
+    <select id="selectChaCustomerListByInvoicePatternId" parameterType="Long" resultMap="ChaCustomerResult">
+        <include refid="selectChaCustomerVo"/>
+        where invoice_pattern_id = #{invoicePatternId}
+    </select>
+
+    <select id="selectChaCustomerListByCurrencyId" parameterType="Long" resultMap="ChaCustomerResult">
+        <include refid="selectChaCustomerVo"/>
+        where currency_id = #{currencyId}
+    </select>
+
+    <select id="selectChaCustomerListByShipmentTypeId" parameterType="Long" resultMap="ChaCustomerResult">
+        <include refid="selectChaCustomerVo"/>
+        where shipment_type_id = #{shipmentTypeId}
+    </select>
+
+    <select id="selectChaCustomerListBySalesId" parameterType="Long" resultMap="ChaCustomerResult">
+        <include refid="selectChaCustomerVo"/>
+        where sales_id = #{salesId}
+    </select>
+        
+    <insert id="insertChaCustomer" parameterType="ChaCustomer" useGeneratedKeys="true" keyProperty="id">
+        insert into cha_customer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customerName != null">customer_name,</if>
+            <if test="customerFullname != null">customer_fullname,</if>
+            <if test="customerAliasname != null">customer_aliasname,</if>
+            <if test="customerCode != null">customer_code,</if>
+            <if test="customerType != null">customer_type,</if>
+            <if test="contact != null">contact,</if>
+            <if test="phone != null">phone,</if>
+            <if test="address != null">address,</if>
+            <if test="payPatternId != null">pay_pattern_id,</if>
+            <if test="invoicePatternId != null">invoice_pattern_id,</if>
+            <if test="currencyId != null">currency_id,</if>
+            <if test="shipmentTypeId != null">shipment_type_id,</if>
+            <if test="salesId != null">sales_id,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerName != null">#{customerName},</if>
+            <if test="customerFullname != null">#{customerFullname},</if>
+            <if test="customerAliasname != null">#{customerAliasname},</if>
+            <if test="customerCode != null">#{customerCode},</if>
+            <if test="customerType != null">#{customerType},</if>
+            <if test="contact != null">#{contact},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="address != null">#{address},</if>
+            <if test="payPatternId != null">#{payPatternId},</if>
+            <if test="invoicePatternId != null">#{invoicePatternId},</if>
+            <if test="currencyId != null">#{currencyId},</if>
+            <if test="shipmentTypeId != null">#{shipmentTypeId},</if>
+            <if test="salesId != null">#{salesId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateChaCustomer" parameterType="ChaCustomer">
+        update cha_customer
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="customerName != null">customer_name = #{customerName},</if>
+            <if test="customerFullname != null">customer_fullname = #{customerFullname},</if>
+            <if test="customerAliasname != null">customer_aliasname = #{customerAliasname},</if>
+            <if test="customerCode != null">customer_code = #{customerCode},</if>
+            <if test="customerType != null">customer_type = #{customerType},</if>
+            <if test="contact != null">contact = #{contact},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="payPatternId != null">pay_pattern_id = #{payPatternId},</if>
+            <if test="invoicePatternId != null">invoice_pattern_id = #{invoicePatternId},</if>
+            <if test="currencyId != null">currency_id = #{currencyId},</if>
+            <if test="shipmentTypeId != null">shipment_type_id = #{shipmentTypeId},</if>
+            <if test="salesId != null">sales_id = #{salesId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteChaCustomerById" parameterType="Long">
+        delete from cha_customer where id = #{id}
+    </delete>
+
+    <delete id="deleteChaCustomerByIds" parameterType="String">
+        delete from cha_customer where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteChaCustomerByPayPatternId" parameterType="Long">
+        delete from cha_customer where pay_pattern_id = #{payPatternId}
+    </delete>
+
+    <delete id="deleteChaCustomerByInvoicePatternId" parameterType="Long">
+        delete from cha_customer where invoice_pattern_id = #{invoicePatternId}
+    </delete>
+
+    <delete id="deleteChaCustomerByCurrencyId" parameterType="Long">
+        delete from cha_customer where currency_id = #{currencyId}
+    </delete>
+
+    <delete id="deleteChaCustomerByShipmentTypeId" parameterType="Long">
+        delete from cha_customer where shipment_type_id = #{shipmentTypeId}
+    </delete>
+
+    <delete id="deleteChaCustomerBySalesId" parameterType="Long">
+        delete from cha_customer where sales_id = #{salesId}
+    </delete>
+</mapper>

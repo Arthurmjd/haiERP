@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.res.mapper.ResToolMapper">
+    
+    <resultMap type="ResTool" id="ResToolResult">
+        <result property="id"    column="id"    />
+        <result property="toolCode"    column="tool_code"    />
+        <result property="toolDesc"    column="tool_desc"    />
+        <result property="toolType"    column="tool_type"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="buyDay"    column="buy_day"    />
+        <result property="isBusy"    column="is_busy"    />
+        <result property="ioTime"    column="io_time"    />
+        <result property="wsId"    column="ws_id"    />
+        <result property="wsNo"    column="ws_no"    />
+        <result property="mlId"    column="ml_id"    />
+        <result property="mlNo"    column="ml_no"    />
+        <result property="processSeq"    column="process_seq"    />
+        <result property="processId"    column="process_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectResToolVo">
+        select id, tool_code, tool_desc, tool_type, line_id, buy_day, is_busy, io_time, ws_id, ws_no, ml_id, ml_no, process_seq, process_id, remark, create_by, create_time, update_by, update_time from res_tool
+    </sql>
+
+    <select id="selectResToolList" parameterType="ResTool" resultMap="ResToolResult">
+        <include refid="selectResToolVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="toolCode != null  and toolCode != ''"> and tool_code like concat('%', #{toolCode}, '%')</if>
+            <if test="toolDesc != null  and toolDesc != ''"> and tool_desc like concat('%', #{toolDesc}, '%')</if>
+            <if test="toolType != null  and toolType != ''"> and tool_type = #{toolType}</if>
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+            <if test="buyDay != null "> and buy_day = #{buyDay}</if>
+            <if test="isBusy != null  and isBusy != ''"> and is_busy = #{isBusy}</if>
+            <if test="ioTime != null "> and io_time = #{ioTime}</if>
+            <if test="wsId != null"> and ws_id = #{wsId}</if>
+            <if test="wsNo != null  and wsNo != ''"> and ws_no like concat('%', #{wsNo}, '%')</if>
+            <if test="mlId != null "> and ml_id = #{mlId}</if>
+            <if test="mlNo != null  and mlNo != ''"> and ml_no like concat('%', #{mlNo}, '%')</if>
+            <if test="processSeq != null "> and process_seq = #{processSeq}</if>
+            <if test="processId != null "> and process_id = #{processId}</if>
+        </where>
+    </select>
+    
+    <select id="selectResToolById" parameterType="Long" resultMap="ResToolResult">
+        <include refid="selectResToolVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectResToolListByLineId" parameterType="Long" resultMap="ResToolResult">
+        <include refid="selectResToolVo"/>
+        where line_id = #{lineId}
+    </select>
+
+    <select id="selectResToolListByProcessId" parameterType="Long" resultMap="ResToolResult">
+        <include refid="selectResToolVo"/>
+        where process_id = #{processId}
+    </select>
+        
+    <insert id="insertResTool" parameterType="ResTool" useGeneratedKeys="true" keyProperty="id">
+        insert into res_tool
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="toolCode != null and toolCode != ''">tool_code,</if>
+            <if test="toolDesc != null and toolDesc != ''">tool_desc,</if>
+            <if test="toolType != null">tool_type,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="buyDay != null">buy_day,</if>
+            <if test="isBusy != null">is_busy,</if>
+            <if test="ioTime != null">io_time,</if>
+            <if test="wsId != null">ws_id,</if>
+            <if test="wsNo != null">ws_no,</if>
+            <if test="mlId != null">ml_id,</if>
+            <if test="mlNo != null">ml_no,</if>
+            <if test="processSeq != null">process_seq,</if>
+            <if test="processId != null">process_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="toolCode != null and toolCode != ''">#{toolCode},</if>
+            <if test="toolDesc != null and toolDesc != ''">#{toolDesc},</if>
+            <if test="toolType != null">#{toolType},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="buyDay != null">#{buyDay},</if>
+            <if test="isBusy != null">#{isBusy},</if>
+            <if test="ioTime != null">#{ioTime},</if>
+            <if test="wsId != null">#{wsId},</if>
+            <if test="wsNo != null">#{wsNo},</if>
+            <if test="mlId != null">#{mlId},</if>
+            <if test="mlNo != null">#{mlNo},</if>
+            <if test="processSeq != null">#{processSeq},</if>
+            <if test="processId != null">#{processId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateResTool" parameterType="ResTool">
+        update res_tool
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="toolCode != null and toolCode != ''">tool_code = #{toolCode},</if>
+            <if test="toolDesc != null and toolDesc != ''">tool_desc = #{toolDesc},</if>
+            <if test="toolType != null">tool_type = #{toolType},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="buyDay != null">buy_day = #{buyDay},</if>
+            <if test="isBusy != null">is_busy = #{isBusy},</if>
+            io_time = #{ioTime},
+            ws_id = #{wsId},
+            ws_no = #{wsNo},
+            ml_id = #{mlId},
+            ml_no = #{mlNo},
+            process_seq = #{processSeq},
+            process_id = #{processId},
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteResToolById" parameterType="Long">
+        delete from res_tool where id = #{id}
+    </delete>
+
+    <delete id="deleteResToolByIds" parameterType="String">
+        delete from res_tool where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteResToolByLineId" parameterType="Long">
+        delete from res_tool where line_id = #{lineId}
+    </delete>
+
+    <delete id="deleteResToolByProcessId" parameterType="Long">
+        delete from res_tool where process_id = #{processId}
+    </delete>
+</mapper>

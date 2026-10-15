@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngCategoryEngineeringMapper">
+    
+    <resultMap type="EngCategoryEngineering" id="EngCategoryEngineeringResult">
+        <result property="id"    column="id"    />
+        <result property="categoryNo"    column="category_no"    />
+        <result property="categoryName"    column="category_name"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="materialType"    column="material_type"    />
+        <result property="purchasingType"    column="purchasing_type"    />
+        <result property="consumingType"    column="consuming_type"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="lossRate"    column="loss_rate"    />
+        <result property="daysCycletime"    column="days_cycletime"    />
+        <result property="daysLeadtime"    column="days_leadtime"    />
+        <result property="daysPosttime"    column="days_posttime"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngCategoryEngineeringVo">
+        select id, category_no, category_name, parent_id, material_type, purchasing_type, consuming_type, line_id,
+               loss_rate, days_cycletime, days_leadtime, days_posttime, status,
+               remark, create_by, create_time, update_by, update_time
+        from eng_category
+    </sql>
+
+    <select id="selectEngCategoryEngineeringList" parameterType="EngCategoryEngineering" resultMap="EngCategoryEngineeringResult">
+        <include refid="selectEngCategoryEngineeringVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="categoryNo != null  and categoryNo != ''"> and category_no like concat('%', #{categoryNo}, '%')</if>
+            <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+            <if test="parentId != null "> and parent_id = #{parentId}</if>
+             and material_type in (1,2,5)
+            <if test="purchasingType != null  and purchasingType != ''"> and purchasing_type = #{purchasingType}</if>
+            <if test="consumingType != null  and consumingType != ''"> and consuming_type = #{consumingType}</if>
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+            <if test="lossRate != null "> and loss_rate = #{lossRate}</if>
+            <if test="daysCycletime != null "> and days_cycletime = #{daysCycletime}</if>
+            <if test="daysLeadtime != null "> and days_leadtime = #{daysLeadtime}</if>
+            <if test="daysPosttime != null "> and days_posttime = #{daysPosttime}</if>
+                 and status in (4)
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+        order by material_type,parent_id,category_no
+    </select>
+    
+    <select id="selectEngCategoryEngineeringById" parameterType="Long" resultMap="EngCategoryEngineeringResult">
+        <include refid="selectEngCategoryEngineeringVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngCategoryEngineeringListByParentId" parameterType="Long" resultMap="EngCategoryEngineeringResult">
+        <include refid="selectEngCategoryEngineeringVo"/>
+        where parent_id = #{parentId}
+    </select>
+
+    <select id="selectEngCategoryEngineeringListByLineId" parameterType="Long" resultMap="EngCategoryEngineeringResult">
+        <include refid="selectEngCategoryEngineeringVo"/>
+        where line_id = #{lineId}
+    </select>
+        
+    <insert id="insertEngCategoryEngineering" parameterType="EngCategoryEngineering" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryNo != null and categoryNo != ''">category_no,</if>
+            <if test="categoryName != null">category_name,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="materialType != null and materialType != ''">material_type,</if>
+            <if test="purchasingType != null">purchasing_type,</if>
+            <if test="consumingType != null">consuming_type,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="lossRate != null ">loss_rate,</if>
+            <if test="daysCycletime != null">days_cycletime,</if>
+            <if test="daysLeadtime != null">days_leadtime,</if>
+            <if test="daysPosttime != null">days_posttime,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryNo != null and categoryNo != ''">#{categoryNo},</if>
+            <if test="categoryName != null">#{categoryName},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="materialType != null and materialType != ''">#{materialType},</if>
+            <if test="purchasingType != null">#{purchasingType},</if>
+            <if test="consumingType != null">#{consumingType},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="lossRate != null ">#{lossRate},</if>
+            <if test="daysCycletime != null">#{daysCycletime},</if>
+            <if test="daysLeadtime != null">#{daysLeadtime},</if>
+            <if test="daysPosttime != null">#{daysPosttime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngCategoryEngineering" parameterType="EngCategoryEngineering">
+        update eng_category
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryNo != null and categoryNo != ''">category_no = #{categoryNo},</if>
+            <if test="categoryName != null">category_name = #{categoryName},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="materialType != null and materialType != ''">material_type = #{materialType},</if>
+            <if test="purchasingType != null">purchasing_type = #{purchasingType},</if>
+            <if test="consumingType != null">consuming_type = #{consumingType},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="lossRate != null ">loss_rate = #{lossRate},</if>
+            <if test="daysCycletime != null">days_cycletime = #{daysCycletime},</if>
+            <if test="daysLeadtime != null">days_leadtime = #{daysLeadtime},</if>
+            <if test="daysPosttime != null">days_posttime = #{daysPosttime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngCategoryEngineeringById" parameterType="Long">
+        delete from eng_category where id = #{id}
+    </delete>
+
+    <delete id="deleteEngCategoryEngineeringByIds" parameterType="String">
+        delete from eng_category where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngCategoryEngineeringByParentId" parameterType="Long">
+        delete from eng_category where parent_id = #{parentId}
+    </delete>
+
+    <delete id="deleteEngCategoryEngineeringByLineId" parameterType="Long">
+        delete from eng_category where line_id = #{lineId}
+    </delete>
+</mapper>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.res.mapper.ResWorkgroupProcessMapper">
+    
+    <resultMap type="ResWorkgroupProcess" id="ResWorkgroupProcessResult">
+        <result property="id"    column="id"    />
+        <result property="groupId"    column="group_id"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="processId"    column="process_id"    />
+        <result property="processCode"    column="process_code"    />
+        <result property="processName"    column="process_name"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectResWorkgroupProcessVo">
+        select a.id, a.group_id, c.line_id,a.process_id, b.process_code, b.process_name,
+               a.remark, a.create_by, a.create_time, a.update_by, a.update_time
+        from res_workgroup_process a
+        left join eng_process b on b.id=a.process_id
+        left join res_workgroup c on c.id=a.group_id
+    </sql>
+
+    <select id="selectResWorkgroupProcessList" parameterType="ResWorkgroupProcess" resultMap="ResWorkgroupProcessResult">
+        <include refid="selectResWorkgroupProcessVo"/>
+        <where>
+            <if test="id != null "> and a.id = #{id}</if>
+            <if test="lineId != null "> and c.line_id = #{lineId}</if>
+            <if test="groupId != null "> and a.group_id = #{groupId}</if>
+            <if test="processId != null "> and a.process_id = #{processId}</if>
+        </where>
+    </select>
+    
+    <select id="selectResWorkgroupProcessById" parameterType="Long" resultMap="ResWorkgroupProcessResult">
+        <include refid="selectResWorkgroupProcessVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectResWorkgroupProcessListByGroupId" parameterType="Long" resultMap="ResWorkgroupProcessResult">
+        <include refid="selectResWorkgroupProcessVo"/>
+        where group_id = #{groupId}
+    </select>
+
+    <select id="selectResWorkgroupProcessListByProcessId" parameterType="Long" resultMap="ResWorkgroupProcessResult">
+        <include refid="selectResWorkgroupProcessVo"/>
+        where process_id = #{processId}
+    </select>
+        
+    <insert id="insertResWorkgroupProcess" parameterType="ResWorkgroupProcess" useGeneratedKeys="true" keyProperty="id">
+        insert into res_workgroup_process
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="groupId != null">group_id,</if>
+            <if test="processId != null">process_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="groupId != null">#{groupId},</if>
+            <if test="processId != null">#{processId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateResWorkgroupProcess" parameterType="ResWorkgroupProcess">
+        update res_workgroup_process
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="groupId != null">group_id = #{groupId},</if>
+            <if test="processId != null">process_id = #{processId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteResWorkgroupProcessById" parameterType="Long">
+        delete from res_workgroup_process where id = #{id}
+    </delete>
+
+    <delete id="deleteResWorkgroupProcessByIds" parameterType="String">
+        delete from res_workgroup_process where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteResWorkgroupProcessByGroupId" parameterType="Long">
+        delete from res_workgroup_process where group_id = #{groupId}
+    </delete>
+
+    <delete id="deleteResWorkgroupProcessByProcessId" parameterType="Long">
+        delete from res_workgroup_process where process_id = #{processId}
+    </delete>
+</mapper>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ehs.mapper.EhsPollutionRecordMapper">
+    
+    <resultMap type="EhsPollutionRecord" id="EhsPollutionRecordResult">
+        <result property="id"    column="id"    />
+        <result property="foodieId"    column="foodie_id"    />
+        <result property="day"    column="day"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="index1Id"    column="index1_id"    />
+        <result property="index1Value"    column="index1_value"    />
+        <result property="index2Id"    column="index2_id"    />
+        <result property="index2Value"    column="index2_value"    />
+        <result property="index3Id"    column="index3_id"    />
+        <result property="index3Value"    column="index3_value"    />
+        <result property="index4Id"    column="index4_id"    />
+        <result property="index4Value"    column="index4_value"    />
+        <result property="index5Id"    column="index5_id"    />
+        <result property="index5Value"    column="index5_value"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEhsPollutionRecordVo">
+        select id, foodie_id, day, quantity, index1_id, index1_value, index2_id, index2_value, index3_id, index3_value, index4_id, index4_value, index5_id, index5_value, remark, create_by, create_time, update_by, update_time from ehs_pollution_record
+    </sql>
+
+    <select id="selectEhsPollutionRecordList" parameterType="EhsPollutionRecord" resultMap="EhsPollutionRecordResult">
+        <include refid="selectEhsPollutionRecordVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="foodieId != null "> and foodie_id = #{foodieId}</if>
+            <if test="day != null  and day != ''"> and day = #{day}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="index1Id != null "> and index1_id = #{index1Id}</if>
+            <if test="index1Value != null "> and index1_value = #{index1Value}</if>
+            <if test="index2Id != null "> and index2_id = #{index2Id}</if>
+            <if test="index2Value != null "> and index2_value = #{index2Value}</if>
+            <if test="index3Id != null "> and index3_id = #{index3Id}</if>
+            <if test="index3Value != null "> and index3_value = #{index3Value}</if>
+            <if test="index4Id != null "> and index4_id = #{index4Id}</if>
+            <if test="index4Value != null "> and index4_value = #{index4Value}</if>
+            <if test="index5Id != null "> and index5_id = #{index5Id}</if>
+            <if test="index5Value != null "> and index5_value = #{index5Value}</if>
+        </where>
+    </select>
+    
+    <select id="selectEhsPollutionRecordById" parameterType="Long" resultMap="EhsPollutionRecordResult">
+        <include refid="selectEhsPollutionRecordVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEhsPollutionRecordListByFoodieId" parameterType="Long" resultMap="EhsPollutionRecordResult">
+        <include refid="selectEhsPollutionRecordVo"/>
+        where foodie_id = #{foodieId}
+    </select>
+        
+    <insert id="insertEhsPollutionRecord" parameterType="EhsPollutionRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into ehs_pollution_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="foodieId != null">foodie_id,</if>
+            <if test="day != null and day != ''">day,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="index1Id != null">index1_id,</if>
+            <if test="index1Value != null">index1_value,</if>
+            <if test="index2Id != null">index2_id,</if>
+            <if test="index2Value != null">index2_value,</if>
+            <if test="index3Id != null">index3_id,</if>
+            <if test="index3Value != null">index3_value,</if>
+            <if test="index4Id != null">index4_id,</if>
+            <if test="index4Value != null">index4_value,</if>
+            <if test="index5Id != null">index5_id,</if>
+            <if test="index5Value != null">index5_value,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="foodieId != null">#{foodieId},</if>
+            <if test="day != null and day != ''">#{day},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="index1Id != null">#{index1Id},</if>
+            <if test="index1Value != null">#{index1Value},</if>
+            <if test="index2Id != null">#{index2Id},</if>
+            <if test="index2Value != null">#{index2Value},</if>
+            <if test="index3Id != null">#{index3Id},</if>
+            <if test="index3Value != null">#{index3Value},</if>
+            <if test="index4Id != null">#{index4Id},</if>
+            <if test="index4Value != null">#{index4Value},</if>
+            <if test="index5Id != null">#{index5Id},</if>
+            <if test="index5Value != null">#{index5Value},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEhsPollutionRecord" parameterType="EhsPollutionRecord">
+        update ehs_pollution_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="foodieId != null">foodie_id = #{foodieId},</if>
+            <if test="day != null and day != ''">day = #{day},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="index1Id != null">index1_id = #{index1Id},</if>
+            <if test="index1Value != null">index1_value = #{index1Value},</if>
+            <if test="index2Id != null">index2_id = #{index2Id},</if>
+            <if test="index2Value != null">index2_value = #{index2Value},</if>
+            <if test="index3Id != null">index3_id = #{index3Id},</if>
+            <if test="index3Value != null">index3_value = #{index3Value},</if>
+            <if test="index4Id != null">index4_id = #{index4Id},</if>
+            <if test="index4Value != null">index4_value = #{index4Value},</if>
+            <if test="index5Id != null">index5_id = #{index5Id},</if>
+            <if test="index5Value != null">index5_value = #{index5Value},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEhsPollutionRecordById" parameterType="Long">
+        delete from ehs_pollution_record where id = #{id}
+    </delete>
+
+    <delete id="deleteEhsPollutionRecordByIds" parameterType="String">
+        delete from ehs_pollution_record where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEhsPollutionRecordByFoodieId" parameterType="Long">
+        delete from ehs_pollution_record where foodie_id = #{foodieId}
+    </delete>
+</mapper>

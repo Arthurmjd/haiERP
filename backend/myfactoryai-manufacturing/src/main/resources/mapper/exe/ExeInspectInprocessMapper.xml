@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.qua.mapper.ExeInspectInprocessMapper">
+    
+    <resultMap type="ExeInspectInprocess" id="ExeInspectInprocessResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="wsId"    column="ws_id"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialSpec"    column="material_spec"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="description"    column="description"    />
+        <result property="inspectType"    column="inspect_type"    />
+        <result property="mlId"    column="ml_id"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="processSeq"    column="process_seq"    />
+        <result property="processId"    column="process_id"    />
+        <result property="supplierId"    column="supplier_id"    />
+        <result property="supplierLotNo"    column="supplier_lot_no"    />
+        <result property="inspectGroupId"    column="inspect_group_id"    />
+        <result property="inspectBy"    column="inspect_by"    />
+        <result property="inspectDeptId"    column="inspect_dept_id"    />
+        <result property="inspectTime"    column="inspect_time"    />
+        <result property="dealType"    column="deal_type"    />
+        <result property="dealQuantity"    column="deal_quantity"    />
+        <result property="mcategoryId"    column="mcategory_id"    />
+        <result property="mreasonTypeId"    column="mreason_type_id"    />
+        <result property="msolutionTypeId"    column="msolution_type_id"    />
+        <result property="pcategoryId"    column="pcategory_id"    />
+        <result property="preasonTypeId"    column="preason_type_id"    />
+        <result property="psolutionTypeId"    column="psolution_type_id"    />
+        <result property="reasonDesc"    column="reason_desc"    />
+        <result property="solutionDesc"    column="solution_desc"    />
+        <result property="dutyLineId"    column="duty_line_id"    />
+        <result property="dutyProcessId"    column="duty_process_id"    />
+        <result property="dutyGroupId"    column="duty_group_id"    />
+        <result property="dealDeptId"    column="deal_dept_id"    />
+        <result property="dealBy"    column="deal_by"    />
+        <result property="dealTime"    column="deal_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectExeInspectInprocessVo">
+        select id, bill_no, status, ws_id, material_id, material_name, material_spec, unit_id, quantity, description, inspect_type, ml_id, line_id, process_seq, process_id, supplier_id, supplier_lot_no, inspect_group_id, inspect_by, inspect_dept_id, inspect_time, deal_type, deal_quantity, mcategory_id, mreason_type_id, msolution_type_id, pcategory_id, preason_type_id, psolution_type_id, reason_desc, solution_desc, duty_line_id, duty_process_id, duty_group_id, deal_dept_id, deal_by, deal_time, remark, create_by, create_time, update_by, update_time from qua_exception
+    </sql>
+
+    <select id="selectExeInspectInprocessList" parameterType="ExeInspectInprocess" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="wsId != null "> and ws_id = #{wsId}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="materialName != null  and materialName != ''"> and material_name like concat('%', #{materialName}, '%')</if>
+            <if test="materialSpec != null  and materialSpec != ''"> and material_spec like concat('%', #{materialSpec}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+                 and inspect_type in (3)
+            <if test="mlId != null "> and ml_id = #{mlId}</if>
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+            <if test="processSeq != null "> and process_seq = #{processSeq}</if>
+            <if test="processId != null "> and process_id = #{processId}</if>
+            <if test="inspectGroupId != null "> and inspect_group_id = #{inspectGroupId}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectExeInspectInprocessById" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectExeInspectInprocessListByMaterialId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where material_id = #{materialId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByMlId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where ml_id = #{mlId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByInspectBy" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where inspect_by = #{inspectBy}
+    </select>
+
+    <select id="selectExeInspectInprocessListByInspectDeptId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where inspect_dept_id = #{inspectDeptId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByMcategoryId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where mcategory_id = #{mcategoryId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByMreasonTypeId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where mreason_type_id = #{mreasonTypeId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByMsolutionTypeId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where msolution_type_id = #{msolutionTypeId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByPcategoryId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where pcategory_id = #{pcategoryId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByPreasonTypeId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where preason_type_id = #{preasonTypeId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByPsolutionTypeId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where psolution_type_id = #{psolutionTypeId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByDutyLineId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where duty_line_id = #{dutyLineId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByDutyProcessId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where duty_process_id = #{dutyProcessId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByDutyGroupId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where duty_group_id = #{dutyGroupId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByDealDeptId" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where deal_dept_id = #{dealDeptId}
+    </select>
+
+    <select id="selectExeInspectInprocessListByDealBy" parameterType="Long" resultMap="ExeInspectInprocessResult">
+        <include refid="selectExeInspectInprocessVo"/>
+        where deal_by = #{dealBy}
+    </select>
+        
+    <insert id="insertExeInspectInprocess" parameterType="ExeInspectInprocess" useGeneratedKeys="true" keyProperty="id">
+        insert into qua_exception
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="wsId != null ">ws_id,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="materialName != null">material_name,</if>
+            <if test="materialSpec != null">material_spec,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="description != null and description != ''">description,</if>
+            <if test="inspectType != null">inspect_type,</if>
+            <if test="mlId != null">ml_id,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="processSeq != null">process_seq,</if>
+            <if test="processId != null">process_id,</if>
+            <if test="supplierId != null">supplier_id,</if>
+            <if test="supplierLotNo != null">supplier_lot_no,</if>
+            <if test="inspectGroupId != null">inspect_group_id,</if>
+            <if test="inspectBy != null">inspect_by,</if>
+            <if test="inspectDeptId != null">inspect_dept_id,</if>
+            <if test="inspectTime != null">inspect_time,</if>
+            <if test="dealType != null">deal_type,</if>
+            <if test="dealQuantity != null">deal_quantity,</if>
+            <if test="mcategoryId != null">mcategory_id,</if>
+            <if test="mreasonTypeId != null">mreason_type_id,</if>
+            <if test="msolutionTypeId != null">msolution_type_id,</if>
+            <if test="pcategoryId != null">pcategory_id,</if>
+            <if test="preasonTypeId != null">preason_type_id,</if>
+            <if test="psolutionTypeId != null">psolution_type_id,</if>
+            <if test="reasonDesc != null">reason_desc,</if>
+            <if test="solutionDesc != null">solution_desc,</if>
+            <if test="dutyLineId != null">duty_line_id,</if>
+            <if test="dutyProcessId != null">duty_process_id,</if>
+            <if test="dutyGroupId != null">duty_group_id,</if>
+            <if test="dealDeptId != null">deal_dept_id,</if>
+            <if test="dealBy != null">deal_by,</if>
+            <if test="dealTime != null">deal_time,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="wsId != null ">#{wsId},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="materialName != null">#{materialName},</if>
+            <if test="materialSpec != null">#{materialSpec},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="description != null and description != ''">#{description},</if>
+            <if test="inspectType != null">#{inspectType},</if>
+            <if test="mlId != null">#{mlId},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="processSeq != null">#{processSeq},</if>
+            <if test="processId != null">#{processId},</if>
+            <if test="supplierId != null">#{supplierId},</if>
+            <if test="supplierLotNo != null">#{supplierLotNo},</if>
+            <if test="inspectGroupId != null">#{inspectGroupId},</if>
+            <if test="inspectBy != null">#{inspectBy},</if>
+            <if test="inspectDeptId != null">#{inspectDeptId},</if>
+            <if test="inspectTime != null">#{inspectTime},</if>
+            <if test="dealType != null">#{dealType},</if>
+            <if test="dealQuantity != null">#{dealQuantity},</if>
+            <if test="mcategoryId != null">#{mcategoryId},</if>
+            <if test="mreasonTypeId != null">#{mreasonTypeId},</if>
+            <if test="msolutionTypeId != null">#{msolutionTypeId},</if>
+            <if test="pcategoryId != null">#{pcategoryId},</if>
+            <if test="preasonTypeId != null">#{preasonTypeId},</if>
+            <if test="psolutionTypeId != null">#{psolutionTypeId},</if>
+            <if test="reasonDesc != null">#{reasonDesc},</if>
+            <if test="solutionDesc != null">#{solutionDesc},</if>
+            <if test="dutyLineId != null">#{dutyLineId},</if>
+            <if test="dutyProcessId != null">#{dutyProcessId},</if>
+            <if test="dutyGroupId != null">#{dutyGroupId},</if>
+            <if test="dealDeptId != null">#{dealDeptId},</if>
+            <if test="dealBy != null">#{dealBy},</if>
+            <if test="dealTime != null">#{dealTime},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateExeInspectInprocess" parameterType="ExeInspectInprocess">
+        update qua_exception
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="wsId != null ">ws_id = #{wsId},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="materialName != null">material_name = #{materialName},</if>
+            <if test="materialSpec != null">material_spec = #{materialSpec},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
+            <if test="inspectType != null">inspect_type = #{inspectType},</if>
+            <if test="mlId != null">ml_id = #{mlId},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="processSeq != null">process_seq = #{processSeq},</if>
+            <if test="processId != null">process_id = #{processId},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="supplierLotNo != null">supplier_lot_no = #{supplierLotNo},</if>
+            <if test="inspectGroupId != null">inspect_group_id = #{inspectGroupId},</if>
+            <if test="inspectBy != null">inspect_by = #{inspectBy},</if>
+            <if test="inspectDeptId != null">inspect_dept_id = #{inspectDeptId},</if>
+            <if test="inspectTime != null">inspect_time = #{inspectTime},</if>
+            <if test="dealType != null">deal_type = #{dealType},</if>
+            <if test="dealQuantity != null">deal_quantity = #{dealQuantity},</if>
+            <if test="mcategoryId != null">mcategory_id = #{mcategoryId},</if>
+            <if test="mreasonTypeId != null">mreason_type_id = #{mreasonTypeId},</if>
+            <if test="msolutionTypeId != null">msolution_type_id = #{msolutionTypeId},</if>
+            <if test="pcategoryId != null">pcategory_id = #{pcategoryId},</if>
+            <if test="preasonTypeId != null">preason_type_id = #{preasonTypeId},</if>
+            <if test="psolutionTypeId != null">psolution_type_id = #{psolutionTypeId},</if>
+            <if test="reasonDesc != null">reason_desc = #{reasonDesc},</if>
+            <if test="solutionDesc != null">solution_desc = #{solutionDesc},</if>
+            <if test="dutyLineId != null">duty_line_id = #{dutyLineId},</if>
+            <if test="dutyProcessId != null">duty_process_id = #{dutyProcessId},</if>
+            <if test="dutyGroupId != null">duty_group_id = #{dutyGroupId},</if>
+            <if test="dealDeptId != null">deal_dept_id = #{dealDeptId},</if>
+            <if test="dealBy != null">deal_by = #{dealBy},</if>
+            <if test="dealTime != null">deal_time = #{dealTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteExeInspectInprocessById" parameterType="Long">
+        delete from qua_exception where id = #{id}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByIds" parameterType="String">
+        delete from qua_exception where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByMaterialId" parameterType="Long">
+        delete from qua_exception where material_id = #{materialId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByMlId" parameterType="Long">
+        delete from qua_exception where ml_id = #{mlId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByInspectBy" parameterType="Long">
+        delete from qua_exception where inspect_by = #{inspectBy}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByInspectDeptId" parameterType="Long">
+        delete from qua_exception where inspect_dept_id = #{inspectDeptId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByMcategoryId" parameterType="Long">
+        delete from qua_exception where mcategory_id = #{mcategoryId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByMreasonTypeId" parameterType="Long">
+        delete from qua_exception where mreason_type_id = #{mreasonTypeId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByMsolutionTypeId" parameterType="Long">
+        delete from qua_exception where msolution_type_id = #{msolutionTypeId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByPcategoryId" parameterType="Long">
+        delete from qua_exception where pcategory_id = #{pcategoryId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByPreasonTypeId" parameterType="Long">
+        delete from qua_exception where preason_type_id = #{preasonTypeId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByPsolutionTypeId" parameterType="Long">
+        delete from qua_exception where psolution_type_id = #{psolutionTypeId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByDutyLineId" parameterType="Long">
+        delete from qua_exception where duty_line_id = #{dutyLineId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByDutyProcessId" parameterType="Long">
+        delete from qua_exception where duty_process_id = #{dutyProcessId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByDutyGroupId" parameterType="Long">
+        delete from qua_exception where duty_group_id = #{dutyGroupId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByDealDeptId" parameterType="Long">
+        delete from qua_exception where deal_dept_id = #{dealDeptId}
+    </delete>
+
+    <delete id="deleteExeInspectInprocessByDealBy" parameterType="Long">
+        delete from qua_exception where deal_by = #{dealBy}
+    </delete>
+</mapper>

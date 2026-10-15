@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.sup.mapper.SupPurchaseRequestItemMapper">
+    
+    <resultMap type="SupPurchaseRequestItem" id="SupPurchaseRequestItemResult">
+        <result property="id"    column="id"    />
+        <result property="prId"    column="pr_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialCode"    column="material_code"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialSpec"    column="material_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="requireDay"    column="require_day"    />
+        <result property="priority"    column="priority"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="priceSale"    column="price_sale"    />
+        <result property="requestBillId"    column="request_bill_id"    />
+        <result property="requestBillNo"    column="request_bill_no"    />
+        <result property="consumeType"    column="consume_type"    />
+        <result property="enableMust"    column="enable_must"    />
+        <result property="enableReplace"    column="enable_replace"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSupPurchaseRequestItemVo">
+        select id, pr_id, seq_no, material_id, material_code, material_name, material_spec,draw_no,
+               unit_id, quantity, require_day, priority, customer_id, customer_name, price_sale, request_bill_id, request_bill_no, consume_type, enable_must, enable_replace,
+               remark, create_by, create_time, update_by, update_time
+        from sup_pritem
+    </sql>
+
+    <select id="selectSupPurchaseRequestItemList" parameterType="SupPurchaseRequestItem" resultMap="SupPurchaseRequestItemResult">
+        <include refid="selectSupPurchaseRequestItemVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="prId != null "> and pr_id = #{prId}</if>
+            <if test="seqNo != null "> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="materialCode != null  and materialCode != ''"> and material_code like concat('%', #{materialCode}, '%')</if>
+            <if test="materialName != null  and materialName != ''"> and material_name like concat('%', #{materialName}, '%')</if>
+            <if test="materialSpec != null  and materialSpec != ''"> and material_spec like concat('%', #{materialSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="requireDay != null "> and require_day = #{requireDay}</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="customerName != null "> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="priceSale != null "> and price_sale = #{priceSale}</if>
+            <if test="requestBillId != null "> and request_bill_id = #{requestBillId}</if>
+            <if test="requestBillNo != null "> and request_bill_no = #{requestBillNo}</if>
+            <if test="consumeType != null "> and consume_type = #{consumeType}</if>
+            <if test="enableMust != null  and enableMust != ''"> and enable_must = #{enableMust}</if>
+            <if test="enableReplace != null  and enableReplace != ''"> and enable_replace = #{enableReplace}</if>
+        </where>
+    </select>
+    
+    <select id="selectSupPurchaseRequestItemById" parameterType="Long" resultMap="SupPurchaseRequestItemResult">
+        <include refid="selectSupPurchaseRequestItemVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSupPurchaseRequestItemListByPrId" parameterType="Long" resultMap="SupPurchaseRequestItemResult">
+        <include refid="selectSupPurchaseRequestItemVo"/>
+        where pr_id = #{prId}
+    </select>
+
+    <select id="selectSupPurchaseRequestItemListByRequestBillId" parameterType="Long" resultMap="SupPurchaseRequestItemResult">
+        <include refid="selectSupPurchaseRequestItemVo"/>
+        where request_bill_id = #{requestBillId}
+    </select>
+
+    <select id="selectSupPurchaseRequestItemListByMaterialId" parameterType="Long" resultMap="SupPurchaseRequestItemResult">
+        <include refid="selectSupPurchaseRequestItemVo"/>
+        where material_id = #{materialId}
+    </select>
+        
+    <insert id="insertSupPurchaseRequestItem" parameterType="SupPurchaseRequestItem" useGeneratedKeys="true" keyProperty="id">
+        insert into sup_pritem
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="prId != null">pr_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="materialCode != null and materialCode != ''">material_code,</if>
+            <if test="materialName != null">material_name,</if>
+            <if test="materialSpec != null">material_spec,</if>
+            <if test="drawNo != null  and drawNo != ''">draw_no,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="requireDay != null">require_day,</if>
+            <if test="priority != null">priority,</if>
+            <if test="customerId != null ">customer_id,</if>
+            <if test="customerName != null ">customer_name,</if>
+            <if test="priceSale != null ">price_sale,</if>
+            <if test="requestBillId != null">request_bill_id,</if>
+            <if test="requestBillNo != null">request_bill_no,</if>
+            <if test="consumeType != null">consume_type,</if>
+            <if test="enableMust != null">enable_must,</if>
+            <if test="enableReplace != null">enable_replace,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="prId != null">#{prId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="materialCode != null and materialCode != ''">#{materialCode},</if>
+            <if test="materialName != null">#{materialName},</if>
+            <if test="materialSpec != null">#{materialSpec},</if>
+            <if test="drawNo != null  and drawNo != ''">#{drawNo},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="requireDay != null">#{requireDay},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="customerId != null ">#{customerId},</if>
+            <if test="customerName != null ">#{customerName},</if>
+            <if test="priceSale != null ">#{priceSale},</if>
+            <if test="requestBillId != null">#{requestBillId},</if>
+            <if test="requestBillNo != null">#{requestBillNo},</if>
+            <if test="consumeType != null">#{consumeType},</if>
+            <if test="enableMust != null">#{enableMust},</if>
+            <if test="enableReplace != null">#{enableReplace},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSupPurchaseRequestItem" parameterType="SupPurchaseRequestItem">
+        update sup_pritem
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="prId != null">pr_id = #{prId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="materialCode != null and materialCode != ''">material_code = #{materialCode},</if>
+            <if test="materialName != null">material_name = #{materialName},</if>
+            <if test="materialSpec != null">material_spec = #{materialSpec},</if>
+            <if test="drawNo != null  and drawNo != ''">draw_no=#{drawNo},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="requireDay != null">require_day = #{requireDay},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="customerId != null ">customer_id = #{customerId},</if>
+            <if test="customerName != null ">customer_name = #{customerName},</if>
+            <if test="priceSale != null ">price_sale = #{priceSale},</if>
+            <if test="requestBillId != null">request_bill_id = #{requestBillId},</if>
+            <if test="requestBillNo != null">request_bill_no = #{requestBillNo},</if>
+            <if test="consumeType != null">consume_type = #{consumeType},</if>
+            <if test="enableMust != null">enable_must = #{enableMust},</if>
+            <if test="enableReplace != null">enable_replace = #{enableReplace},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSupPurchaseRequestItemById" parameterType="Long">
+        delete from sup_pritem where id = #{id}
+    </delete>
+
+    <delete id="deleteSupPurchaseRequestItemByIds" parameterType="String">
+        delete from sup_pritem where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSupPurchaseRequestItemByPrId" parameterType="Long">
+        delete from sup_pritem where pr_id = #{prId}
+    </delete>
+
+    <delete id="deleteSupPurchaseRequestItemByMaterialId" parameterType="Long">
+        delete from sup_pritem where material_id = #{materialId}
+    </delete>
+</mapper>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.idx.mapper.HomAchieveDaytrendMapper">
+
+    <resultMap type="HomAchieveDaytrend" id="HomAchieveDaytrendResult">
+        <result property="id" column="id"/>
+        <result property="day" column="day"/>
+        <result property="quantityOrder" column="quantity_order"/>
+        <result property="quantityPlan" column="quantity_plan"/>
+        <result property="quantityWork" column="quantity_work"/>
+        <result property="quantityInspection" column="quantity_inspection"/>
+        <result property="quantityStock" column="quantity_stock"/>
+        <result property="quantityDelivery" column="quantity_delivery"/>
+    </resultMap>
+
+    <sql id="selectHomAchieveDaytrendVo">
+        select id, day, quantity_order, quantity_plan, quantity_work, quantity_inspection, quantity_stock,
+        quantity_delivery from hom_achieve_daytrend
+    </sql>
+
+    <select id="selectHomAchieveDaytrendList" parameterType="HomAchieveDaytrend" resultMap="HomAchieveDaytrendResult">
+        <include refid="selectHomAchieveDaytrendVo"/>
+        <where>
+            <if test="day != null  and day != ''">and day = #{day}</if>
+            <if test="quantityOrder != null ">and quantity_order = #{quantityOrder}</if>
+            <if test="quantityPlan != null ">and quantity_plan = #{quantityPlan}</if>
+            <if test="quantityWork != null ">and quantity_work = #{quantityWork}</if>
+            <if test="quantityInspection != null ">and quantity_inspection = #{quantityInspection}</if>
+            <if test="quantityStock != null ">and quantity_stock = #{quantityStock}</if>
+            <if test="quantityDelivery != null ">and quantity_delivery = #{quantityDelivery}</if>
+        </where>
+    </select>
+
+    <select id="selectHomAchieveDaytrendById" parameterType="Long" resultMap="HomAchieveDaytrendResult">
+        <include refid="selectHomAchieveDaytrendVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertHomAchieveDaytrend" parameterType="HomAchieveDaytrend" useGeneratedKeys="true" keyProperty="id">
+        insert into hom_achieve_daytrend
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="day != null and day != ''">day,</if>
+            <if test="quantityOrder != null">quantity_order,</if>
+            <if test="quantityPlan != null">quantity_plan,</if>
+            <if test="quantityWork != null">quantity_work,</if>
+            <if test="quantityInspection != null">quantity_inspection,</if>
+            <if test="quantityStock != null">quantity_stock,</if>
+            <if test="quantityDelivery != null">quantity_delivery,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="day != null and day != ''">#{day},</if>
+            <if test="quantityOrder != null">#{quantityOrder},</if>
+            <if test="quantityPlan != null">#{quantityPlan},</if>
+            <if test="quantityWork != null">#{quantityWork},</if>
+            <if test="quantityInspection != null">#{quantityInspection},</if>
+            <if test="quantityStock != null">#{quantityStock},</if>
+            <if test="quantityDelivery != null">#{quantityDelivery},</if>
+        </trim>
+    </insert>
+
+    <update id="updateHomAchieveDaytrend" parameterType="HomAchieveDaytrend">
+        update hom_achieve_daytrend
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="day != null and day != ''">day = #{day},</if>
+            <if test="quantityOrder != null">quantity_order = #{quantityOrder},</if>
+            <if test="quantityPlan != null">quantity_plan = #{quantityPlan},</if>
+            <if test="quantityWork != null">quantity_work = #{quantityWork},</if>
+            <if test="quantityInspection != null">quantity_inspection = #{quantityInspection},</if>
+            <if test="quantityStock != null">quantity_stock = #{quantityStock},</if>
+            <if test="quantityDelivery != null">quantity_delivery = #{quantityDelivery},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteHomAchieveDaytrendById" parameterType="Long">
+        delete from hom_achieve_daytrend where id = #{id}
+    </delete>
+
+    <delete id="deleteHomAchieveDaytrendByIds" parameterType="String">
+        delete from hom_achieve_daytrend where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

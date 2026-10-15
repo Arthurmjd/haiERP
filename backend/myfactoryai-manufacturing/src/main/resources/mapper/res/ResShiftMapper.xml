@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.res.mapper.ResShiftMapper">
+    
+    <resultMap type="ResShift" id="ResShiftResult">
+        <result property="id"    column="id"    />
+        <result property="shiftsysId"    column="shiftsys_id"    />
+        <result property="shiftSeq"    column="shift_seq"    />
+        <result property="shiftDesc"    column="shift_desc"    />
+        <result property="timeBegin"    column="time_begin"    />
+        <result property="timeEnd"    column="time_end"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectResShiftVo">
+        select id, shiftsys_id, shift_seq, shift_desc, time_begin, time_end, remark, create_by, create_time, update_by, update_time from res_shift
+    </sql>
+
+    <select id="selectResShiftList" parameterType="ResShift" resultMap="ResShiftResult">
+        <include refid="selectResShiftVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="shiftsysId != null "> and shiftsys_id = #{shiftsysId}</if>
+            <if test="shiftSeq != null "> and shift_seq = #{shiftSeq}</if>
+            <if test="shiftDesc != null  and shiftDesc != ''"> and shift_desc like concat('%', #{shiftDesc}, '%')</if>
+            <if test="timeBegin != null  and timeBegin != ''"> and time_begin = #{timeBegin}</if>
+            <if test="timeEnd != null  and timeEnd != ''"> and time_end = #{timeEnd}</if>
+        </where>
+    </select>
+    
+    <select id="selectResShiftById" parameterType="Long" resultMap="ResShiftResult">
+        <include refid="selectResShiftVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectResShiftListByShiftsysId" parameterType="Long" resultMap="ResShiftResult">
+        <include refid="selectResShiftVo"/>
+        where shiftsys_id = #{shiftsysId}
+    </select>
+        
+    <insert id="insertResShift" parameterType="ResShift" useGeneratedKeys="true" keyProperty="id">
+        insert into res_shift
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="shiftsysId != null">shiftsys_id,</if>
+            <if test="shiftSeq != null">shift_seq,</if>
+            <if test="shiftDesc != null">shift_desc,</if>
+            <if test="timeBegin != null and timeBegin != ''">time_begin,</if>
+            <if test="timeEnd != null and timeEnd != ''">time_end,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="shiftsysId != null">#{shiftsysId},</if>
+            <if test="shiftSeq != null">#{shiftSeq},</if>
+            <if test="shiftDesc != null">#{shiftDesc},</if>
+            <if test="timeBegin != null and timeBegin != ''">#{timeBegin},</if>
+            <if test="timeEnd != null and timeEnd != ''">#{timeEnd},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateResShift" parameterType="ResShift">
+        update res_shift
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="shiftsysId != null">shiftsys_id = #{shiftsysId},</if>
+            <if test="shiftSeq != null">shift_seq = #{shiftSeq},</if>
+            <if test="shiftDesc != null">shift_desc = #{shiftDesc},</if>
+            <if test="timeBegin != null and timeBegin != ''">time_begin = #{timeBegin},</if>
+            <if test="timeEnd != null and timeEnd != ''">time_end = #{timeEnd},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteResShiftById" parameterType="Long">
+        delete from res_shift where id = #{id}
+    </delete>
+
+    <delete id="deleteResShiftByIds" parameterType="String">
+        delete from res_shift where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteResShiftByShiftsysId" parameterType="Long">
+        delete from res_shift where shiftsys_id = #{shiftsysId}
+    </delete>
+</mapper>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngErMapper">
+    
+    <resultMap type="EngEr" id="EngErResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="erType"    column="er_type"    />
+        <result property="mpsId"    column="mps_id"    />
+        <result property="mpsNo"    column="mps_no"    />
+        <result property="mlId"    column="ml_id"    />
+        <result property="mlNo"    column="ml_no"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productCode"    column="product_code"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="customerProductNo"    column="customer_product_no"    />
+        <result property="abroadProductNo"    column="abroad_product_no"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="compoundId"    column="compound_id"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngErVo">
+        select id, bill_no, status, er_type, mps_id, mps_no, ml_id, ml_no, product_id, product_code, category_id, compound_id,
+               product_name, product_spec, draw_no, customer_product_no, abroad_product_no,unit_id,
+               remark, create_by, create_time, update_by, update_time
+        from eng_er
+    </sql>
+
+    <select id="selectEngErList" parameterType="EngEr" resultMap="EngErResult">
+        <include refid="selectEngErVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+             and status in (4,8)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="erType != null "> and er_type = #{erType}</if>
+            <if test="mpsId != null "> and mps_id = #{mpsId}</if>
+            <if test="mpsNo != null  and mpsNo != ''"> and mps_no like concat('%', #{mpsNo}, '%')</if>
+            <if test="mlId != null "> and ml_id = #{mlId}</if>
+            <if test="mlNo != null  and mlNo != ''"> and ml_no like concat('%', #{mlNo}, '%')</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null  and productCode != ''"> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''"> and abroad_product_no like concat('%', #{abroadProductNo}, '%')</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="compoundId != null "> and compound_id = #{compoundId}</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectEngErById" parameterType="Long" resultMap="EngErResult">
+        <include refid="selectEngErVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertEngEr" parameterType="EngEr" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_er
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="erType != null">er_type,</if>
+            <if test="mpsId != null">mps_id,</if>
+            <if test="mpsNo != null and mpsNo != ''">mps_no,</if>
+            <if test="mlId != null">ml_id,</if>
+            <if test="mlNo != null">ml_no,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productCode != null and productCode != ''">product_code,</if>
+            <if test="productName != null and productName != ''">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="drawNo != null">draw_no,</if>
+            <if test="customerProductNo != null">customer_product_no,</if>
+            <if test="abroadProductNo != null">abroad_product_no,</if>
+            <if test="categoryId != null ">category_id,</if>
+            <if test="compoundId != null ">compound_id,</if>
+            <if test="unitId != null ">unit_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="erType != null">#{erType},</if>
+            <if test="mpsId != null">#{mpsId},</if>
+            <if test="mpsNo != null and mpsNo != ''">#{mpsNo},</if>
+            <if test="mlId != null">#{mlId},</if>
+            <if test="mlNo != null">#{mlNo},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productCode != null and productCode != ''">#{productCode},</if>
+            <if test="productName != null and productName != ''">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="drawNo != null">#{drawNo},</if>
+            <if test="customerProductNo != null">#{customerProductNo},</if>
+            <if test="abroadProductNo != null">#{abroadProductNo},</if>
+            <if test="categoryId != null ">#{categoryId},</if>
+            <if test="compoundId != null ">#{compoundId},</if>
+            <if test="unitId != null ">#{unitId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngEr" parameterType="EngEr">
+        update eng_er
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="erType != null">er_type = #{erType},</if>
+            <if test="mpsId != null">mps_id = #{mpsId},</if>
+            <if test="mpsNo != null and mpsNo != ''">mps_no = #{mpsNo},</if>
+            <if test="mlId != null">ml_id = #{mlId},</if>
+            <if test="mlNo != null">ml_no = #{mlNo},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productCode != null and productCode != ''">product_code = #{productCode},</if>
+            <if test="productName != null and productName != ''">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="drawNo != null">draw_no = #{drawNo},</if>
+            <if test="customerProductNo != null">customer_product_no = #{customerProductNo},</if>
+            <if test="abroadProductNo != null">abroad_product_no = #{abroadProductNo},</if>
+            <if test="categoryId != null ">category_id = #{categoryId},</if>
+            <if test="compoundId != null ">compound_id = #{compoundId},</if>
+            <if test="unitId != null ">unit_id = #{unitId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngErById" parameterType="Long">
+        delete from eng_er where id = #{id}
+    </delete>
+
+    <delete id="deleteEngErByIds" parameterType="String">
+        delete from eng_er where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.qua.mapper.QuaFreeinspectMaterialMapper">
+    
+    <resultMap type="QuaFreeinspectMaterial" id="QuaFreeinspectMaterialResult">
+        <result property="id"    column="id"    />
+        <result property="policyId"    column="policy_id"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectQuaFreeinspectMaterialVo">
+        select id, policy_id, material_id, remark, create_by, create_time, update_by, update_time from qua_freeinspect_material
+    </sql>
+
+    <select id="selectQuaFreeinspectMaterialList" parameterType="QuaFreeinspectMaterial" resultMap="QuaFreeinspectMaterialResult">
+        <include refid="selectQuaFreeinspectMaterialVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="policyId != null "> and policy_id = #{policyId}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+        </where>
+    </select>
+    
+    <select id="selectQuaFreeinspectMaterialById" parameterType="Long" resultMap="QuaFreeinspectMaterialResult">
+        <include refid="selectQuaFreeinspectMaterialVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectQuaFreeinspectMaterialListByPolicyId" parameterType="Long" resultMap="QuaFreeinspectMaterialResult">
+        <include refid="selectQuaFreeinspectMaterialVo"/>
+        where policy_id = #{policyId}
+    </select>
+
+    <select id="selectQuaFreeinspectMaterialListByMaterialId" parameterType="Long" resultMap="QuaFreeinspectMaterialResult">
+        <include refid="selectQuaFreeinspectMaterialVo"/>
+        where material_id = #{materialId}
+    </select>
+        
+    <insert id="insertQuaFreeinspectMaterial" parameterType="QuaFreeinspectMaterial" useGeneratedKeys="true" keyProperty="id">
+        insert into qua_freeinspect_material
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="policyId != null">policy_id,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="policyId != null">#{policyId},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateQuaFreeinspectMaterial" parameterType="QuaFreeinspectMaterial">
+        update qua_freeinspect_material
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="policyId != null">policy_id = #{policyId},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteQuaFreeinspectMaterialById" parameterType="Long">
+        delete from qua_freeinspect_material where id = #{id}
+    </delete>
+
+    <delete id="deleteQuaFreeinspectMaterialByIds" parameterType="String">
+        delete from qua_freeinspect_material where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteQuaFreeinspectMaterialByPolicyId" parameterType="Long">
+        delete from qua_freeinspect_material where policy_id = #{policyId}
+    </delete>
+
+    <delete id="deleteQuaFreeinspectMaterialByMaterialId" parameterType="Long">
+        delete from qua_freeinspect_material where material_id = #{materialId}
+    </delete>
+</mapper>

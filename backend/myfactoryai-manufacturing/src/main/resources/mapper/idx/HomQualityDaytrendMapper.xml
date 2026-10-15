@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.idx.mapper.HomQualityDaytrendMapper">
+
+    <resultMap type="HomQualityDaytrend" id="HomQualityDaytrendResult">
+        <result property="id" column="id"/>
+        <result property="day" column="day"/>
+        <result property="lineId" column="line_id"/>
+        <result property="yield" column="yield"/>
+    </resultMap>
+
+    <sql id="selectHomQualityDaytrendVo">
+        select id, day, line_id, yield from hom_quality_daytrend
+    </sql>
+
+    <select id="selectHomQualityDaytrendList" parameterType="HomQualityDaytrend" resultMap="HomQualityDaytrendResult">
+        <include refid="selectHomQualityDaytrendVo"/>
+        <where>
+            <if test="day != null  and day != ''">and day = #{day}</if>
+            <if test="lineId != null ">and line_id = #{lineId}</if>
+            <if test="yield != null ">and yield = #{yield}</if>
+        </where>
+    </select>
+
+    <select id="selectHomQualityDaytrendById" parameterType="Long" resultMap="HomQualityDaytrendResult">
+        <include refid="selectHomQualityDaytrendVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertHomQualityDaytrend" parameterType="HomQualityDaytrend" useGeneratedKeys="true" keyProperty="id">
+        insert into hom_quality_daytrend
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="day != null and day != ''">day,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="yield != null">yield,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="day != null and day != ''">#{day},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="yield != null">#{yield},</if>
+        </trim>
+    </insert>
+
+    <update id="updateHomQualityDaytrend" parameterType="HomQualityDaytrend">
+        update hom_quality_daytrend
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="day != null and day != ''">day = #{day},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="yield != null">yield = #{yield},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteHomQualityDaytrendById" parameterType="Long">
+        delete from hom_quality_daytrend where id = #{id}
+    </delete>
+
+    <delete id="deleteHomQualityDaytrendByIds" parameterType="String">
+        delete from hom_quality_daytrend where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

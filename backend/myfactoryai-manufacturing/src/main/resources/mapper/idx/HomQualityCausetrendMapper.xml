@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.idx.mapper.HomQualityCausetrendMapper">
+
+    <resultMap type="HomQualityCausetrend" id="HomQualityCausetrendResult">
+        <result property="id" column="id"/>
+        <result property="day" column="day"/>
+        <result property="causeId" column="cause_id"/>
+        <result property="count" column="count"/>
+    </resultMap>
+
+    <sql id="selectHomQualityCausetrendVo">
+        select id, day, cause_id, count from hom_quality_causetrend
+    </sql>
+
+    <select id="selectHomQualityCausetrendList" parameterType="HomQualityCausetrend"
+            resultMap="HomQualityCausetrendResult">
+        <include refid="selectHomQualityCausetrendVo"/>
+        <where>
+            <if test="day != null  and day != ''">and day = #{day}</if>
+            <if test="causeId != null ">and cause_id = #{causeId}</if>
+            <if test="count != null ">and count = #{count}</if>
+        </where>
+    </select>
+
+    <select id="selectHomQualityCausetrendById" parameterType="Long" resultMap="HomQualityCausetrendResult">
+        <include refid="selectHomQualityCausetrendVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertHomQualityCausetrend" parameterType="HomQualityCausetrend" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into hom_quality_causetrend
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="day != null and day != ''">day,</if>
+            <if test="causeId != null">cause_id,</if>
+            <if test="count != null">count,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="day != null and day != ''">#{day},</if>
+            <if test="causeId != null">#{causeId},</if>
+            <if test="count != null">#{count},</if>
+        </trim>
+    </insert>
+
+    <update id="updateHomQualityCausetrend" parameterType="HomQualityCausetrend">
+        update hom_quality_causetrend
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="day != null and day != ''">day = #{day},</if>
+            <if test="causeId != null">cause_id = #{causeId},</if>
+            <if test="count != null">count = #{count},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteHomQualityCausetrendById" parameterType="Long">
+        delete from hom_quality_causetrend where id = #{id}
+    </delete>
+
+    <delete id="deleteHomQualityCausetrendByIds" parameterType="String">
+        delete from hom_quality_causetrend where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

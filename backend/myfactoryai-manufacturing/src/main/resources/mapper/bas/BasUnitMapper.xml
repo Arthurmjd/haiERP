@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.bas.mapper.BasUnitMapper">
+    
+    <resultMap type="BasUnit" id="BasUnitResult">
+        <result property="id"    column="id"    />
+        <result property="unitName"    column="unit_name"    />
+        <result property="unitSize"    column="unit_size"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectBasUnitVo">
+        select id, unit_name, unit_size, remark, create_by, create_time, update_by, update_time from bas_unit
+    </sql>
+
+    <select id="selectBasUnitList" parameterType="BasUnit" resultMap="BasUnitResult">
+        <include refid="selectBasUnitVo"/>
+        <where>  
+            <if test="unitName != null  and unitName != ''"> and unit_name like concat('%', #{unitName}, '%')</if>
+            <if test="unitSize != null "> and unit_size = #{unitSize}</if>
+        </where>
+    </select>
+    
+    <select id="selectBasUnitById" parameterType="Long" resultMap="BasUnitResult">
+        <include refid="selectBasUnitVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertBasUnit" parameterType="BasUnit" useGeneratedKeys="true" keyProperty="id">
+        insert into bas_unit
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="unitName != null">unit_name,</if>
+            <if test="unitSize != null">unit_size,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="unitName != null">#{unitName},</if>
+            <if test="unitSize != null">#{unitSize},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBasUnit" parameterType="BasUnit">
+        update bas_unit
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="unitName != null">unit_name = #{unitName},</if>
+            <if test="unitSize != null">unit_size = #{unitSize},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBasUnitById" parameterType="Long">
+        delete from bas_unit where id = #{id}
+    </delete>
+
+    <delete id="deleteBasUnitByIds" parameterType="String">
+        delete from bas_unit where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

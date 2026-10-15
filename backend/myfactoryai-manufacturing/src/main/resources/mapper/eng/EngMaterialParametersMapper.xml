@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngMaterialParametersMapper">
+    
+    <resultMap type="EngMaterialParameters" id="EngMaterialParametersResult">
+        <result property="id"    column="id"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="parameterCode"    column="parameter_code"    />
+        <result property="parameterDesc"    column="parameter_desc"    />
+        <result property="parameterType"    column="parameter_type"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngMaterialParametersVo">
+        select id, material_id, parameter_code, parameter_desc, parameter_type, remark, create_by, create_time, update_by, update_time from eng_material_parameters
+    </sql>
+
+    <select id="selectEngMaterialParametersList" parameterType="EngMaterialParameters" resultMap="EngMaterialParametersResult">
+        <include refid="selectEngMaterialParametersVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="parameterCode != null  and parameterCode != ''"> and parameter_code like concat('%', #{parameterCode}, '%')</if>
+            <if test="parameterDesc != null  and parameterDesc != ''"> and parameter_desc like concat('%', #{parameterDesc}, '%')</if>
+            <if test="parameterType != null  and parameterType != ''"> and parameter_type = #{parameterType}</if>
+        </where>
+    </select>
+    
+    <select id="selectEngMaterialParametersById" parameterType="Long" resultMap="EngMaterialParametersResult">
+        <include refid="selectEngMaterialParametersVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngMaterialParametersListByMaterialId" parameterType="Long" resultMap="EngMaterialParametersResult">
+        <include refid="selectEngMaterialParametersVo"/>
+        where material_id = #{materialId}
+    </select>
+        
+    <insert id="insertEngMaterialParameters" parameterType="EngMaterialParameters" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_material_parameters
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="materialId != null">material_id,</if>
+            <if test="parameterCode != null">parameter_code,</if>
+            <if test="parameterDesc != null">parameter_desc,</if>
+            <if test="parameterType != null">parameter_type,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="materialId != null">#{materialId},</if>
+            <if test="parameterCode != null">#{parameterCode},</if>
+            <if test="parameterDesc != null">#{parameterDesc},</if>
+            <if test="parameterType != null">#{parameterType},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngMaterialParameters" parameterType="EngMaterialParameters">
+        update eng_material_parameters
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="parameterCode != null">parameter_code = #{parameterCode},</if>
+            <if test="parameterDesc != null">parameter_desc = #{parameterDesc},</if>
+            <if test="parameterType != null">parameter_type = #{parameterType},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngMaterialParametersById" parameterType="Long">
+        delete from eng_material_parameters where id = #{id}
+    </delete>
+
+    <delete id="deleteEngMaterialParametersByIds" parameterType="String">
+        delete from eng_material_parameters where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngMaterialParametersByMaterialId" parameterType="Long">
+        delete from eng_material_parameters where material_id = #{materialId}
+    </delete>
+</mapper>

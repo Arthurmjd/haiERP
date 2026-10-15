@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngProductRoutingtoolMapper">
+    
+    <resultMap type="EngProductRoutingtool" id="EngProductRoutingtoolResult">
+        <result property="id"    column="id"    />
+        <result property="routingId"    column="routing_id"    />
+        <result property="itemSeq"    column="item_seq"    />
+        <result property="toolId"    column="tool_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngProductRoutingtoolVo">
+        select id, routing_id, item_seq, tool_id, remark, create_by, create_time, update_by, update_time from eng_product_routingtool
+    </sql>
+
+    <select id="selectEngProductRoutingtoolList" parameterType="EngProductRoutingtool" resultMap="EngProductRoutingtoolResult">
+        <include refid="selectEngProductRoutingtoolVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="routingId != null "> and routing_id = #{routingId}</if>
+            <if test="itemSeq != null "> and item_seq = #{itemSeq}</if>
+            <if test="toolId != null "> and tool_id = #{toolId}</if>
+        </where>
+    </select>
+    
+    <select id="selectEngProductRoutingtoolById" parameterType="Long" resultMap="EngProductRoutingtoolResult">
+        <include refid="selectEngProductRoutingtoolVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngProductRoutingtoolListByRoutingId" parameterType="Long" resultMap="EngProductRoutingtoolResult">
+        <include refid="selectEngProductRoutingtoolVo"/>
+        where routing_id = #{routingId}
+    </select>
+
+    <select id="selectEngProductRoutingtoolListByToolId" parameterType="Long" resultMap="EngProductRoutingtoolResult">
+        <include refid="selectEngProductRoutingtoolVo"/>
+        where tool_id = #{toolId}
+    </select>
+        
+    <insert id="insertEngProductRoutingtool" parameterType="EngProductRoutingtool" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_product_routingtool
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="routingId != null">routing_id,</if>
+            <if test="itemSeq != null">item_seq,</if>
+            <if test="toolId != null">tool_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="routingId != null">#{routingId},</if>
+            <if test="itemSeq != null">#{itemSeq},</if>
+            <if test="toolId != null">#{toolId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngProductRoutingtool" parameterType="EngProductRoutingtool">
+        update eng_product_routingtool
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="routingId != null">routing_id = #{routingId},</if>
+            <if test="itemSeq != null">item_seq = #{itemSeq},</if>
+            <if test="toolId != null">tool_id = #{toolId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngProductRoutingtoolById" parameterType="Long">
+        delete from eng_product_routingtool where id = #{id}
+    </delete>
+
+    <delete id="deleteEngProductRoutingtoolByIds" parameterType="String">
+        delete from eng_product_routingtool where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngProductRoutingtoolByRoutingId" parameterType="Long">
+        delete from eng_product_routingtool where routing_id = #{routingId}
+    </delete>
+
+    <delete id="deleteEngProductRoutingtoolByToolId" parameterType="Long">
+        delete from eng_product_routingtool where tool_id = #{toolId}
+    </delete>
+</mapper>

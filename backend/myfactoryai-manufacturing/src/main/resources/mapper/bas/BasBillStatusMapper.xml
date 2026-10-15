@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.bas.mapper.BasBillStatusMapper">
+    
+    <resultMap type="BasBillStatus" id="BasBillStatusResult">
+        <result property="id"    column="id"    />
+        <result property="statusCode"    column="status_code"    />
+        <result property="statusDesc"    column="status_desc"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectBasBillStatusVo">
+        select id, status_code, status_desc, remark, create_by, create_time, update_by, update_time from bas_bill_status
+    </sql>
+
+    <select id="selectBasBillStatusList" parameterType="BasBillStatus" resultMap="BasBillStatusResult">
+        <include refid="selectBasBillStatusVo"/>
+        <where>  
+            <if test="statusCode != null "> and status_code like concat('%', #{statusCode}, '%')</if>
+            <if test="statusDesc != null  and statusDesc != ''"> and status_desc like concat('%', #{statusDesc}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectBasBillStatusById" parameterType="Long" resultMap="BasBillStatusResult">
+        <include refid="selectBasBillStatusVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertBasBillStatus" parameterType="BasBillStatus" useGeneratedKeys="true" keyProperty="id">
+        insert into bas_bill_status
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="statusCode != null">status_code,</if>
+            <if test="statusDesc != null and statusDesc != ''">status_desc,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="statusCode != null">#{statusCode},</if>
+            <if test="statusDesc != null and statusDesc != ''">#{statusDesc},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBasBillStatus" parameterType="BasBillStatus">
+        update bas_bill_status
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="statusCode != null">status_code = #{statusCode},</if>
+            <if test="statusDesc != null and statusDesc != ''">status_desc = #{statusDesc},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBasBillStatusById" parameterType="Long">
+        delete from bas_bill_status where id = #{id}
+    </delete>
+
+    <delete id="deleteBasBillStatusByIds" parameterType="String">
+        delete from bas_bill_status where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

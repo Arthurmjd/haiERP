@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.bas.mapper.BasShipmentTypeMapper">
+    
+    <resultMap type="BasShipmentType" id="BasShipmentTypeResult">
+        <result property="id"    column="id"    />
+        <result property="typeCode"    column="type_code"    />
+        <result property="typeDesc"    column="type_desc"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectBasShipmentTypeVo">
+        select id, type_code, type_desc, remark, create_by, create_time, update_by, update_time from bas_shipment_type
+    </sql>
+
+    <select id="selectBasShipmentTypeList" parameterType="BasShipmentType" resultMap="BasShipmentTypeResult">
+        <include refid="selectBasShipmentTypeVo"/>
+        <where>  
+            <if test="typeCode != null  and typeCode != ''"> and type_code like concat('%', #{typeCode}, '%')</if>
+            <if test="typeDesc != null  and typeDesc != ''"> and type_desc like concat('%', #{typeDesc}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectBasShipmentTypeById" parameterType="Long" resultMap="BasShipmentTypeResult">
+        <include refid="selectBasShipmentTypeVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertBasShipmentType" parameterType="BasShipmentType" useGeneratedKeys="true" keyProperty="id">
+        insert into bas_shipment_type
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="typeCode != null">type_code,</if>
+            <if test="typeDesc != null">type_desc,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="typeCode != null">#{typeCode},</if>
+            <if test="typeDesc != null">#{typeDesc},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBasShipmentType" parameterType="BasShipmentType">
+        update bas_shipment_type
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="typeCode != null">type_code = #{typeCode},</if>
+            <if test="typeDesc != null">type_desc = #{typeDesc},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBasShipmentTypeById" parameterType="Long">
+        delete from bas_shipment_type where id = #{id}
+    </delete>
+
+    <delete id="deleteBasShipmentTypeByIds" parameterType="String">
+        delete from bas_shipment_type where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

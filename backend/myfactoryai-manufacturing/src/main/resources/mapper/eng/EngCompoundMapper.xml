@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngCompoundMapper">
+    
+    <resultMap type="EngCompound" id="EngCompoundResult">
+        <result property="id"    column="id"    />
+        <result property="compoundNo"    column="compound_no"    />
+        <result property="compoundDesc"    column="compound_desc"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngCompoundVo">
+        select id, compound_no, compound_desc, parent_id, remark, create_by, create_time, update_by, update_time from eng_compound
+    </sql>
+
+    <select id="selectEngCompoundList" parameterType="EngCompound" resultMap="EngCompoundResult">
+        <include refid="selectEngCompoundVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="compoundNo != null  and compoundNo != ''"> and compound_no like concat('%', #{compoundNo}, '%')</if>
+            <if test="compoundDesc != null  and compoundDesc != ''"> and compound_desc like concat('%', #{compoundDesc}, '%')</if>
+            <if test="parentId != null "> and parent_id = #{parentId}</if>
+        </where>
+    </select>
+    
+    <select id="selectEngCompoundById" parameterType="Long" resultMap="EngCompoundResult">
+        <include refid="selectEngCompoundVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngCompoundListByParentId" parameterType="Long" resultMap="EngCompoundResult">
+        <include refid="selectEngCompoundVo"/>
+        where parent_id = #{parentId}
+    </select>
+        
+    <insert id="insertEngCompound" parameterType="EngCompound" useGeneratedKeys="true" keyProperty="id">
+        insert into eng_compound
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="compoundNo != null and compoundNo != ''">compound_no,</if>
+            <if test="compoundDesc != null">compound_desc,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="compoundNo != null and compoundNo != ''">#{compoundNo},</if>
+            <if test="compoundDesc != null">#{compoundDesc},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngCompound" parameterType="EngCompound">
+        update eng_compound
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="compoundNo != null and compoundNo != ''">compound_no = #{compoundNo},</if>
+            <if test="compoundDesc != null">compound_desc = #{compoundDesc},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngCompoundById" parameterType="Long">
+        delete from eng_compound where id = #{id}
+    </delete>
+
+    <delete id="deleteEngCompoundByIds" parameterType="String">
+        delete from eng_compound where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngCompoundByParentId" parameterType="Long">
+        delete from eng_compound where parent_id = #{parentId}
+    </delete>
+</mapper>

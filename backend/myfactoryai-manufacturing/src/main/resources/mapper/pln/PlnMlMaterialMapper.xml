@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.pln.mapper.PlnMlMaterialMapper">
+    
+    <resultMap type="PlnMlMaterial" id="PlnMlMaterialResult">
+        <result property="id"    column="id"    />
+        <result property="mlId"    column="ml_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialCode"    column="material_code"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialSpec"    column="material_spec"    />
+        <result property="materialSize"    column="material_size"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="consumeType"    column="consume_type"    />
+        <result property="enableMust"    column="enable_must"    />
+        <result property="enableReplace"    column="enable_replace"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectPlnMlMaterialVo">
+        select id, ml_id, seq_no, material_id, material_code, material_name, material_spec, material_size, unit_id, quantity, consume_type, enable_must, enable_replace,
+               remark, create_by, create_time, update_by, update_time
+        from pln_ml_material
+    </sql>
+
+    <select id="selectPlnMlMaterialList" parameterType="PlnMlMaterial" resultMap="PlnMlMaterialResult">
+        <include refid="selectPlnMlMaterialVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="mlId != null "> and ml_id = #{mlId}</if>
+            <if test="materialCode != null  and materialCode != ''"> and material_code like concat('%', #{materialCode}, '%')</if>
+            <if test="seqNo != null "> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="materialName != null  and materialName != ''"> and material_name like concat('%', #{materialName}, '%')</if>
+            <if test="materialSpec != null  and materialSpec != ''"> and material_spec like concat('%', #{materialSpec}, '%')</if>
+            <if test="materialSize != null  and materialSize != ''"> and material_size like concat('%', #{materialSize}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="consumeType != null "> and consume_type = #{consumeType}</if>
+            <if test="enableMust != null  and enableMust != ''"> and enable_must = #{enableMust}</if>
+            <if test="enableReplace != null  and enableReplace != ''"> and enable_replace = #{enableReplace}</if>
+        </where>
+    </select>
+    
+    <select id="selectPlnMlMaterialById" parameterType="Long" resultMap="PlnMlMaterialResult">
+        <include refid="selectPlnMlMaterialVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectPlnMlMaterialListByMlId" parameterType="Long" resultMap="PlnMlMaterialResult">
+        <include refid="selectPlnMlMaterialVo"/>
+        where ml_id = #{mlId}
+    </select>
+
+    <select id="selectPlnMlMaterialListByMaterialId" parameterType="Long" resultMap="PlnMlMaterialResult">
+        <include refid="selectPlnMlMaterialVo"/>
+        where material_id = #{materialId}
+    </select>
+
+    <select id="selectPlnMlMaterialListByUnitId" parameterType="Long" resultMap="PlnMlMaterialResult">
+        <include refid="selectPlnMlMaterialVo"/>
+        where unit_id = #{unitId}
+    </select>
+        
+    <insert id="insertPlnMlMaterial" parameterType="PlnMlMaterial" useGeneratedKeys="true" keyProperty="id">
+        insert into pln_ml_material
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="mlId != null">ml_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="materialCode != null and materialCode != ''">material_code,</if>
+            <if test="materialName != null and materialName != ''">material_name,</if>
+            <if test="materialSpec != null">material_spec,</if>
+            <if test="materialSize != null  and materialSize != ''">material_size,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="consumeType != null">consume_type,</if>
+            <if test="enableMust != null">enable_must,</if>
+            <if test="enableReplace != null">enable_replace,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="mlId != null">#{mlId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="materialCode != null and materialCode != ''">#{materialCode},</if>
+            <if test="materialName != null and materialName != ''">#{materialName},</if>
+            <if test="materialSpec != null">#{materialSpec},</if>
+            <if test="materialSize != null  and materialSize != ''">#{materialSize},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="consumeType != null">#{consumeType},</if>
+            <if test="enableMust != null">#{enableMust},</if>
+            <if test="enableReplace != null">#{enableReplace},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePlnMlMaterial" parameterType="PlnMlMaterial">
+        update pln_ml_material
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="mlId != null">ml_id = #{mlId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="materialCode != null and materialCode != ''">material_code = #{materialCode},</if>
+            <if test="materialName != null and materialName != ''">material_name = #{materialName},</if>
+            <if test="materialSpec != null">material_spec = #{materialSpec},</if>
+            <if test="materialSize != null  and materialSize != ''">material_size = #{materialSize},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="consumeType != null">consume_type = #{consumeType},</if>
+            <if test="enableMust != null">enable_must = #{enableMust},</if>
+            <if test="enableReplace != null">enable_replace = #{enableReplace},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePlnMlMaterialById" parameterType="Long">
+        delete from pln_ml_material where id = #{id}
+    </delete>
+
+    <delete id="deletePlnMlMaterialByIds" parameterType="String">
+        delete from pln_ml_material where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deletePlnMlMaterialByMlId" parameterType="Long">
+        delete from pln_ml_material where ml_id = #{mlId}
+    </delete>
+
+    <delete id="deletePlnMlMaterialByMaterialId" parameterType="Long">
+        delete from pln_ml_material where material_id = #{materialId}
+    </delete>
+
+    <delete id="deletePlnMlMaterialByUnitId" parameterType="Long">
+        delete from pln_ml_material where unit_id = #{unitId}
+    </delete>
+</mapper>

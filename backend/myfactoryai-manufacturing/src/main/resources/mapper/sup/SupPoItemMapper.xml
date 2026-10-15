@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.sup.mapper.SupPoItemMapper">
+    
+    <resultMap type="SupPoItem" id="SupPoItemResult">
+        <result property="id"    column="id"    />
+        <result property="poId"    column="po_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="status"    column="status"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="materialCode"    column="material_code"    />
+        <result property="materialName"    column="material_name"    />
+        <result property="materialSpec"    column="material_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantityOrder"    column="quantity_order"    />
+        <result property="price"    column="price"    />
+        <result property="amount"    column="amount"    />
+        <result property="requireDay"    column="require_day"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="customerName"    column="customer_name"    />
+        <result property="priceSale"    column="price_sale"    />
+        <result property="sourceBillId"    column="source_bill_id"    />
+        <result property="sourceBillNo"    column="source_bill_no"    />
+        <result property="quantityShipped"    column="quantity_shipped"    />
+        <result property="quantityArrival"    column="quantity_arrival"    />
+        <result property="quantityInventory"    column="quantity_inventory"    />
+        <result property="quantityInspected"    column="quantity_inspected"    />
+        <result property="quantityQcNg"    column="quantity_qc_ng"    />
+        <result property="quantityQcPending"    column="quantity_qc_pending"    />
+        <result property="quantityQcAod"    column="quantity_qc_aod"    />
+        <result property="quantityReturning"    column="quantity_returning"    />
+        <result property="quantityReturned"    column="quantity_returned"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSupPoItemVo">
+        select id, po_id, seq_no, status, material_id, material_code, material_name, material_spec,draw_no,
+               unit_id, quantity_order, price, amount, require_day, customer_id, customer_name, price_sale, source_bill_id, source_bill_no,
+               quantity_shipped, quantity_arrival, quantity_inspected, quantity_inventory, quantity_qc_ng, quantity_qc_pending, quantity_qc_aod, quantity_returning, quantity_returned,
+               remark, create_by, create_time, update_by, update_time
+        from sup_po_item
+    </sql>
+
+    <select id="selectSupPoItemList" parameterType="SupPoItem" resultMap="SupPoItemResult">
+        <include refid="selectSupPoItemVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="poId != null "> and po_id = #{poId}</if>
+            <if test="seqNo != null"> and seq_no = #{seqNo}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="materialCode != null  and materialCode != ''"> and material_code like concat('%', #{materialCode}, '%')</if>
+            <if test="materialName != null  and materialName != ''"> and material_name like concat('%', #{materialName}, '%')</if>
+            <if test="materialSpec != null  and materialSpec != ''"> and material_spec like concat('%', #{materialSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityOrder != null "> and quantity_order = #{quantityOrder}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="requireDay != null "> and require_day = #{requireDay}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="customerName != null "> and customer_name like concat('%', #{customerName}, '%')</if>
+            <if test="priceSale != null "> and price_sale = #{priceSale}</if>
+            <if test="sourceBillId != null "> and source_bill_id = #{sourceBillId}</if>
+            <if test="sourceBillNo != null  and sourceBillNo != ''"> and source_bill_no like concat('%', #{sourceBillNo}, '%')</if>
+            <if test="quantityShipped != null "> and quantity_shipped = #{quantityShipped}</if>
+            <if test="quantityArrival != null "> and quantity_arrival = #{quantityArrival}</if>
+            <if test="quantityInspected != null "> and quantity_inspected = #{quantityInspected}</if>
+            <if test="quantityInventory != null "> and quantity_inventory = #{quantityInventory}</if>
+            <if test="quantityQcNg != null "> and quantity_qc_ng = #{quantityQcNg}</if>
+            <if test="quantityQcPending != null "> and quantity_qc_pending = #{quantityQcPending}</if>
+            <if test="quantityQcAod != null "> and quantity_qc_aod = #{quantityQcAod}</if>
+            <if test="quantityReturning != null "> and quantity_returning = #{quantityReturning}</if>
+            <if test="quantityReturned != null "> and quantity_returned = #{quantityReturned}</if>
+        </where>
+    </select>
+    
+    <select id="selectSupPoItemById" parameterType="Long" resultMap="SupPoItemResult">
+        <include refid="selectSupPoItemVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSupPoItemListByPoId" parameterType="Long" resultMap="SupPoItemResult">
+        <include refid="selectSupPoItemVo"/>
+        where po_id = #{poId}
+    </select>
+
+    <select id="selectSupPoItemListByMaterialId" parameterType="Long" resultMap="SupPoItemResult">
+        <include refid="selectSupPoItemVo"/>
+        where material_id = #{materialId}
+    </select>
+        
+    <insert id="insertSupPoItem" parameterType="SupPoItem" useGeneratedKeys="true" keyProperty="id">
+        insert into sup_po_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="poId != null">po_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="status != null">status,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="materialCode != null and materialCode != ''">material_code,</if>
+            <if test="materialName != null">material_name,</if>
+            <if test="materialSpec != null">material_spec,</if>
+            <if test="drawNo != null  and drawNo != ''">draw_no,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantityOrder != null">quantity_order,</if>
+            <if test="price != null">price,</if>
+            <if test="amount != null">amount,</if>
+            <if test="requireDay != null">require_day,</if>
+            <if test="customerId != null ">customer_id,</if>
+            <if test="customerName != null ">customer_name,</if>
+            <if test="priceSale != null ">price_sale,</if>
+            <if test="sourceBillId != null">source_bill_id,</if>
+            <if test="sourceBillNo != null">source_bill_no,</if>
+            <if test="quantityShipped != null">quantity_shipped,</if>
+            <if test="quantityArrival != null">quantity_arrival,</if>
+            <if test="quantityInspected != null">quantity_inspected,</if>
+            <if test="quantityInventory != null">quantity_inventory,</if>
+            <if test="quantityQcNg != null ">quantity_qc_ng,</if>
+            <if test="quantityQcPending != null ">quantity_qc_pending,</if>
+            <if test="quantityQcAod != null ">quantity_qc_aod,</if>
+            <if test="quantityReturning != null ">quantity_returning,</if>
+            <if test="quantityReturned != null ">quantity_returned,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="poId != null">#{poId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="materialCode != null and materialCode != ''">#{materialCode},</if>
+            <if test="materialName != null">#{materialName},</if>
+            <if test="materialSpec != null">#{materialSpec},</if>
+            <if test="drawNo != null  and drawNo != ''">#{drawNo},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantityOrder != null">#{quantityOrder},</if>
+            <if test="price != null">#{price},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="requireDay != null">#{requireDay},</if>
+            <if test="customerId != null ">#{customerId},</if>
+            <if test="customerName != null ">#{customerName},</if>
+            <if test="priceSale != null ">#{priceSale},</if>
+            <if test="sourceBillId != null">#{sourceBillId},</if>
+            <if test="sourceBillNo != null">#{sourceBillNo},</if>
+            <if test="quantityShipped != null">#{quantityShipped},</if>
+            <if test="quantityArrival != null">#{quantityArrival},</if>
+            <if test="quantityInspected != null">#{quantityInspected},</if>
+            <if test="quantityInventory != null">#{quantityInventory},</if>
+            <if test="quantityQcNg != null ">#{quantityQcNg},</if>
+            <if test="quantityQcPending != null ">#{quantityQcPending},</if>
+            <if test="quantityQcAod != null ">#{quantityQcAod},</if>
+            <if test="quantityReturning != null ">#{quantityReturning}</if>
+            <if test="quantityReturned != null ">#{quantityReturned}</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSupPoItem" parameterType="SupPoItem">
+        update sup_po_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="poId != null">po_id = #{poId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="materialCode != null and materialCode != ''">material_code = #{materialCode},</if>
+            <if test="materialName != null">material_name = #{materialName},</if>
+            <if test="materialSpec != null">material_spec = #{materialSpec},</if>
+            <if test="drawNo != null  and drawNo != ''">draw_no=#{drawNo},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantityOrder != null">quantity_order = #{quantityOrder},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="requireDay != null">require_day = #{requireDay},</if>
+            <if test="customerId != null ">customer_id = #{customerId},</if>
+            <if test="customerName != null ">customer_name = #{customerName},</if>
+            <if test="priceSale != null ">price_sale = #{priceSale},</if>
+            <if test="sourceBillId != null">source_bill_id = #{sourceBillId},</if>
+            <if test="sourceBillNo != null">source_bill_no = #{sourceBillNo},</if>
+            <if test="quantityShipped != null">quantity_shipped = #{quantityShipped},</if>
+            <if test="quantityArrival != null">quantity_arrival = #{quantityArrival},</if>
+            <if test="quantityInspected != null">quantity_inspected = #{quantityInspected},</if>
+            <if test="quantityInventory != null">quantity_inventory = #{quantityInventory},</if>
+            <if test="quantityQcNg != null ">quantity_qc_ng = #{quantityQcNg},</if>
+            <if test="quantityQcPending != null ">quantity_qc_pending = #{quantityQcPending},</if>
+            <if test="quantityQcAod != null ">quantity_qc_aod = #{quantityQcAod},</if>
+            <if test="quantityReturning != null ">quantity_returning = #{quantityReturning},</if>
+            <if test="quantityReturned != null ">quantity_returned = #{quantityReturned},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSupPoItemById" parameterType="Long">
+        delete from sup_po_item where id = #{id}
+    </delete>
+
+    <delete id="deleteSupPoItemByIds" parameterType="String">
+        delete from sup_po_item where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSupPoItemByPoId" parameterType="Long">
+        delete from sup_po_item where po_id = #{poId}
+    </delete>
+
+    <delete id="deleteSupPoItemByMaterialId" parameterType="Long">
+        delete from sup_po_item where material_id = #{materialId}
+    </delete>
+</mapper>

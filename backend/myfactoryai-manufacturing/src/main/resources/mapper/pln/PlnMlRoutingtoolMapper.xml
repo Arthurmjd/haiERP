@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.pln.mapper.PlnMlRoutingtoolMapper">
+    
+    <resultMap type="PlnMlRoutingtool" id="PlnMlRoutingtoolResult">
+        <result property="id"    column="id"    />
+        <result property="routingId"    column="routing_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="toolId"    column="tool_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectPlnMlRoutingtoolVo">
+        select id, routing_id, seq_no, tool_id, remark, create_by, create_time, update_by, update_time from pln_ml_routingtool
+    </sql>
+
+    <select id="selectPlnMlRoutingtoolList" parameterType="PlnMlRoutingtool" resultMap="PlnMlRoutingtoolResult">
+        <include refid="selectPlnMlRoutingtoolVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="routingId != null "> and routing_id = #{routingId}</if>
+            <if test="seqNo != null "> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="toolId != null "> and tool_id = #{toolId}</if>
+        </where>
+    </select>
+    
+    <select id="selectPlnMlRoutingtoolById" parameterType="Long" resultMap="PlnMlRoutingtoolResult">
+        <include refid="selectPlnMlRoutingtoolVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectPlnMlRoutingtoolListByRoutingId" parameterType="Long" resultMap="PlnMlRoutingtoolResult">
+        <include refid="selectPlnMlRoutingtoolVo"/>
+        where routing_id = #{routingId}
+    </select>
+
+    <select id="selectPlnMlRoutingtoolListByToolId" parameterType="Long" resultMap="PlnMlRoutingtoolResult">
+        <include refid="selectPlnMlRoutingtoolVo"/>
+        where tool_id = #{toolId}
+    </select>
+        
+    <insert id="insertPlnMlRoutingtool" parameterType="PlnMlRoutingtool" useGeneratedKeys="true" keyProperty="id">
+        insert into pln_ml_routingtool
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="routingId != null">routing_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="toolId != null">tool_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="routingId != null">#{routingId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="toolId != null">#{toolId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePlnMlRoutingtool" parameterType="PlnMlRoutingtool">
+        update pln_ml_routingtool
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="routingId != null">routing_id = #{routingId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="toolId != null">tool_id = #{toolId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePlnMlRoutingtoolById" parameterType="Long">
+        delete from pln_ml_routingtool where id = #{id}
+    </delete>
+
+    <delete id="deletePlnMlRoutingtoolByIds" parameterType="String">
+        delete from pln_ml_routingtool where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deletePlnMlRoutingtoolByRoutingId" parameterType="Long">
+        delete from pln_ml_routingtool where routing_id = #{routingId}
+    </delete>
+
+    <delete id="deletePlnMlRoutingtoolByToolId" parameterType="Long">
+        delete from pln_ml_routingtool where tool_id = #{toolId}
+    </delete>
+</mapper>

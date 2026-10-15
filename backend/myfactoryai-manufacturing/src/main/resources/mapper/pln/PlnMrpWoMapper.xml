@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.pln.mapper.PlnMrpWoMapper">
+    
+    <resultMap type="PlnMrpWo" id="PlnMrpWoResult">
+        <result property="id"    column="id"    />
+        <result property="status"    column="status"    />
+        <result property="mpsId"    column="mps_id"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productCode"    column="product_code"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="customerProductNo"    column="customer_product_no"    />
+        <result property="abroadProductNo"    column="abroad_product_no"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="needDay"    column="need_day"    />
+        <result property="promiseDay"    column="promise_day"    />
+        <result property="orderDay"    column="order_day"    />
+        <result property="priority"    column="priority"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="woType"    column="wo_type"    />
+        <result property="soId"    column="so_id"    />
+        <result property="soItemId"    column="so_item_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectPlnMrpWoVo">
+        select id, status, mps_id, product_id, product_code, product_name, product_spec, draw_no, customer_product_no, abroad_product_no,
+               unit_id, quantity, need_day, promise_day, order_day, priority, line_id, wo_type, so_id, so_item_id,
+               remark, create_by, create_time, project_id, update_by, update_time
+        from pln_mrp_wo
+    </sql>
+
+    <select id="selectPlnMrpWoList" parameterType="PlnMrpWo" resultMap="PlnMrpWoResult">
+        <include refid="selectPlnMrpWoVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="mpsId != null "> and mps_id = #{mpsId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''"> and abroad_product_no like concat('%', #{abroadProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+            <if test="woType != null "> and wo_type = #{woType}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="soItemId != null "> and so_item_id = #{soItemId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+        </where>
+    </select>
+    
+    <select id="selectPlnMrpWoById" parameterType="Long" resultMap="PlnMrpWoResult">
+        <include refid="selectPlnMrpWoVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectPlnMrpWoListByMpsId" parameterType="Long" resultMap="PlnMrpWoResult">
+        <include refid="selectPlnMrpWoVo"/>
+        where mps_id = #{mpsId}
+    </select>
+
+    <select id="selectPlnMrpWoListByProductId" parameterType="Long" resultMap="PlnMrpWoResult">
+        <include refid="selectPlnMrpWoVo"/>
+        where product_id = #{productId}
+    </select>
+
+    <select id="selectPlnMrpWoListByLineId" parameterType="Long" resultMap="PlnMrpWoResult">
+        <include refid="selectPlnMrpWoVo"/>
+        where line_id = #{lineId}
+    </select>
+
+    <select id="selectPlnMrpWoListBySoId" parameterType="Long" resultMap="PlnMrpWoResult">
+        <include refid="selectPlnMrpWoVo"/>
+        where so_id = #{soId}
+    </select>
+
+    <select id="selectPlnMrpWoListBySoItemId" parameterType="Long" resultMap="PlnMrpWoResult">
+        <include refid="selectPlnMrpWoVo"/>
+        where so_item_id = #{soItemId}
+    </select>
+        
+    <insert id="insertPlnMrpWo" parameterType="PlnMrpWo" useGeneratedKeys="true" keyProperty="id">
+        insert into pln_mrp_wo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="status != null">status,</if>
+            <if test="mpsId != null">mps_id,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productCode != null">product_code,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="drawNo != null">draw_no,</if>
+            <if test="customerProductNo != null">customer_product_no,</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="needDay != null">need_day,</if>
+            <if test="promiseDay != null">promise_day,</if>
+            <if test="orderDay != null">order_day,</if>
+            <if test="priority != null">priority,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="woType != null">wo_type,</if>
+            <if test="soId != null">so_id,</if>
+            <if test="soItemId != null">so_item_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="status != null">#{status},</if>
+            <if test="mpsId != null">#{mpsId},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productCode != null">#{productCode},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="drawNo != null">#{drawNo},</if>
+            <if test="customerProductNo != null">#{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">#{abroadProductNo},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="needDay != null">#{needDay},</if>
+            <if test="promiseDay != null">#{promiseDay},</if>
+            <if test="orderDay != null">#{orderDay},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="woType != null">#{woType},</if>
+            <if test="soId != null">#{soId},</if>
+            <if test="soItemId != null">#{soItemId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePlnMrpWo" parameterType="PlnMrpWo">
+        update pln_mrp_wo
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="status != null">status = #{status},</if>
+            <if test="mpsId != null">mps_id = #{mpsId},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productCode != null">product_code = #{productCode},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="drawNo != null">draw_no = #{drawNo},</if>
+            <if test="customerProductNo != null">customer_product_no = #{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no=#{abroadProductNo},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="needDay != null">need_day = #{needDay},</if>
+            <if test="promiseDay != null">promise_day = #{promiseDay},</if>
+            <if test="orderDay != null">order_day = #{orderDay},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="woType != null">wo_type = #{woType},</if>
+            <if test="soId != null">so_id = #{soId},</if>
+            <if test="soItemId != null">so_item_id = #{soItemId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePlnMrpWoById" parameterType="Long">
+        delete from pln_mrp_wo where id = #{id}
+    </delete>
+
+    <delete id="deletePlnMrpWoByIds" parameterType="String">
+        delete from pln_mrp_wo where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deletePlnMrpWoByMpsId" parameterType="Long">
+        delete from pln_mrp_wo where mps_id = #{mpsId}
+    </delete>
+
+    <delete id="deletePlnMrpWoByProductId" parameterType="Long">
+        delete from pln_mrp_wo where product_id = #{productId}
+    </delete>
+
+    <delete id="deletePlnMrpWoByLineId" parameterType="Long">
+        delete from pln_mrp_wo where line_id = #{lineId}
+    </delete>
+
+    <delete id="deletePlnMrpWoBySoId" parameterType="Long">
+        delete from pln_mrp_wo where so_id = #{soId}
+    </delete>
+
+    <delete id="deletePlnMrpWoBySoItemId" parameterType="Long">
+        delete from pln_mrp_wo where so_item_id = #{soItemId}
+    </delete>
+</mapper>

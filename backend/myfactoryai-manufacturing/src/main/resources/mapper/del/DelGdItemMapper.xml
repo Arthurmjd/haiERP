@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.del.mapper.DelGdItemMapper">
+    
+    <resultMap type="DelGdItem" id="DelGdItemResult">
+        <result property="id"    column="id"    />
+        <result property="gdId"    column="gd_id"    />
+        <result property="seqNo"    column="seq_no"    />
+        <result property="dpId"    column="dp_id"    />
+        <result property="soId"    column="so_id"    />
+        <result property="soItemId"    column="so_item_id"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productCode"    column="product_code"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="customerProductNo"    column="customer_product_no"    />
+        <result property="abroadProductNo"    column="abroad_product_no"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="quantityDelivered"    column="quantity_delivered"    />
+        <result property="price"    column="price"    />
+        <result property="discountPrice"    column="discount_price"    />
+        <result property="discountAmount"    column="discount_amount"    />
+        <result property="amount"    column="amount"    />
+        <result property="serviceStartday"    column="service_startday"    />
+        <result property="serviceEndday"    column="service_endday"    />
+        <result property="houseId"    column="house_id"    />
+        <result property="positionId"    column="position_id"    />
+        <result property="lotNo"    column="lot_no"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectDelGdItemVo">
+        select id, gd_id, seq_no, dp_id, so_id, so_item_id, product_id, product_code, product_name, product_spec, draw_no, customer_product_no, abroad_product_no,
+               unit_id, quantity, quantity_delivered, price, discount_price, discount_amount, amount, service_startday, service_endday, house_id, position_id, lot_no,
+               remark, create_by, create_time, update_by, update_time
+        from del_gd_item
+    </sql>
+
+    <select id="selectDelGdItemList" parameterType="DelGdItem" resultMap="DelGdItemResult">
+        <include refid="selectDelGdItemVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="gdId != null "> and gd_id = #{gdId}</if>
+            <if test="seqNo != null "> and seq_no like concat('%', #{seqNo}, '%')</if>
+            <if test="dpId != null "> and dp_id = #{dpId}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="soItemId != null "> and so_item_id = #{soItemId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''"> and abroad_product_no like concat('%', #{abroadProductNo}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="quantityDelivered != null "> and quantity_delivered = #{quantityDelivered}</if>
+            <if test="houseId != null "> and house_id = #{houseId}</if>
+            <if test="positionId != null "> and position_id = #{positionId}</if>
+            <if test="lotNo != null  and lotNo != ''"> and lot_no like concat('%', #{lotNo}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectDelGdItemById" parameterType="Long" resultMap="DelGdItemResult">
+        <include refid="selectDelGdItemVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectDelGdItemListByGdId" parameterType="Long" resultMap="DelGdItemResult">
+        <include refid="selectDelGdItemVo"/>
+        where gd_id = #{gdId}
+    </select>
+
+    <select id="selectDelGdItemListBySoId" parameterType="Long" resultMap="DelGdItemResult">
+        <include refid="selectDelGdItemVo"/>
+        where so_id = #{soId}
+    </select>
+
+    <select id="selectDelGdItemListBySoItemId" parameterType="Long" resultMap="DelGdItemResult">
+        <include refid="selectDelGdItemVo"/>
+        where so_item_id = #{soItemId}
+    </select>
+
+    <select id="selectDelGdItemListByHouseId" parameterType="Long" resultMap="DelGdItemResult">
+        <include refid="selectDelGdItemVo"/>
+        where house_id = #{houseId}
+    </select>
+
+    <select id="selectDelGdItemListByPositionId" parameterType="Long" resultMap="DelGdItemResult">
+        <include refid="selectDelGdItemVo"/>
+        where position_id = #{positionId}
+    </select>
+        
+    <insert id="insertDelGdItem" parameterType="DelGdItem" useGeneratedKeys="true" keyProperty="id">
+        insert into del_gd_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="gdId != null">gd_id,</if>
+            <if test="seqNo != null">seq_no,</if>
+            <if test="dpId != null">dp_id,</if>
+            <if test="soId != null">so_id,</if>
+            <if test="soItemId != null">so_item_id,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productCode != null">product_code,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="drawNo != null">draw_no,</if>
+            <if test="customerProductNo != null">customer_product_no,</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="quantityDelivered != null ">quantity_delivered,</if>
+            <if test="price != null">price,</if>
+            <if test="discountPrice != null">discount_price,</if>
+            <if test="discountAmount != null">discount_amount,</if>
+            <if test="amount != null">amount,</if>
+            <if test="serviceStartday != null">service_startday,</if>
+            <if test="serviceEndday != null">service_endday,</if>
+            <if test="houseId != null">house_id,</if>
+            <if test="positionId != null">position_id,</if>
+            <if test="lotNo != null">lot_no,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="gdId != null">#{gdId},</if>
+            <if test="seqNo != null">#{seqNo},</if>
+            <if test="dpId != null">#{dpId},</if>
+            <if test="soId != null">#{soId},</if>
+            <if test="soItemId != null">#{soItemId},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productCode != null">#{productCode},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="drawNo != null">#{drawNo},</if>
+            <if test="customerProductNo != null">#{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">#{abroadProductNo},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="quantityDelivered != null ">#{quantityDelivered},</if>
+            <if test="price != null">#{price},</if>
+            <if test="discountPrice != null">#{discountPrice},</if>
+            <if test="discountAmount != null">#{discountAmount},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="serviceStartday != null">#{serviceStartday},</if>
+            <if test="serviceEndday != null">#{serviceEndday},</if>
+            <if test="houseId != null">#{houseId},</if>
+            <if test="positionId != null">#{positionId},</if>
+            <if test="lotNo != null">#{lotNo},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDelGdItem" parameterType="DelGdItem">
+        update del_gd_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="gdId != null">gd_id = #{gdId},</if>
+            <if test="seqNo != null">seq_no = #{seqNo},</if>
+            <if test="dpId != null">dp_id = #{dpId},</if>
+            <if test="soId != null">so_id = #{soId},</if>
+            <if test="soItemId != null">so_item_id = #{soItemId},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productCode != null">product_code = #{productCode},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="drawNo != null">draw_no = #{drawNo},</if>
+            <if test="customerProductNo != null">customer_product_no = #{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no=#{abroadProductNo},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="quantityDelivered != null ">quantity_delivered = #{quantityDelivered},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="discountPrice != null">discount_price = #{discountPrice},</if>
+            <if test="discountAmount != null">discount_amount = #{discountAmount},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="serviceStartday != null">service_startday = #{serviceStartday},</if>
+            <if test="serviceEndday != null">service_endday = #{serviceEndday},</if>
+            <if test="houseId != null">house_id = #{houseId},</if>
+            <if test="positionId != null">position_id = #{positionId},</if>
+            <if test="lotNo != null">lot_no = #{lotNo},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDelGdItemById" parameterType="Long">
+        delete from del_gd_item where id = #{id}
+    </delete>
+
+    <delete id="deleteDelGdItemByIds" parameterType="String">
+        delete from del_gd_item where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteDelGdItemByGdId" parameterType="Long">
+        delete from del_gd_item where gd_id = #{gdId}
+    </delete>
+
+    <delete id="deleteDelGdItemBySoId" parameterType="Long">
+        delete from del_gd_item where so_id = #{soId}
+    </delete>
+
+    <delete id="deleteDelGdItemBySoItemId" parameterType="Long">
+        delete from del_gd_item where so_item_id = #{soItemId}
+    </delete>
+
+    <delete id="deleteDelGdItemByHouseId" parameterType="Long">
+        delete from del_gd_item where house_id = #{houseId}
+    </delete>
+
+    <delete id="deleteDelGdItemByPositionId" parameterType="Long">
+        delete from del_gd_item where position_id = #{positionId}
+    </delete>
+</mapper>

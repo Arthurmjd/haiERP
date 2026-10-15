@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.pln.mapper.PlnWoInfoMapper">
+    
+    <resultMap type="PlnWoInfo" id="PlnWoInfoResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantityPlanned"    column="quantity_planned"    />
+        <result property="quantityAssigned"    column="quantity_assigned"    />
+        <result property="needDay"    column="need_day"    />
+        <result property="promiseDay"    column="promise_day"    />
+        <result property="orderDay"    column="order_day"    />
+        <result property="priority"    column="priority"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="woType"    column="wo_type"    />
+        <result property="mpsId"    column="mps_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="soId"    column="so_id"    />
+        <result property="soItemId"    column="so_item_id"    />
+        <result property="quantityOutput"    column="quantity_output"    />
+        <result property="quantityScrap"    column="quantity_scrap"    />
+        <result property="quantityRedisp"    column="quantity_redisp"    />
+        <result property="quantityRework"    column="quantity_rework"    />
+        <result property="quantityPending"    column="quantity_pending"    />
+        <result property="quantityAod"    column="quantity_aod"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectPlnWoInfoVo">
+        select id, bill_no, status, product_id, product_name, product_spec, unit_id, quantity_planned, quantity_assigned, need_day, promise_day, order_day, priority, line_id, wo_type, mps_id, project_id, so_id, so_item_id, quantity_output, quantity_scrap, quantity_redisp, quantity_rework, quantity_pending, quantity_aod, remark, create_by, create_time, update_by, update_time from pln_wo
+    </sql>
+
+    <select id="selectPlnWoInfoList" parameterType="PlnWoInfo" resultMap="PlnWoInfoResult">
+        <include refid="selectPlnWoInfoVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="needDay != null "> and need_day = #{needDay}</if>
+            <if test="promiseDay != null "> and promise_day = #{promiseDay}</if>
+            <if test="orderDay != null "> and order_day = #{orderDay}</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+            <if test="woType != null "> and wo_type = #{woType}</if>
+            <if test="mpsId != null "> and mps_id = #{mpsId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="soItemId != null "> and so_item_id = #{soItemId}</if>
+        </where>
+    </select>
+    
+    <select id="selectPlnWoInfoById" parameterType="Long" resultMap="PlnWoInfoResult">
+        <include refid="selectPlnWoInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectPlnWoInfoListByProductId" parameterType="Long" resultMap="PlnWoInfoResult">
+        <include refid="selectPlnWoInfoVo"/>
+        where product_id = #{productId}
+    </select>
+
+    <select id="selectPlnWoInfoListByLineId" parameterType="Long" resultMap="PlnWoInfoResult">
+        <include refid="selectPlnWoInfoVo"/>
+        where line_id = #{lineId}
+    </select>
+
+    <select id="selectPlnWoInfoListByMpsId" parameterType="Long" resultMap="PlnWoInfoResult">
+        <include refid="selectPlnWoInfoVo"/>
+        where mps_id = #{mpsId}
+    </select>
+
+    <select id="selectPlnWoInfoListByProjectId" parameterType="Long" resultMap="PlnWoInfoResult">
+        <include refid="selectPlnWoInfoVo"/>
+        where project_id = #{projectId}
+    </select>
+        
+    <insert id="insertPlnWoInfo" parameterType="PlnWoInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into pln_wo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantityPlanned != null">quantity_planned,</if>
+            <if test="quantityAssigned != null">quantity_assigned,</if>
+            <if test="needDay != null">need_day,</if>
+            <if test="promiseDay != null">promise_day,</if>
+            <if test="orderDay != null">order_day,</if>
+            <if test="priority != null">priority,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="woType != null">wo_type,</if>
+            <if test="mpsId != null">mps_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="soId != null">so_id,</if>
+            <if test="soItemId != null">so_item_id,</if>
+            <if test="quantityOutput != null">quantity_output,</if>
+            <if test="quantityScrap != null">quantity_scrap,</if>
+            <if test="quantityRedisp != null">quantity_redisp,</if>
+            <if test="quantityRework != null">quantity_rework,</if>
+            <if test="quantityPending != null">quantity_pending,</if>
+            <if test="quantityAod != null">quantity_aod,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantityPlanned != null">#{quantityPlanned},</if>
+            <if test="quantityAssigned != null">#{quantityAssigned},</if>
+            <if test="needDay != null">#{needDay},</if>
+            <if test="promiseDay != null">#{promiseDay},</if>
+            <if test="orderDay != null">#{orderDay},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="woType != null">#{woType},</if>
+            <if test="mpsId != null">#{mpsId},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="soId != null">#{soId},</if>
+            <if test="soItemId != null">#{soItemId},</if>
+            <if test="quantityOutput != null">#{quantityOutput},</if>
+            <if test="quantityScrap != null">#{quantityScrap},</if>
+            <if test="quantityRedisp != null">#{quantityRedisp},</if>
+            <if test="quantityRework != null">#{quantityRework},</if>
+            <if test="quantityPending != null">#{quantityPending},</if>
+            <if test="quantityAod != null">#{quantityAod},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePlnWoInfo" parameterType="PlnWoInfo">
+        update pln_wo
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantityPlanned != null">quantity_planned = #{quantityPlanned},</if>
+            <if test="quantityAssigned != null">quantity_assigned = #{quantityAssigned},</if>
+            <if test="needDay != null">need_day = #{needDay},</if>
+            <if test="promiseDay != null">promise_day = #{promiseDay},</if>
+            <if test="orderDay != null">order_day = #{orderDay},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="woType != null">wo_type = #{woType},</if>
+            <if test="mpsId != null">mps_id = #{mpsId},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="soId != null">so_id = #{soId},</if>
+            <if test="soItemId != null">so_item_id = #{soItemId},</if>
+            <if test="quantityOutput != null">quantity_output = #{quantityOutput},</if>
+            <if test="quantityScrap != null">quantity_scrap = #{quantityScrap},</if>
+            <if test="quantityRedisp != null">quantity_redisp = #{quantityRedisp},</if>
+            <if test="quantityRework != null">quantity_rework = #{quantityRework},</if>
+            <if test="quantityPending != null">quantity_pending = #{quantityPending},</if>
+            <if test="quantityAod != null">quantity_aod = #{quantityAod},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePlnWoInfoById" parameterType="Long">
+        delete from pln_wo where id = #{id}
+    </delete>
+
+    <delete id="deletePlnWoInfoByIds" parameterType="String">
+        delete from pln_wo where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deletePlnWoInfoByProductId" parameterType="Long">
+        delete from pln_wo where product_id = #{productId}
+    </delete>
+
+    <delete id="deletePlnWoInfoByLineId" parameterType="Long">
+        delete from pln_wo where line_id = #{lineId}
+    </delete>
+
+    <delete id="deletePlnWoInfoByMpsId" parameterType="Long">
+        delete from pln_wo where mps_id = #{mpsId}
+    </delete>
+
+    <delete id="deletePlnWoInfoByProjectId" parameterType="Long">
+        delete from pln_wo where project_id = #{projectId}
+    </delete>
+</mapper>

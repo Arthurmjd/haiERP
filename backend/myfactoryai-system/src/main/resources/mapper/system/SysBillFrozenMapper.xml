@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.system.mapper.SysBillFrozenMapper">
+    
+    <resultMap type="SysBillFrozen" id="SysBillFrozenResult">
+        <result property="id"    column="id"    />
+        <result property="className"    column="class_name"    />
+        <result property="objectId"    column="object_id"    />
+        <result property="frozenStatus"    column="frozen_status"    />
+    </resultMap>
+
+    <sql id="selectSysBillFrozenVo">
+        select id, class_name, object_id, frozen_status from sys_bill_frozen
+    </sql>
+
+    <select id="selectSysBillFrozenList" parameterType="SysBillFrozen" resultMap="SysBillFrozenResult">
+        <include refid="selectSysBillFrozenVo"/>
+        <where>  
+            <if test="className != null  and className != ''"> and class_name like concat('%', #{className}, '%')</if>
+            <if test="objectId != null "> and object_id = #{objectId}</if>
+            <if test="frozenStatus != null "> and frozen_status = #{frozenStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysBillFrozenById" parameterType="Long" resultMap="SysBillFrozenResult">
+        <include refid="selectSysBillFrozenVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSysBillFrozen" parameterType="SysBillFrozen" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_bill_frozen
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="className != null and className != ''">class_name,</if>
+            <if test="objectId != null">object_id,</if>
+            <if test="frozenStatus != null">frozen_status,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="className != null and className != ''">#{className},</if>
+            <if test="objectId != null">#{objectId},</if>
+            <if test="frozenStatus != null">#{frozenStatus},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSysBillFrozen" parameterType="SysBillFrozen">
+        update sys_bill_frozen
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="className != null and className != ''">class_name = #{className},</if>
+            <if test="objectId != null">object_id = #{objectId},</if>
+            <if test="frozenStatus != null">frozen_status = #{frozenStatus},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSysBillFrozenById" parameterType="Long">
+        delete from sys_bill_frozen where id = #{id}
+    </delete>
+
+    <delete id="deleteSysBillFrozenByIds" parameterType="String">
+        delete from sys_bill_frozen where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

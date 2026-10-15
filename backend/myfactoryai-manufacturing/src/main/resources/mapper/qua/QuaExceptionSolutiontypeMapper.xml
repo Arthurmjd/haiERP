@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.qua.mapper.QuaExceptionSolutiontypeMapper">
+    
+    <resultMap type="QuaExceptionSolutiontype" id="QuaExceptionSolutiontypeResult">
+        <result property="id"    column="id"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="dealtypeCode"    column="dealtype_code"    />
+        <result property="dealtypeDesc"    column="dealtype_desc"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectQuaExceptionSolutiontypeVo">
+        select id, category_id, dealtype_code, dealtype_desc, status, remark, create_by, create_time, update_by, update_time from qua_exception_solutiontype
+    </sql>
+
+    <select id="selectQuaExceptionSolutiontypeList" parameterType="QuaExceptionSolutiontype" resultMap="QuaExceptionSolutiontypeResult">
+        <include refid="selectQuaExceptionSolutiontypeVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="dealtypeCode != null  and dealtypeCode != ''"> and dealtype_code like concat('%', #{dealtypeCode}, '%')</if>
+            <if test="dealtypeDesc != null  and dealtypeDesc != ''"> and dealtype_desc like concat('%', #{dealtypeDesc}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectQuaExceptionSolutiontypeById" parameterType="Long" resultMap="QuaExceptionSolutiontypeResult">
+        <include refid="selectQuaExceptionSolutiontypeVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectQuaExceptionSolutiontypeListByCategoryId" parameterType="Long" resultMap="QuaExceptionSolutiontypeResult">
+        <include refid="selectQuaExceptionSolutiontypeVo"/>
+        where category_id = #{categoryId}
+    </select>
+        
+    <insert id="insertQuaExceptionSolutiontype" parameterType="QuaExceptionSolutiontype" useGeneratedKeys="true" keyProperty="id">
+        insert into qua_exception_solutiontype
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">category_id,</if>
+            <if test="dealtypeCode != null and dealtypeCode != ''">dealtype_code,</if>
+            <if test="dealtypeDesc != null and dealtypeDesc != ''">dealtype_desc,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="dealtypeCode != null and dealtypeCode != ''">#{dealtypeCode},</if>
+            <if test="dealtypeDesc != null and dealtypeDesc != ''">#{dealtypeDesc},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateQuaExceptionSolutiontype" parameterType="QuaExceptionSolutiontype">
+        update qua_exception_solutiontype
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="dealtypeCode != null and dealtypeCode != ''">dealtype_code = #{dealtypeCode},</if>
+            <if test="dealtypeDesc != null and dealtypeDesc != ''">dealtype_desc = #{dealtypeDesc},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteQuaExceptionSolutiontypeById" parameterType="Long">
+        delete from qua_exception_solutiontype where id = #{id}
+    </delete>
+
+    <delete id="deleteQuaExceptionSolutiontypeByIds" parameterType="String">
+        delete from qua_exception_solutiontype where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteQuaExceptionSolutiontypeByCategoryId" parameterType="Long">
+        delete from qua_exception_solutiontype where category_id = #{categoryId}
+    </delete>
+</mapper>

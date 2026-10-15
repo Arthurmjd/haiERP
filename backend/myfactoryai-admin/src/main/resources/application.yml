@@ -1,0 +1,108 @@
+spring:
+  profiles:
+    active: druid          # 激活 druid 配置
+  messages:
+    basename: i18n/messages
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+  devtools:
+    restart:
+      enabled: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DATABASE:0}
+      password: ${REDIS_PASSWORD:}
+      timeout: 10s
+      lettuce:
+        pool:
+          min-idle: 10
+          max-idle: 20
+          max-active: 30
+          max-wait: -1ms
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:unset}
+      chat:
+        options:
+          model: qwen-plus
+    openai:
+      api-key: ${OPENAI_API_KEY:unset}
+      base-url: ${OPENAI_BASE_URL:https://api.deepseek.com/v1}
+      chat:
+        options:
+          model: deepseek-chat
+    nl2sql:
+      metadata:
+        # provider 可选值：database（动态召回） 或 hardcoded（硬编码精准模式）
+        provider: database
+        cache:
+          # 定时刷新间隔（分钟），默认 120 分钟
+          refresh-interval-minutes: 120
+    insight:
+      default-model: deepseek-chat
+    business:
+      knowledge:
+        # 知识库文档 URL 列表（支持多个）
+        urls:
+          - http://www.factoryopen.net/res/md-images/userGuide.html
+          - https://gitee.com/factoryopen/myfactoryai
+          - http://www.factoryopen.net
+          # 可添加更多：- http://www.factoryopen.net/other/doc2.html
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /
+  tomcat:
+    uri-encoding: UTF-8
+    accept-count: 1000
+    threads:
+      max: 800
+      min-spare: 100
+
+logging:
+  level:
+    net.factoryopen.myfactoryai: debug
+    org.springframework: warn
+
+myfactoryai:
+  name: myfactoryai
+  version: 1.0.0
+  copyrightYear: 2023
+  profile: D:/factoryopen/myfactoryai/resource
+  addressEnabled: false
+  captchaType: math
+  scheduled: false
+
+user:
+  password:
+    maxRetryCount: 5
+    lockTime: 10
+
+token:
+  header: Authorization
+  secret: ${TOKEN_SECRET}
+  expireTime: 30
+
+mybatis:
+  typeAliasesPackage: net.factoryopen.**.domain,com.ruoyi.**.domain
+  mapperLocations: classpath*:mapper/**/*Mapper.xml
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+pagehelper:
+  helperDialect: mysql
+  supportMethodsArguments: true
+  params: count=countSql
+
+swagger:
+  enabled: true
+  pathMapping: /dev-api
+
+xss:
+  enabled: true
+  excludes: /system/notice
+  urlPatterns: /system/*,/monitor/*,/tool/*

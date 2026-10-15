@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.pln.mapper.PlnMlSopMapper">
+    
+    <resultMap type="PlnMlSop" id="PlnMlSopResult">
+        <result property="id"    column="id"    />
+        <result property="mlId"    column="ml_id"    />
+        <result property="stepSeq"    column="step_seq"    />
+        <result property="stepTitle"    column="step_title"    />
+        <result property="description"    column="description"    />
+        <result property="sopUrl"    column="sop_url"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectPlnMlSopVo">
+        select id, ml_id, step_seq, step_title, description, sop_url, remark, create_by, create_time, update_by, update_time from pln_ml_sop
+    </sql>
+
+    <select id="selectPlnMlSopList" parameterType="PlnMlSop" resultMap="PlnMlSopResult">
+        <include refid="selectPlnMlSopVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="mlId != null "> and ml_id = #{mlId}</if>
+            <if test="stepSeq != null "> and step_seq = #{stepSeq}</if>
+            <if test="stepTitle != null  and stepTitle != ''"> and step_title = #{stepTitle}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="sopUrl != null  and sopUrl != ''"> and sop_url = #{sopUrl}</if>
+        </where>
+    </select>
+    
+    <select id="selectPlnMlSopById" parameterType="Long" resultMap="PlnMlSopResult">
+        <include refid="selectPlnMlSopVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectPlnMlSopListByMlId" parameterType="Long" resultMap="PlnMlSopResult">
+        <include refid="selectPlnMlSopVo"/>
+        where ml_id = #{mlId}
+    </select>
+        
+    <insert id="insertPlnMlSop" parameterType="PlnMlSop" useGeneratedKeys="true" keyProperty="id">
+        insert into pln_ml_sop
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="mlId != null">ml_id,</if>
+            <if test="stepSeq != null">step_seq,</if>
+            <if test="stepTitle != null and stepTitle != ''">step_title,</if>
+            <if test="description != null and description != ''">description,</if>
+            <if test="sopUrl != null and sopUrl != ''">sop_url,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="mlId != null">#{mlId},</if>
+            <if test="stepSeq != null">#{stepSeq},</if>
+            <if test="stepTitle != null and stepTitle != ''">#{stepTitle},</if>
+            <if test="description != null and description != ''">#{description},</if>
+            <if test="sopUrl != null and sopUrl != ''">#{sopUrl},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updatePlnMlSop" parameterType="PlnMlSop">
+        update pln_ml_sop
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="mlId != null">ml_id = #{mlId},</if>
+            <if test="stepSeq != null">step_seq = #{stepSeq},</if>
+            <if test="stepTitle != null and stepTitle != ''">step_title = #{stepTitle},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
+            <if test="sopUrl != null and sopUrl != ''">sop_url = #{sopUrl},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePlnMlSopById" parameterType="Long">
+        delete from pln_ml_sop where id = #{id}
+    </delete>
+
+    <delete id="deletePlnMlSopByIds" parameterType="String">
+        delete from pln_ml_sop where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deletePlnMlSopByMlId" parameterType="Long">
+        delete from pln_ml_sop where ml_id = #{mlId}
+    </delete>
+</mapper>

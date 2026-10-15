@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ord.mapper.OrdComplainMapper">
+    
+    <resultMap type="OrdComplain" id="OrdComplainResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="soId"    column="so_id"    />
+        <result property="soItemId"    column="so_item_id"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="price"    column="price"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="amount"    column="amount"    />
+        <result property="complainType"    column="complain_type"    />
+        <result property="gdNo"    column="gd_no"    />
+        <result property="lotNo"    column="lot_no"    />
+        <result property="complainDay"    column="complain_day"    />
+        <result property="complainBy"    column="complain_by"    />
+        <result property="complainPhone"    column="complain_phone"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectOrdComplainVo">
+        select id, bill_no, status, so_id, so_item_id, product_id, product_name, product_spec, unit_id, price, quantity, amount, complain_type, gd_no, lot_no, complain_day, complain_by, complain_phone, remark, create_by, create_time, update_by, update_time from ord_complain
+    </sql>
+
+    <select id="selectOrdComplainList" parameterType="OrdComplain" resultMap="OrdComplainResult">
+        <include refid="selectOrdComplainVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="soItemId != null "> and so_item_id = #{soItemId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="price != null "> and price = #{price}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+            <if test="complainType != null "> and complain_type = #{complainType}</if>
+            <if test="gdNo != null  and gdNo != ''"> and gd_no like concat('%', #{gdNo}, '%')</if>
+            <if test="lotNo != null  and lotNo != ''"> and lot_no like concat('%', #{lotNo}, '%')</if>
+            <if test="complainDay != null "> and complain_day = #{complainDay}</if>
+            <if test="complainBy != null  and complainBy != ''"> and complain_by = #{complainBy}</if>
+            <if test="complainPhone != null  and complainPhone != ''"> and complain_phone = #{complainPhone}</if>
+        </where>
+    </select>
+    
+    <select id="selectOrdComplainById" parameterType="Long" resultMap="OrdComplainResult">
+        <include refid="selectOrdComplainVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectOrdComplainListBySoId" parameterType="Long" resultMap="OrdComplainResult">
+        <include refid="selectOrdComplainVo"/>
+        where so_id = #{soId}
+    </select>
+
+    <select id="selectOrdComplainListBySoItemId" parameterType="Long" resultMap="OrdComplainResult">
+        <include refid="selectOrdComplainVo"/>
+        where so_item_id = #{soItemId}
+    </select>
+        
+    <insert id="insertOrdComplain" parameterType="OrdComplain" useGeneratedKeys="true" keyProperty="id">
+        insert into ord_complain
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="soId != null">so_id,</if>
+            <if test="soItemId != null">so_item_id,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="price != null">price,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="amount != null">amount,</if>
+            <if test="complainType != null">complain_type,</if>
+            <if test="gdNo != null">gd_no,</if>
+            <if test="lotNo != null">lot_no,</if>
+            <if test="complainDay != null">complain_day,</if>
+            <if test="complainBy != null">complain_by,</if>
+            <if test="complainPhone != null">complain_phone,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="soId != null">#{soId},</if>
+            <if test="soItemId != null">#{soItemId},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="price != null">#{price},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="complainType != null">#{complainType},</if>
+            <if test="gdNo != null">#{gdNo},</if>
+            <if test="lotNo != null">#{lotNo},</if>
+            <if test="complainDay != null">#{complainDay},</if>
+            <if test="complainBy != null">#{complainBy},</if>
+            <if test="complainPhone != null">#{complainPhone},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateOrdComplain" parameterType="OrdComplain">
+        update ord_complain
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="soId != null">so_id = #{soId},</if>
+            <if test="soItemId != null">so_item_id = #{soItemId},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="complainType != null">complain_type = #{complainType},</if>
+            <if test="gdNo != null">gd_no = #{gdNo},</if>
+            <if test="lotNo != null">lot_no = #{lotNo},</if>
+            <if test="complainDay != null">complain_day = #{complainDay},</if>
+            <if test="complainBy != null">complain_by = #{complainBy},</if>
+            <if test="complainPhone != null">complain_phone = #{complainPhone},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOrdComplainById" parameterType="Long">
+        delete from ord_complain where id = #{id}
+    </delete>
+
+    <delete id="deleteOrdComplainByIds" parameterType="String">
+        delete from ord_complain where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteOrdComplainBySoId" parameterType="Long">
+        delete from ord_complain where so_id = #{soId}
+    </delete>
+
+    <delete id="deleteOrdComplainBySoItemId" parameterType="Long">
+        delete from ord_complain where so_item_id = #{soItemId}
+    </delete>
+</mapper>

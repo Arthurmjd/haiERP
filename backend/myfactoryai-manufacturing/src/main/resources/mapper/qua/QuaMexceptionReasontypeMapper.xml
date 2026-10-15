@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.qua.mapper.QuaMexceptionReasontypeMapper">
+    
+    <resultMap type="QuaMexceptionReasontype" id="QuaMexceptionReasontypeResult">
+        <result property="id"    column="id"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="reasonCode"    column="reason_code"    />
+        <result property="reasonDesc"    column="reason_desc"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectQuaMexceptionReasontypeVo">
+        select id, category_id, reason_code, reason_desc, status, remark, create_by, create_time, update_by, update_time from qua_mexception_reasontype
+    </sql>
+
+    <select id="selectQuaMexceptionReasontypeList" parameterType="QuaMexceptionReasontype" resultMap="QuaMexceptionReasontypeResult">
+        <include refid="selectQuaMexceptionReasontypeVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="reasonCode != null  and reasonCode != ''"> and reason_code like concat('%', #{reasonCode}, '%')</if>
+            <if test="reasonDesc != null  and reasonDesc != ''"> and reason_desc like concat('%', #{reasonDesc}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectQuaMexceptionReasontypeById" parameterType="Long" resultMap="QuaMexceptionReasontypeResult">
+        <include refid="selectQuaMexceptionReasontypeVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectQuaMexceptionReasontypeListByCategoryId" parameterType="Long" resultMap="QuaMexceptionReasontypeResult">
+        <include refid="selectQuaMexceptionReasontypeVo"/>
+        where category_id = #{categoryId}
+    </select>
+        
+    <insert id="insertQuaMexceptionReasontype" parameterType="QuaMexceptionReasontype" useGeneratedKeys="true" keyProperty="id">
+        insert into qua_mexception_reasontype
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">category_id,</if>
+            <if test="reasonCode != null and reasonCode != ''">reason_code,</if>
+            <if test="reasonDesc != null and reasonDesc != ''">reason_desc,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="reasonCode != null and reasonCode != ''">#{reasonCode},</if>
+            <if test="reasonDesc != null and reasonDesc != ''">#{reasonDesc},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateQuaMexceptionReasontype" parameterType="QuaMexceptionReasontype">
+        update qua_mexception_reasontype
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="reasonCode != null and reasonCode != ''">reason_code = #{reasonCode},</if>
+            <if test="reasonDesc != null and reasonDesc != ''">reason_desc = #{reasonDesc},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteQuaMexceptionReasontypeById" parameterType="Long">
+        delete from qua_mexception_reasontype where id = #{id}
+    </delete>
+
+    <delete id="deleteQuaMexceptionReasontypeByIds" parameterType="String">
+        delete from qua_mexception_reasontype where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteQuaMexceptionReasontypeByCategoryId" parameterType="Long">
+        delete from qua_mexception_reasontype where category_id = #{categoryId}
+    </delete>
+</mapper>

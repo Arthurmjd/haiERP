@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.eng.mapper.EngMaterialProductionMapper">
+    
+    <resultMap type="EngMaterialProduction" id="EngMaterialProductionResult">
+        <result property="id"    column="id"    />
+        <result property="materialId"    column="material_id"    />
+        <result property="leadtimeSolidhour"    column="leadtime_solidhour"    />
+        <result property="leadtimeVariablehour"    column="leadtime_variablehour"    />
+        <result property="quantityMinisize"    column="quantity_minisize"    />
+        <result property="quantityEconosize"    column="quantity_econosize"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEngMaterialProductionVo">
+        select id, material_id, leadtime_solidhour, leadtime_variablehour, quantity_minisize, quantity_econosize, remark, create_by, create_time, update_by, update_time from eng_material_production
+    </sql>
+
+    <select id="selectEngMaterialProductionList" parameterType="EngMaterialProduction" resultMap="EngMaterialProductionResult">
+        <include refid="selectEngMaterialProductionVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
+            <if test="leadtimeSolidhour != null "> and leadtime_solidhour = #{leadtimeSolidhour}</if>
+            <if test="leadtimeVariablehour != null "> and leadtime_variablehour = #{leadtimeVariablehour}</if>
+            <if test="quantityMinisize != null "> and quantity_minisize = #{quantityMinisize}</if>
+            <if test="quantityEconosize != null "> and quantity_econosize = #{quantityEconosize}</if>
+        </where>
+    </select>
+    
+    <select id="selectEngMaterialProductionById" parameterType="Long" resultMap="EngMaterialProductionResult">
+        <include refid="selectEngMaterialProductionVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEngMaterialProductionListByMaterialId" parameterType="Long" resultMap="EngMaterialProductionResult">
+        <include refid="selectEngMaterialProductionVo"/>
+        where material_id = #{materialId}
+    </select>
+        
+    <insert id="insertEngMaterialProduction" parameterType="EngMaterialProduction">
+        insert into eng_material_production
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="materialId != null">material_id,</if>
+            <if test="leadtimeSolidhour != null">leadtime_solidhour,</if>
+            <if test="leadtimeVariablehour != null">leadtime_variablehour,</if>
+            <if test="quantityMinisize != null">quantity_minisize,</if>
+            <if test="quantityEconosize != null">quantity_econosize,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="materialId != null">#{materialId},</if>
+            <if test="leadtimeSolidhour != null">#{leadtimeSolidhour},</if>
+            <if test="leadtimeVariablehour != null">#{leadtimeVariablehour},</if>
+            <if test="quantityMinisize != null">#{quantityMinisize},</if>
+            <if test="quantityEconosize != null">#{quantityEconosize},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEngMaterialProduction" parameterType="EngMaterialProduction">
+        update eng_material_production
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="materialId != null">material_id = #{materialId},</if>
+            <if test="leadtimeSolidhour != null">leadtime_solidhour = #{leadtimeSolidhour},</if>
+            <if test="leadtimeVariablehour != null">leadtime_variablehour = #{leadtimeVariablehour},</if>
+            <if test="quantityMinisize != null">quantity_minisize = #{quantityMinisize},</if>
+            <if test="quantityEconosize != null">quantity_econosize = #{quantityEconosize},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEngMaterialProductionById" parameterType="Long">
+        delete from eng_material_production where id = #{id}
+    </delete>
+
+    <delete id="deleteEngMaterialProductionByIds" parameterType="String">
+        delete from eng_material_production where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEngMaterialProductionByMaterialId" parameterType="Long">
+        delete from eng_material_production where material_id = #{materialId}
+    </delete>
+</mapper>

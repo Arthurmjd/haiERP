@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.exe.mapper.ExeProcessMovesMapper">
+    
+    <resultMap type="ExeProcessMoves" id="ExeProcessMovesResult">
+        <result property="id"    column="id"    />
+        <result property="mlId"    column="ml_id"    />
+        <result property="status"    column="status"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="processSeq"    column="process_seq"    />
+        <result property="processId"    column="process_id"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="lastSeqNo"    column="last_seq_no"    />
+        <result property="nextSeqNo"    column="next_seq_no"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantityReceive"    column="quantity_receive"    />
+        <result property="quantityScrap"    column="quantity_scrap"    />
+        <result property="quantityRedisp"    column="quantity_redisp"    />
+        <result property="quantityRework"    column="quantity_rework"    />
+        <result property="quantityPending"    column="quantity_pending"    />
+        <result property="quantityAod"    column="quantity_aod"    />
+        <result property="quantitySplit"    column="quantity_split"    />
+        <result property="quantityPost"    column="quantity_post"    />
+        <result property="receiveTimeScheduled"    column="receive_time_scheduled"    />
+        <result property="postTimeScheduled"    column="post_time_scheduled"    />
+        <result property="lineType"    column="line_type"    />
+        <result property="processType"    column="process_type"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="groupId"    column="group_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="secondsFixed"    column="seconds_fixed"    />
+        <result property="secondsVariable"    column="seconds_variable"    />
+        <result property="secondsRm"    column="seconds_rm"    />
+        <result property="secondsSetup"    column="seconds_setup"    />
+        <result property="secondsStacking"    column="seconds_stacking"    />
+        <result property="secondsTransfer"    column="seconds_transfer"    />
+        <result property="secondsBuffer"    column="seconds_buffer"    />
+        <result property="receiveTime"    column="receive_time"    />
+        <result property="receiveBy"    column="receive_by"    />
+        <result property="postTime"    column="post_time"    />
+        <result property="postBy"    column="post_by"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectExeProcessMovesVo">
+        select id, ml_id, status, product_id, product_name, product_spec, process_seq, process_id, line_id, last_seq_no, next_seq_no, unit_id, quantity_receive, quantity_scrap, quantity_redisp, quantity_rework, quantity_pending, quantity_aod, quantity_split, quantity_post, receive_time_scheduled, post_time_scheduled, line_type, process_type, dept_id, group_id, remark, seconds_fixed, seconds_variable, seconds_rm, seconds_setup, seconds_stacking, seconds_transfer, seconds_buffer, receive_time, receive_by, post_time, post_by, create_by, create_time, update_by, update_time from exe_process_moves
+    </sql>
+
+    <select id="selectExeProcessMovesList" parameterType="ExeProcessMoves" resultMap="ExeProcessMovesResult">
+        <include refid="selectExeProcessMovesVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="mlId != null "> and ml_id = #{mlId}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="processSeq != null "> and process_seq = #{processSeq}</if>
+            <if test="processId != null "> and process_id = #{processId}</if>
+            <if test="lastSeqNo != null "> and last_seq_no like concat('%', #{lastSeqNo}, '%')</if>
+            <if test="nextSeqNo != null "> and next_seq_no like concat('%', #{nextSeqNo}, '%')</if>
+            <if test="lineType != null "> and line_type = #{lineType}</if>
+            <if test="processType != null "> and process_type = #{processType}</if>
+            <if test="secondsFixed != null "> and seconds_fixed = #{secondsFixed}</if>
+            <if test="secondsVariable != null "> and seconds_variable = #{secondsVariable}</if>
+            <if test="secondsRm != null "> and seconds_rm = #{secondsRm}</if>
+            <if test="secondsSetup != null "> and seconds_setup = #{secondsSetup}</if>
+            <if test="secondsStacking != null "> and seconds_stacking = #{secondsStacking}</if>
+            <if test="secondsTransfer != null "> and seconds_transfer = #{secondsTransfer}</if>
+            <if test="secondsBuffer != null "> and seconds_buffer = #{secondsBuffer}</if>
+        </where>
+        order by ml_id,process_seq
+    </select>
+    
+    <select id="selectExeProcessMovesById" parameterType="Long" resultMap="ExeProcessMovesResult">
+        <include refid="selectExeProcessMovesVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectExeProcessMovesListByMlId" parameterType="Long" resultMap="ExeProcessMovesResult">
+        <include refid="selectExeProcessMovesVo"/>
+        where ml_id = #{mlId}
+    </select>
+
+    <select id="selectExeProcessMovesListByProductId" parameterType="Long" resultMap="ExeProcessMovesResult">
+        <include refid="selectExeProcessMovesVo"/>
+        where product_id = #{productId}
+    </select>
+
+    <select id="selectExeProcessMovesListByProcessId" parameterType="Long" resultMap="ExeProcessMovesResult">
+        <include refid="selectExeProcessMovesVo"/>
+        where process_id = #{processId}
+    </select>
+
+    <select id="selectExeProcessMovesListByLineId" parameterType="Long" resultMap="ExeProcessMovesResult">
+        <include refid="selectExeProcessMovesVo"/>
+        where line_id = #{lineId}
+    </select>
+
+    <select id="selectExeProcessMovesListByUnitId" parameterType="Long" resultMap="ExeProcessMovesResult">
+        <include refid="selectExeProcessMovesVo"/>
+        where unit_id = #{unitId}
+    </select>
+
+    <select id="selectExeProcessMovesListByDeptId" parameterType="Long" resultMap="ExeProcessMovesResult">
+        <include refid="selectExeProcessMovesVo"/>
+        where dept_id = #{deptId}
+    </select>
+
+    <select id="selectExeProcessMovesListByGroupId" parameterType="Long" resultMap="ExeProcessMovesResult">
+        <include refid="selectExeProcessMovesVo"/>
+        where group_id = #{groupId}
+    </select>
+
+    <select id="selectExeProcessMovesListByReceiveBy" parameterType="Long" resultMap="ExeProcessMovesResult">
+        <include refid="selectExeProcessMovesVo"/>
+        where receive_by = #{receiveBy}
+    </select>
+
+    <select id="selectExeProcessMovesListByPostBy" parameterType="Long" resultMap="ExeProcessMovesResult">
+        <include refid="selectExeProcessMovesVo"/>
+        where post_by = #{postBy}
+    </select>
+        
+    <insert id="insertExeProcessMoves" parameterType="ExeProcessMoves" useGeneratedKeys="true" keyProperty="id">
+        insert into exe_process_moves
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="mlId != null">ml_id,</if>
+            <if test="status != null">status,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="processSeq != null">process_seq,</if>
+            <if test="processId != null">process_id,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="lastSeqNo != null">last_seq_no,</if>
+            <if test="nextSeqNo != null">next_seq_no,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantityReceive != null">quantity_receive,</if>
+            <if test="quantityScrap != null">quantity_scrap,</if>
+            <if test="quantityRedisp != null">quantity_redisp,</if>
+            <if test="quantityRework != null">quantity_rework,</if>
+            <if test="quantityPending != null">quantity_pending,</if>
+            <if test="quantityAod != null">quantity_aod,</if>
+            <if test="quantitySplit != null">quantity_split,</if>
+            <if test="quantityPost != null">quantity_post,</if>
+            <if test="receiveTimeScheduled != null">receive_time_scheduled,</if>
+            <if test="postTimeScheduled != null">post_time_scheduled,</if>
+            <if test="lineType != null">line_type,</if>
+            <if test="processType != null">process_type,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="groupId != null">group_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="secondsFixed != null">seconds_fixed,</if>
+            <if test="secondsVariable != null">seconds_variable,</if>
+            <if test="secondsRm != null">seconds_rm,</if>
+            <if test="secondsSetup != null">seconds_setup,</if>
+            <if test="secondsStacking != null">seconds_stacking,</if>
+            <if test="secondsTransfer != null">seconds_transfer,</if>
+            <if test="secondsBuffer != null">seconds_buffer,</if>
+            <if test="receiveTime != null">receive_time,</if>
+            <if test="receiveBy != null">receive_by,</if>
+            <if test="postTime != null">post_time,</if>
+            <if test="postBy != null">post_by,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="mlId != null">#{mlId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="processSeq != null">#{processSeq},</if>
+            <if test="processId != null">#{processId},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="lastSeqNo != null">#{lastSeqNo},</if>
+            <if test="nextSeqNo != null">#{nextSeqNo},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantityReceive != null">#{quantityReceive},</if>
+            <if test="quantityScrap != null">#{quantityScrap},</if>
+            <if test="quantityRedisp != null">#{quantityRedisp},</if>
+            <if test="quantityRework != null">#{quantityRework},</if>
+            <if test="quantityPending != null">#{quantityPending},</if>
+            <if test="quantityAod != null">#{quantityAod},</if>
+            <if test="quantitySplit != null">#{quantitySplit},</if>
+            <if test="quantityPost != null">#{quantityPost},</if>
+            <if test="receiveTimeScheduled != null">#{receiveTimeScheduled},</if>
+            <if test="postTimeScheduled != null">#{postTimeScheduled},</if>
+            <if test="lineType != null">#{lineType},</if>
+            <if test="processType != null">#{processType},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="groupId != null">#{groupId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="secondsFixed != null">#{secondsFixed},</if>
+            <if test="secondsVariable != null">#{secondsVariable},</if>
+            <if test="secondsRm != null">#{secondsRm},</if>
+            <if test="secondsSetup != null">#{secondsSetup},</if>
+            <if test="secondsStacking != null">#{secondsStacking},</if>
+            <if test="secondsTransfer != null">#{secondsTransfer},</if>
+            <if test="secondsBuffer != null">#{secondsBuffer},</if>
+            <if test="receiveTime != null">#{receiveTime},</if>
+            <if test="receiveBy != null">#{receiveBy},</if>
+            <if test="postTime != null">#{postTime},</if>
+            <if test="postBy != null">#{postBy},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateExeProcessMoves" parameterType="ExeProcessMoves">
+        update exe_process_moves
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="mlId != null">ml_id = #{mlId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="processSeq != null">process_seq = #{processSeq},</if>
+            <if test="processId != null">process_id = #{processId},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="lastSeqNo != null">last_seq_no = #{lastSeqNo},</if>
+            <if test="nextSeqNo != null">next_seq_no = #{nextSeqNo},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantityReceive != null">quantity_receive = #{quantityReceive},</if>
+            <if test="quantityScrap != null">quantity_scrap = #{quantityScrap},</if>
+            <if test="quantityRedisp != null">quantity_redisp = #{quantityRedisp},</if>
+            <if test="quantityRework != null">quantity_rework = #{quantityRework},</if>
+            <if test="quantityPending != null">quantity_pending = #{quantityPending},</if>
+            <if test="quantityAod != null">quantity_aod = #{quantityAod},</if>
+            <if test="quantitySplit != null">quantity_split = #{quantitySplit},</if>
+            <if test="quantityPost != null">quantity_post = #{quantityPost},</if>
+            <if test="receiveTimeScheduled != null">receive_time_scheduled = #{receiveTimeScheduled},</if>
+            <if test="postTimeScheduled != null">post_time_scheduled = #{postTimeScheduled},</if>
+            <if test="lineType != null">line_type = #{lineType},</if>
+            <if test="processType != null">process_type = #{processType},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="groupId != null">group_id = #{groupId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="secondsFixed != null">seconds_fixed = #{secondsFixed},</if>
+            <if test="secondsVariable != null">seconds_variable = #{secondsVariable},</if>
+            <if test="secondsRm != null">seconds_rm = #{secondsRm},</if>
+            <if test="secondsSetup != null">seconds_setup = #{secondsSetup},</if>
+            <if test="secondsStacking != null">seconds_stacking = #{secondsStacking},</if>
+            <if test="secondsTransfer != null">seconds_transfer = #{secondsTransfer},</if>
+            <if test="secondsBuffer != null">seconds_buffer = #{secondsBuffer},</if>
+            <if test="receiveTime != null">receive_time = #{receiveTime},</if>
+            <if test="receiveBy != null">receive_by = #{receiveBy},</if>
+            <if test="postTime != null">post_time = #{postTime},</if>
+            <if test="postBy != null">post_by = #{postBy},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteExeProcessMovesById" parameterType="Long">
+        delete from exe_process_moves where id = #{id}
+    </delete>
+
+    <delete id="deleteExeProcessMovesByIds" parameterType="String">
+        delete from exe_process_moves where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteExeProcessMovesByMlId" parameterType="Long">
+        delete from exe_process_moves where ml_id = #{mlId}
+    </delete>
+
+    <delete id="deleteExeProcessMovesByProductId" parameterType="Long">
+        delete from exe_process_moves where product_id = #{productId}
+    </delete>
+
+    <delete id="deleteExeProcessMovesByProcessId" parameterType="Long">
+        delete from exe_process_moves where process_id = #{processId}
+    </delete>
+
+    <delete id="deleteExeProcessMovesByLineId" parameterType="Long">
+        delete from exe_process_moves where line_id = #{lineId}
+    </delete>
+
+    <delete id="deleteExeProcessMovesByUnitId" parameterType="Long">
+        delete from exe_process_moves where unit_id = #{unitId}
+    </delete>
+
+    <delete id="deleteExeProcessMovesByDeptId" parameterType="Long">
+        delete from exe_process_moves where dept_id = #{deptId}
+    </delete>
+
+    <delete id="deleteExeProcessMovesByGroupId" parameterType="Long">
+        delete from exe_process_moves where group_id = #{groupId}
+    </delete>
+
+    <delete id="deleteExeProcessMovesByReceiveBy" parameterType="Long">
+        delete from exe_process_moves where receive_by = #{receiveBy}
+    </delete>
+
+    <delete id="deleteExeProcessMovesByPostBy" parameterType="Long">
+        delete from exe_process_moves where post_by = #{postBy}
+    </delete>
+</mapper>

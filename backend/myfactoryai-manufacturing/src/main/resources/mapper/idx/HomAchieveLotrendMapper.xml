@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.idx.mapper.HomAchieveLotrendMapper">
+
+    <resultMap type="HomAchieveLotrend" id="HomAchieveLotrendResult">
+        <result property="id" column="id"/>
+        <result property="day" column="day"/>
+        <result property="quantityWip" column="quantity_wip"/>
+        <result property="quantitySuperurgent" column="quantity_superurgent"/>
+        <result property="quantityUrgent" column="quantity_urgent"/>
+        <result property="quantityFrozen" column="quantity_frozen"/>
+        <result property="quantityKilled" column="quantity_killed"/>
+        <result property="quantityCompleted" column="quantity_completed"/>
+    </resultMap>
+
+    <sql id="selectHomAchieveLotrendVo">
+        select id, day, quantity_wip, quantity_superurgent, quantity_urgent, quantity_frozen, quantity_killed,
+        quantity_completed from hom_achieve_lotrend
+    </sql>
+
+    <select id="selectHomAchieveLotrendList" parameterType="HomAchieveLotrend" resultMap="HomAchieveLotrendResult">
+        <include refid="selectHomAchieveLotrendVo"/>
+        <where>
+            <if test="day != null  and day != ''">and day = #{day}</if>
+            <if test="quantityWip != null ">and quantity_wip = #{quantityWip}</if>
+            <if test="quantitySuperurgent != null ">and quantity_superurgent = #{quantitySuperurgent}</if>
+            <if test="quantityUrgent != null ">and quantity_urgent = #{quantityUrgent}</if>
+            <if test="quantityFrozen != null ">and quantity_frozen = #{quantityFrozen}</if>
+            <if test="quantityKilled != null ">and quantity_killed = #{quantityKilled}</if>
+            <if test="quantityCompleted != null ">and quantity_completed = #{quantityCompleted}</if>
+        </where>
+    </select>
+
+    <select id="selectHomAchieveLotrendById" parameterType="Long" resultMap="HomAchieveLotrendResult">
+        <include refid="selectHomAchieveLotrendVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertHomAchieveLotrend" parameterType="HomAchieveLotrend" useGeneratedKeys="true" keyProperty="id">
+        insert into hom_achieve_lotrend
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="day != null and day != ''">day,</if>
+            <if test="quantityWip != null">quantity_wip,</if>
+            <if test="quantitySuperurgent != null">quantity_superurgent,</if>
+            <if test="quantityUrgent != null">quantity_urgent,</if>
+            <if test="quantityFrozen != null">quantity_frozen,</if>
+            <if test="quantityKilled != null">quantity_killed,</if>
+            <if test="quantityCompleted != null">quantity_completed,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="day != null and day != ''">#{day},</if>
+            <if test="quantityWip != null">#{quantityWip},</if>
+            <if test="quantitySuperurgent != null">#{quantitySuperurgent},</if>
+            <if test="quantityUrgent != null">#{quantityUrgent},</if>
+            <if test="quantityFrozen != null">#{quantityFrozen},</if>
+            <if test="quantityKilled != null">#{quantityKilled},</if>
+            <if test="quantityCompleted != null">#{quantityCompleted},</if>
+        </trim>
+    </insert>
+
+    <update id="updateHomAchieveLotrend" parameterType="HomAchieveLotrend">
+        update hom_achieve_lotrend
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="day != null and day != ''">day = #{day},</if>
+            <if test="quantityWip != null">quantity_wip = #{quantityWip},</if>
+            <if test="quantitySuperurgent != null">quantity_superurgent = #{quantitySuperurgent},</if>
+            <if test="quantityUrgent != null">quantity_urgent = #{quantityUrgent},</if>
+            <if test="quantityFrozen != null">quantity_frozen = #{quantityFrozen},</if>
+            <if test="quantityKilled != null">quantity_killed = #{quantityKilled},</if>
+            <if test="quantityCompleted != null">quantity_completed = #{quantityCompleted},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteHomAchieveLotrendById" parameterType="Long">
+        delete from hom_achieve_lotrend where id = #{id}
+    </delete>
+
+    <delete id="deleteHomAchieveLotrendByIds" parameterType="String">
+        delete from hom_achieve_lotrend where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

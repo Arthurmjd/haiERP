@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ehs.mapper.EhsGasFoodieMapper">
+    
+    <resultMap type="EhsGasFoodie" id="EhsGasFoodieResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="foodieDesc"    column="foodie_desc"    />
+        <result property="status"    column="status"    />
+        <result property="location"    column="location"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEhsGasFoodieVo">
+        select id, name, foodie_desc, status, location, category_id, remark, create_by, create_time, update_by, update_time from ehs_gas_foodie
+    </sql>
+
+    <select id="selectEhsGasFoodieList" parameterType="EhsGasFoodie" resultMap="EhsGasFoodieResult">
+        <include refid="selectEhsGasFoodieVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="foodieDesc != null  and foodieDesc != ''"> and foodie_desc like concat('%', #{foodieDesc}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="location != null  and location != ''"> and location = #{location}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+        </where>
+    </select>
+    
+    <select id="selectEhsGasFoodieById" parameterType="Long" resultMap="EhsGasFoodieResult">
+        <include refid="selectEhsGasFoodieVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEhsGasFoodieListByCategoryId" parameterType="Long" resultMap="EhsGasFoodieResult">
+        <include refid="selectEhsGasFoodieVo"/>
+        where category_id = #{categoryId}
+    </select>
+        
+    <insert id="insertEhsGasFoodie" parameterType="EhsGasFoodie" useGeneratedKeys="true" keyProperty="id">
+        insert into ehs_gas_foodie
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">name,</if>
+            <if test="foodieDesc != null">foodie_desc,</if>
+            <if test="status != null">status,</if>
+            <if test="location != null and location != ''">location,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="foodieDesc != null">#{foodieDesc},</if>
+            <if test="status != null">#{status},</if>
+            <if test="location != null and location != ''">#{location},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEhsGasFoodie" parameterType="EhsGasFoodie">
+        update ehs_gas_foodie
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="foodieDesc != null">foodie_desc = #{foodieDesc},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="location != null and location != ''">location = #{location},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEhsGasFoodieById" parameterType="Long">
+        delete from ehs_gas_foodie where id = #{id}
+    </delete>
+
+    <delete id="deleteEhsGasFoodieByIds" parameterType="String">
+        delete from ehs_gas_foodie where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEhsGasFoodieByCategoryId" parameterType="Long">
+        delete from ehs_gas_foodie where category_id = #{categoryId}
+    </delete>
+</mapper>

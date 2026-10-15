@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.del.mapper.DelPerspectivityMapper">
+    
+    <resultMap type="DelPerspectivity" id="DelPerspectivityResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="soId"    column="so_id"    />
+        <result property="soItemId"    column="so_item_id"    />
+        <result property="soNo"    column="so_no"    />
+        <result property="soItemSeq"    column="so_item_seq"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productCode"    column="product_code"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="customerProductNo"    column="customer_product_no"    />
+        <result property="abroadProductNo"    column="abroad_product_no"    />
+        <result property="soItemStatus"    column="so_item_status"    />
+        <result property="dpTypeSeq"    column="dp_type_seq"    />
+        <result property="dpTypeDesc"    column="dp_type_desc"    />
+        <result property="dpBillno"    column="dp_billno"    />
+        <result property="dpStatus"    column="dp_status"    />
+        <result property="woSeq"    column="wo_seq"    />
+        <result property="woId"    column="wo_id"    />
+        <result property="woStatus"    column="wo_status"    />
+        <result property="mlSeq"    column="ml_seq"    />
+        <result property="mlId"    column="ml_id"    />
+        <result property="mlStatus"    column="ml_status"    />
+        <result property="mlLineId"    column="ml_line_id"    />
+        <result property="mlProccessId"    column="ml_proccess_id"    />
+        <result property="mlProcessStatus"    column="ml_process_status"    />
+        <result property="quantityTask"    column="quantity_task"    />
+        <result property="quantityOutput"    column="quantity_output"    />
+        <result property="quantityScrap"    column="quantity_scrap"    />
+        <result property="quantityRedisp"    column="quantity_redisp"    />
+        <result property="quantityRework"    column="quantity_rework"    />
+        <result property="quantityPending"    column="quantity_pending"    />
+        <result property="quantityAod"    column="quantity_aod"    />
+        <result property="quantitySplit"    column="quantity_split"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectDelPerspectivityVo">
+        select id, user_id, customer_id, so_id, so_item_id, so_no, so_item_seq, product_id, product_code, product_name, product_spec, draw_no, customer_product_no, abroad_product_no,
+               so_item_status, dp_type_seq, dp_type_desc, dp_billno, dp_status, wo_seq, wo_id, wo_status, ml_seq, ml_id, ml_status, ml_line_id, ml_proccess_id, ml_process_status,
+               quantity_task, quantity_output, quantity_scrap, quantity_redisp, quantity_rework, quantity_pending, quantity_aod, quantity_split,
+               project_id, remark
+        from del_perspectivity
+    </sql>
+
+    <select id="selectDelPerspectivityList" parameterType="DelPerspectivity" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code like concat('%', #{productCode}, '%')</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''"> and abroad_product_no like concat('%', #{abroadProductNo}, '%')</if>
+            <if test="soId != null "> and so_id = #{soId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            and user_id =#{userId}
+        </where>
+        order by customer_id, so_id, so_item_id,dp_type_seq,wo_seq,ml_seq
+    </select>
+    
+    <select id="selectDelPerspectivityById" parameterType="Long" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectDelPerspectivityListByUserId" parameterType="Long" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        where user_id = #{userId}
+    </select>
+
+    <select id="selectDelPerspectivityListByCustomerId" parameterType="Long" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        where customer_id = #{customerId}
+    </select>
+
+    <select id="selectDelPerspectivityListBySoId" parameterType="Long" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        where so_id = #{soId}
+    </select>
+
+    <select id="selectDelPerspectivityListBySoItemId" parameterType="Long" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        where so_item_id = #{soItemId}
+    </select>
+
+    <select id="selectDelPerspectivityListByProductId" parameterType="Long" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        where product_id = #{productId}
+    </select>
+
+    <select id="selectDelPerspectivityListByProductName" parameterType="Long" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        where product_name = #{productName}
+    </select>
+
+    <select id="selectDelPerspectivityListByWoId" parameterType="Long" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        where wo_id = #{woId}
+    </select>
+
+    <select id="selectDelPerspectivityListByMlId" parameterType="Long" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        where ml_id = #{mlId}
+    </select>
+
+    <select id="selectDelPerspectivityListByMlLineId" parameterType="Long" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        where ml_line_id = #{mlLineId}
+    </select>
+
+    <select id="selectDelPerspectivityListByMlProccessId" parameterType="Long" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        where ml_proccess_id = #{mlProccessId}
+    </select>
+
+    <select id="selectDelPerspectivityListByProjectId" parameterType="Long" resultMap="DelPerspectivityResult">
+        <include refid="selectDelPerspectivityVo"/>
+        where project_id = #{projectId}
+    </select>
+        
+    <insert id="insertDelPerspectivity" parameterType="DelPerspectivity" useGeneratedKeys="true" keyProperty="id">
+        insert into del_perspectivity
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="soId != null">so_id,</if>
+            <if test="soItemId != null">so_item_id,</if>
+            <if test="soNo != null">so_no,</if>
+            <if test="soItemSeq != null">so_item_seq,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productCode != null">product_code,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="drawNo != null">draw_no,</if>
+            <if test="customerProductNo != null">customer_product_no,</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no,</if>
+            <if test="soItemStatus != null">so_item_status,</if>
+            <if test="dpTypeSeq != null">dp_type_seq,</if>
+            <if test="dpTypeDesc != null and dpTypeDesc != ''">dp_type_desc,</if>
+            <if test="dpBillno != null">dp_billno,</if>
+            <if test="dpStatus != null">dp_status,</if>
+            <if test="woSeq != null">wo_seq,</if>
+            <if test="woId != null">wo_id,</if>
+            <if test="woStatus != null">wo_status,</if>
+            <if test="mlSeq != null">ml_seq,</if>
+            <if test="mlId != null">ml_id,</if>
+            <if test="mlStatus != null">ml_status,</if>
+            <if test="mlLineId != null">ml_line_id,</if>
+            <if test="mlProccessId != null">ml_proccess_id,</if>
+            <if test="mlProcessStatus != null">ml_process_status,</if>
+            <if test="quantityTask != null">quantity_task,</if>
+            <if test="quantityOutput != null">quantity_output,</if>
+            <if test="quantityScrap != null">quantity_scrap,</if>
+            <if test="quantityRedisp != null">quantity_redisp,</if>
+            <if test="quantityRework != null">quantity_rework,</if>
+            <if test="quantityPending != null">quantity_pending,</if>
+            <if test="quantityAod != null">quantity_aod,</if>
+            <if test="quantitySplit != null">quantity_split,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="remark != null">remark,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="soId != null">#{soId},</if>
+            <if test="soItemId != null">#{soItemId},</if>
+            <if test="soNo != null">#{soNo},</if>
+            <if test="soItemSeq != null">#{soItemSeq},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productCode != null">#{productCode},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="drawNo != null">#{drawNo},</if>
+            <if test="customerProductNo != null">#{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">#{abroadProductNo},</if>
+            <if test="soItemStatus != null">#{soItemStatus},</if>
+            <if test="dpTypeSeq != null">#{dpTypeSeq},</if>
+            <if test="dpTypeDesc != null and dpTypeDesc != ''">#{dpTypeDesc},</if>
+            <if test="dpBillno != null">#{dpBillno},</if>
+            <if test="dpStatus != null">#{dpStatus},</if>
+            <if test="woSeq != null">#{woSeq},</if>
+            <if test="woId != null">#{woId},</if>
+            <if test="woStatus != null">#{woStatus},</if>
+            <if test="mlSeq != null">#{mlSeq},</if>
+            <if test="mlId != null">#{mlId},</if>
+            <if test="mlStatus != null">#{mlStatus},</if>
+            <if test="mlLineId != null">#{mlLineId},</if>
+            <if test="mlProccessId != null">#{mlProccessId},</if>
+            <if test="mlProcessStatus != null">#{mlProcessStatus},</if>
+            <if test="quantityTask != null">#{quantityTask},</if>
+            <if test="quantityOutput != null">#{quantityOutput},</if>
+            <if test="quantityScrap != null">#{quantityScrap},</if>
+            <if test="quantityRedisp != null">#{quantityRedisp},</if>
+            <if test="quantityRework != null">#{quantityRework},</if>
+            <if test="quantityPending != null">#{quantityPending},</if>
+            <if test="quantityAod != null">#{quantityAod},</if>
+            <if test="quantitySplit != null">#{quantitySplit},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="remark != null">#{remark},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDelPerspectivity" parameterType="DelPerspectivity">
+        update del_perspectivity
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="soId != null">so_id = #{soId},</if>
+            <if test="soItemId != null">so_item_id = #{soItemId},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productCode != null">product_code = #{productCode},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="drawNo != null">draw_no = #{drawNo},</if>
+            <if test="customerProductNo != null">customer_product_no = #{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no=#{abroadProductNo},</if>
+            <if test="soItemStatus != null">so_item_status = #{soItemStatus},</if>
+            <if test="dpTypeSeq != null">dp_type_seq = #{dpTypeSeq},</if>
+            <if test="dpTypeDesc != null and dpTypeDesc != ''">dp_type_desc = #{dpTypeDesc},</if>
+            <if test="dpBillno != null">dp_billno = #{dpBillno},</if>
+            <if test="dpStatus != null">dp_status = #{dpStatus},</if>
+            <if test="woSeq != null">wo_seq = #{woSeq},</if>
+            <if test="woId != null">wo_id = #{woId},</if>
+            <if test="woStatus != null">wo_status = #{woStatus},</if>
+            <if test="mlSeq != null">ml_seq = #{mlSeq},</if>
+            <if test="mlId != null">ml_id = #{mlId},</if>
+            <if test="mlStatus != null">ml_status = #{mlStatus},</if>
+            <if test="mlLineId != null">ml_line_id = #{mlLineId},</if>
+            <if test="mlProccessId != null">ml_proccess_id = #{mlProccessId},</if>
+            <if test="mlProcessStatus != null">ml_process_status = #{mlProcessStatus},</if>
+            <if test="quantityTask != null">quantity_task = #{quantityTask},</if>
+            <if test="quantityOutput != null">quantity_output = #{quantityOutput},</if>
+            <if test="quantityScrap != null">quantity_scrap = #{quantityScrap},</if>
+            <if test="quantityRedisp != null">quantity_redisp = #{quantityRedisp},</if>
+            <if test="quantityRework != null">quantity_rework = #{quantityRework},</if>
+            <if test="quantityPending != null">quantity_pending = #{quantityPending},</if>
+            <if test="quantityAod != null">quantity_aod = #{quantityAod},</if>
+            <if test="quantitySplit != null">quantity_split = #{quantitySplit},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDelPerspectivityById" parameterType="Long">
+        delete from del_perspectivity where id = #{id}
+    </delete>
+
+    <delete id="deleteDelPerspectivityByIds" parameterType="String">
+        delete from del_perspectivity where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteDelPerspectivityByUserId" parameterType="Long">
+        delete from del_perspectivity where user_id = #{userId}
+    </delete>
+
+    <delete id="deleteDelPerspectivityByCustomerId" parameterType="Long">
+        delete from del_perspectivity where customer_id = #{customerId}
+    </delete>
+
+    <delete id="deleteDelPerspectivityBySoId" parameterType="Long">
+        delete from del_perspectivity where so_id = #{soId}
+    </delete>
+
+    <delete id="deleteDelPerspectivityBySoItemId" parameterType="Long">
+        delete from del_perspectivity where so_item_id = #{soItemId}
+    </delete>
+
+    <delete id="deleteDelPerspectivityByProductId" parameterType="Long">
+        delete from del_perspectivity where product_id = #{productId}
+    </delete>
+
+    <delete id="deleteDelPerspectivityByProductName" parameterType="Long">
+        delete from del_perspectivity where product_name = #{productName}
+    </delete>
+
+    <delete id="deleteDelPerspectivityByWoId" parameterType="Long">
+        delete from del_perspectivity where wo_id = #{woId}
+    </delete>
+
+    <delete id="deleteDelPerspectivityByMlId" parameterType="Long">
+        delete from del_perspectivity where ml_id = #{mlId}
+    </delete>
+
+    <delete id="deleteDelPerspectivityByMlLineId" parameterType="Long">
+        delete from del_perspectivity where ml_line_id = #{mlLineId}
+    </delete>
+
+    <delete id="deleteDelPerspectivityByMlProccessId" parameterType="Long">
+        delete from del_perspectivity where ml_proccess_id = #{mlProccessId}
+    </delete>
+
+    <delete id="deleteDelPerspectivityByProjectId" parameterType="Long">
+        delete from del_perspectivity where project_id = #{projectId}
+    </delete>
+</mapper>

@@ -1,0 +1,46 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      master:
+        url: ${DB_URL:jdbc:mysql://localhost:3306/ai_erp?useSSL=false&serverTimezone=Asia/Shanghai}
+        username: ${DB_USER:root}
+        password: ${DB_PASSWORD:}
+        driverClassName: com.mysql.cj.jdbc.Driver
+      slave:
+        enabled: false
+        driverClassName:
+        url:
+        username:
+        password:
+      initialSize: 10
+      minIdle: 10
+      maxActive: 40
+      maxWait: 60000
+      connectTimeout: 30000
+      socketTimeout: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      maxEvictableIdleTimeMillis: 900000
+      validationQuery: SELECT 1
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      webStatFilter:
+        enabled: true
+      statViewServlet:
+        enabled: false
+        allow:
+        url-pattern: /druid/*
+        login-username: ${DRUID_USER:admin}
+        login-password: ${DRUID_PASSWORD:disabled}
+        url: http://localhost:8080/druid/index.html
+      filter:
+        stat:
+          enabled: true
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: true
+        wall:
+          config:
+            multi-statement-allow: true

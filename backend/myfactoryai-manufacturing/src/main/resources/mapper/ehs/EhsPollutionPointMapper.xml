@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.ehs.mapper.EhsPollutionPointMapper">
+    
+    <resultMap type="EhsPollutionPoint" id="EhsPollutionPointResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="pointDesc"    column="point_desc"    />
+        <result property="status"    column="status"    />
+        <result property="location"    column="location"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="index1Id"    column="index1_id"    />
+        <result property="index2Id"    column="index2_id"    />
+        <result property="index3Id"    column="index3_id"    />
+        <result property="index4Id"    column="index4_id"    />
+        <result property="index5Id"    column="index5_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectEhsPollutionPointVo">
+        select id, name, point_desc, status, location, category_id, index1_id, index2_id, index3_id, index4_id, index5_id, remark, create_by, create_time, update_by, update_time from ehs_pollution_point
+    </sql>
+
+    <select id="selectEhsPollutionPointList" parameterType="EhsPollutionPoint" resultMap="EhsPollutionPointResult">
+        <include refid="selectEhsPollutionPointVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="pointDesc != null  and pointDesc != ''"> and point_desc like concat('%', #{pointDesc}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="location != null  and location != ''"> and location = #{location}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="index1Id != null "> and index1_id = #{index1Id}</if>
+            <if test="index2Id != null "> and index2_id = #{index2Id}</if>
+            <if test="index3Id != null "> and index3_id = #{index3Id}</if>
+            <if test="index4Id != null "> and index4_id = #{index4Id}</if>
+            <if test="index5Id != null "> and index5_id = #{index5Id}</if>
+        </where>
+    </select>
+    
+    <select id="selectEhsPollutionPointById" parameterType="Long" resultMap="EhsPollutionPointResult">
+        <include refid="selectEhsPollutionPointVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectEhsPollutionPointListByCategoryId" parameterType="Long" resultMap="EhsPollutionPointResult">
+        <include refid="selectEhsPollutionPointVo"/>
+        where category_id = #{categoryId}
+    </select>
+
+    <select id="selectEhsPollutionPointListByIndex1Id" parameterType="Long" resultMap="EhsPollutionPointResult">
+        <include refid="selectEhsPollutionPointVo"/>
+        where index1_id = #{index1Id}
+    </select>
+
+    <select id="selectEhsPollutionPointListByIndex2Id" parameterType="Long" resultMap="EhsPollutionPointResult">
+        <include refid="selectEhsPollutionPointVo"/>
+        where index2_id = #{index2Id}
+    </select>
+
+    <select id="selectEhsPollutionPointListByIndex3Id" parameterType="Long" resultMap="EhsPollutionPointResult">
+        <include refid="selectEhsPollutionPointVo"/>
+        where index3_id = #{index3Id}
+    </select>
+
+    <select id="selectEhsPollutionPointListByIndex4Id" parameterType="Long" resultMap="EhsPollutionPointResult">
+        <include refid="selectEhsPollutionPointVo"/>
+        where index4_id = #{index4Id}
+    </select>
+
+    <select id="selectEhsPollutionPointListByIndex5Id" parameterType="Long" resultMap="EhsPollutionPointResult">
+        <include refid="selectEhsPollutionPointVo"/>
+        where index5_id = #{index5Id}
+    </select>
+        
+    <insert id="insertEhsPollutionPoint" parameterType="EhsPollutionPoint" useGeneratedKeys="true" keyProperty="id">
+        insert into ehs_pollution_point
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">name,</if>
+            <if test="pointDesc != null">point_desc,</if>
+            <if test="status != null">status,</if>
+            <if test="location != null and location != ''">location,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="index1Id != null">index1_id,</if>
+            <if test="index2Id != null">index2_id,</if>
+            <if test="index3Id != null">index3_id,</if>
+            <if test="index4Id != null">index4_id,</if>
+            <if test="index5Id != null">index5_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="pointDesc != null">#{pointDesc},</if>
+            <if test="status != null">#{status},</if>
+            <if test="location != null and location != ''">#{location},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="index1Id != null">#{index1Id},</if>
+            <if test="index2Id != null">#{index2Id},</if>
+            <if test="index3Id != null">#{index3Id},</if>
+            <if test="index4Id != null">#{index4Id},</if>
+            <if test="index5Id != null">#{index5Id},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateEhsPollutionPoint" parameterType="EhsPollutionPoint">
+        update ehs_pollution_point
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="pointDesc != null">point_desc = #{pointDesc},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="location != null and location != ''">location = #{location},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="index1Id != null">index1_id = #{index1Id},</if>
+            <if test="index2Id != null">index2_id = #{index2Id},</if>
+            <if test="index3Id != null">index3_id = #{index3Id},</if>
+            <if test="index4Id != null">index4_id = #{index4Id},</if>
+            <if test="index5Id != null">index5_id = #{index5Id},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEhsPollutionPointById" parameterType="Long">
+        delete from ehs_pollution_point where id = #{id}
+    </delete>
+
+    <delete id="deleteEhsPollutionPointByIds" parameterType="String">
+        delete from ehs_pollution_point where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteEhsPollutionPointByCategoryId" parameterType="Long">
+        delete from ehs_pollution_point where category_id = #{categoryId}
+    </delete>
+
+    <delete id="deleteEhsPollutionPointByIndex1Id" parameterType="Long">
+        delete from ehs_pollution_point where index1_id = #{index1Id}
+    </delete>
+
+    <delete id="deleteEhsPollutionPointByIndex2Id" parameterType="Long">
+        delete from ehs_pollution_point where index2_id = #{index2Id}
+    </delete>
+
+    <delete id="deleteEhsPollutionPointByIndex3Id" parameterType="Long">
+        delete from ehs_pollution_point where index3_id = #{index3Id}
+    </delete>
+
+    <delete id="deleteEhsPollutionPointByIndex4Id" parameterType="Long">
+        delete from ehs_pollution_point where index4_id = #{index4Id}
+    </delete>
+
+    <delete id="deleteEhsPollutionPointByIndex5Id" parameterType="Long">
+        delete from ehs_pollution_point where index5_id = #{index5Id}
+    </delete>
+</mapper>

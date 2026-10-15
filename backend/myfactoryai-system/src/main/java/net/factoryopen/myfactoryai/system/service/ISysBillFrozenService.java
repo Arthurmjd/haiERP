@@ -1,0 +1,64 @@
+package net.factoryopen.myfactoryai.system.service;
+
+import java.util.List;
+import net.factoryopen.myfactoryai.system.domain.SysBillFrozen;
+
+/**
+ * 单对象冻结Service接口
+ * 
+ * @author admin
+ * @date 2024-06-18
+ */
+public interface ISysBillFrozenService 
+{
+    /**
+     * 查询单对象冻结
+     * 
+     * @param id 单对象冻结主键
+     * @return 单对象冻结
+     */
+    public SysBillFrozen selectSysBillFrozenById(Long id);
+
+    /**
+     * 查询单对象冻结列表
+     * 
+     * @param sysBillFrozen 单对象冻结
+     * @return 单对象冻结集合
+     */
+    public List<SysBillFrozen> selectSysBillFrozenList(SysBillFrozen sysBillFrozen);
+
+    /**
+     * 新增单对象冻结
+     * 
+     * @param sysBillFrozen 单对象冻结
+     * @return 结果
+     */
+    public int insertSysBillFrozen(SysBillFrozen sysBillFrozen);
+
+    /**
+     * 修改单对象冻结
+     * 
+     * @param sysBillFrozen 单对象冻结
+     * @return 结果
+     */
+    public int updateSysBillFrozen(SysBillFrozen sysBillFrozen);
+
+    /**
+     * 批量删除单对象冻结
+     * 
+     * @param ids 需要删除的单对象冻结主键集合
+     * @return 结果
+     */
+    public int deleteSysBillFrozenByIds(Long[] ids);
+
+    /**
+     * 删除单对象冻结信息
+     * 
+     * @param id 单对象冻结主键
+     * @return 结果
+     */
+    public int deleteSysBillFrozenById(Long id);
+
+
+
+}

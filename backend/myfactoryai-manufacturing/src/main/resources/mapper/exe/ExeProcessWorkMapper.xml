@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.exe.mapper.ExeProcessWorkMapper">
+    
+    <resultMap type="ExeProcessWork" id="ExeProcessWorkResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="mlId"    column="ml_id"    />
+        <result property="moveId"    column="move_id"    />
+        <result property="status"    column="status"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productCode"    column="product_code"    />
+        <result property="processSeq"    column="process_seq"    />
+        <result property="processId"    column="process_id"    />
+        <result property="workDay"    column="work_day"    />
+        <result property="workShifitId"    column="work_shifit_id"    />
+        <result property="machineId"    column="machine_id"    />
+        <result property="moldId"    column="mold_id"    />
+        <result property="toolId"    column="tool_id"    />
+        <result property="gaugeId"    column="gauge_id"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantityStart"    column="quantity_start"    />
+        <result property="quantityScrap"    column="quantity_scrap"    />
+        <result property="quantitySplit"    column="quantity_split"    />
+        <result property="quantityRedisp"    column="quantity_redisp"    />
+        <result property="quantityRework"    column="quantity_rework"    />
+        <result property="quantityPending"    column="quantity_pending"    />
+        <result property="quantityAod"    column="quantity_aod"    />
+        <result property="quantityFinish"    column="quantity_finish"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="startBy"    column="start_by"    />
+        <result property="finishTime"    column="finish_time"    />
+        <result property="finishBy"    column="finish_by"    />
+        <result property="groupId"    column="group_id"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectExeProcessWorkVo">
+        select id, bill_no, ml_id, move_id, status, product_id, product_code, process_seq, process_id, work_day, work_shifit_id,   machine_id, mold_id, tool_id, gauge_id,
+               unit_id, quantity_start, quantity_scrap, quantity_split, quantity_redisp, quantity_rework, quantity_pending, quantity_aod, quantity_finish,
+               start_time, start_by, finish_time, finish_by, group_id, line_id, dept_id,
+               remark, create_by, create_time, update_by, update_time
+        from exe_process_work
+    </sql>
+
+    <select id="selectExeProcessWorkList" parameterType="ExeProcessWork" resultMap="ExeProcessWorkResult">
+        <include refid="selectExeProcessWorkVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            <if test="mlId != null "> and ml_id = #{mlId}</if>
+            <if test="moveId != null "> and move_id = #{moveId}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="processSeq != null "> and process_seq = #{processSeq}</if>
+            <if test="processId != null "> and process_id = #{processId}</if>
+            <if test="workDay != null "> and work_day = #{workDay}</if>
+            <if test="workShifitId != null "> and work_shifit_id = #{workShifitId}</if>
+            <if test="machineId != null "> and machine_id = #{machineId}</if>
+            <if test="moldId != null "> and mold_id = #{moldId}</if>
+            <if test="toolId != null "> and tool_id = #{toolId}</if>
+            <if test="gaugeId != null "> and gauge_id = #{gaugeId}</if>
+            <if test="unitId != null "> and unit_id = #{unitId}</if>
+            <if test="quantityStart != null "> and quantity_start = #{quantityStart}</if>
+            <if test="quantityScrap != null "> and quantity_scrap = #{quantityScrap}</if>
+            <if test="quantitySplit != null "> and quantity_split = #{quantitySplit}</if>
+            <if test="quantityRedisp != null "> and quantity_redisp = #{quantityRedisp}</if>
+            <if test="quantityRework != null "> and quantity_rework = #{quantityRework}</if>
+            <if test="quantityPending != null "> and quantity_pending = #{quantityPending}</if>
+            <if test="quantityAod != null "> and quantity_aod = #{quantityAod}</if>
+            <if test="quantityFinish != null "> and quantity_finish = #{quantityFinish}</if>
+            <if test="startTime != null "> and start_time = #{startTime}</if>
+            <if test="startBy != null "> and start_by = #{startBy}</if>
+            <if test="finishTime != null "> and finish_time = #{finishTime}</if>
+            <if test="finishBy != null "> and finish_by = #{finishBy}</if>
+        </where>
+    </select>
+    
+    <select id="selectExeProcessWorkById" parameterType="Long" resultMap="ExeProcessWorkResult">
+        <include refid="selectExeProcessWorkVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectExeProcessWorkListByMoveId" parameterType="Long" resultMap="ExeProcessWorkResult">
+        <include refid="selectExeProcessWorkVo"/>
+        where move_id = #{moveId}
+    </select>
+
+    <select id="selectExeProcessWorkListByWorkShifitId" parameterType="Long" resultMap="ExeProcessWorkResult">
+        <include refid="selectExeProcessWorkVo"/>
+        where work_shifit_id = #{workShifitId}
+    </select>
+
+    <select id="selectExeProcessWorkListByStartBy" parameterType="Long" resultMap="ExeProcessWorkResult">
+        <include refid="selectExeProcessWorkVo"/>
+        where start_by = #{startBy}
+    </select>
+
+    <select id="selectExeProcessWorkListByFinishBy" parameterType="Long" resultMap="ExeProcessWorkResult">
+        <include refid="selectExeProcessWorkVo"/>
+        where finish_by = #{finishBy}
+    </select>
+        
+    <insert id="insertExeProcessWork" parameterType="ExeProcessWork" useGeneratedKeys="true" keyProperty="id">
+        insert into exe_process_work
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null">bill_no,</if>
+            <if test="mlId != null">ml_id,</if>
+            <if test="moveId != null">move_id,</if>
+            <if test="status != null">status,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productCode != null">product_code,</if>
+            <if test="processSeq != null">process_seq,</if>
+            <if test="processId != null">process_id,</if>
+            <if test="workDay != null">work_day,</if>
+            <if test="workShifitId != null">work_shifit_id,</if>
+            <if test="machineId != null">machine_id,</if>
+            <if test="moldId != null">mold_id,</if>
+            <if test="toolId != null">tool_id,</if>
+            <if test="gaugeId != null">gauge_id,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantityStart != null">quantity_start,</if>
+            <if test="quantityScrap != null">quantity_scrap,</if>
+            <if test="quantitySplit != null">quantity_split,</if>
+            <if test="quantityRedisp != null">quantity_redisp,</if>
+            <if test="quantityRework != null">quantity_rework,</if>
+            <if test="quantityPending != null">quantity_pending,</if>
+            <if test="quantityAod != null">quantity_aod,</if>
+            <if test="quantityFinish != null">quantity_finish,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="startBy != null">start_by,</if>
+            <if test="finishTime != null">finish_time,</if>
+            <if test="finishBy != null">finish_by,</if>
+            <if test="groupId != null">group_id,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null">#{billNo},</if>
+            <if test="mlId != null">#{mlId},</if>
+            <if test="moveId != null">#{moveId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productCode != null">#{productCode},</if>
+            <if test="processSeq != null">#{processSeq},</if>
+            <if test="processId != null">#{processId},</if>
+            <if test="workDay != null">#{workDay},</if>
+            <if test="workShifitId != null">#{workShifitId},</if>
+            <if test="machineId != null">#{machineId},</if>
+            <if test="moldId != null">#{moldId},</if>
+            <if test="toolId != null">#{toolId},</if>
+            <if test="gaugeId != null">#{gaugeId},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantityStart != null">#{quantityStart},</if>
+            <if test="quantityScrap != null">#{quantityScrap},</if>
+            <if test="quantitySplit != null">#{quantitySplit},</if>
+            <if test="quantityRedisp != null">#{quantityRedisp},</if>
+            <if test="quantityRework != null">#{quantityRework},</if>
+            <if test="quantityPending != null">#{quantityPending},</if>
+            <if test="quantityAod != null">#{quantityAod},</if>
+            <if test="quantityFinish != null">#{quantityFinish},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="startBy != null">#{startBy},</if>
+            <if test="finishTime != null">#{finishTime},</if>
+            <if test="finishBy != null">#{finishBy},</if>
+            <if test="groupId != null">#{groupId},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateExeProcessWork" parameterType="ExeProcessWork">
+        update exe_process_work
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null">bill_no = #{billNo},</if>
+            <if test="mlId != null">ml_id = #{mlId},</if>
+            <if test="moveId != null">move_id = #{moveId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productCode != null">product_code = #{productCode},</if>
+            <if test="processSeq != null">process_seq = #{processSeq},</if>
+            <if test="processId != null">process_id = #{processId},</if>
+            <if test="workDay != null">work_day = #{workDay},</if>
+            <if test="workShifitId != null">work_shifit_id = #{workShifitId},</if>
+            <if test="machineId != null">machine_id = #{machineId},</if>
+            <if test="moldId != null">mold_id = #{moldId},</if>
+            <if test="toolId != null">tool_id = #{toolId},</if>
+            <if test="gaugeId != null">gauge_id = #{gaugeId},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantityStart != null">quantity_start = #{quantityStart},</if>
+            <if test="quantityScrap != null">quantity_scrap = #{quantityScrap},</if>
+            <if test="quantitySplit != null">quantity_split = #{quantitySplit},</if>
+            <if test="quantityRedisp != null">quantity_redisp = #{quantityRedisp},</if>
+            <if test="quantityRework != null">quantity_rework = #{quantityRework},</if>
+            <if test="quantityPending != null">quantity_pending = #{quantityPending},</if>
+            <if test="quantityAod != null">quantity_aod = #{quantityAod},</if>
+            <if test="quantityFinish != null">quantity_finish = #{quantityFinish},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="startBy != null">start_by = #{startBy},</if>
+            <if test="finishTime != null">finish_time = #{finishTime},</if>
+            <if test="finishBy != null">finish_by = #{finishBy},</if>
+            <if test="groupId != null">group_id = #{groupId},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteExeProcessWorkById" parameterType="Long">
+        delete from exe_process_work where id = #{id}
+    </delete>
+
+    <delete id="deleteExeProcessWorkByIds" parameterType="String">
+        delete from exe_process_work where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteExeProcessWorkByMoveId" parameterType="Long">
+        delete from exe_process_work where move_id = #{moveId}
+    </delete>
+
+    <delete id="deleteExeProcessWorkByWorkShifitId" parameterType="Long">
+        delete from exe_process_work where work_shifit_id = #{workShifitId}
+    </delete>
+
+    <delete id="deleteExeProcessWorkByStartBy" parameterType="Long">
+        delete from exe_process_work where start_by = #{startBy}
+    </delete>
+
+    <delete id="deleteExeProcessWorkByFinishBy" parameterType="Long">
+        delete from exe_process_work where finish_by = #{finishBy}
+    </delete>
+</mapper>

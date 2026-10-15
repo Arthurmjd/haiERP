@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.snc.mapper.SncStockReqhistoryMapper">
+    
+    <resultMap type="SncStockReqhistory" id="SncStockReqhistoryResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="ioType"    column="io_type"    />
+        <result property="requestBillId"    column="request_bill_id"    />
+        <result property="requestBillNo"    column="request_bill_no"    />
+        <result property="requestorId"    column="requestor_id"    />
+        <result property="requestTime"    column="request_time"    />
+        <result property="sourceLineId"    column="source_line_id"    />
+        <result property="sourceSupplierId"    column="source_supplier_id"    />
+        <result property="sourceCustomerId"    column="source_customer_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSncStockReqhistoryVo">
+        select id, bill_no, status, io_type, request_bill_id, request_bill_no, requestor_id, request_time, source_line_id, source_supplier_id, source_customer_id, project_id, remark, create_by, create_time, update_by, update_time from snc_stock_request
+    </sql>
+
+    <select id="selectSncStockReqhistoryList" parameterType="SncStockReqhistory" resultMap="SncStockReqhistoryResult">
+        <include refid="selectSncStockReqhistoryVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+                 and status in (17,18)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="ioType != null "> and io_type = #{ioType}</if>
+            <if test="requestBillId != null "> and request_bill_id = #{requestBillId}</if>
+            <if test="requestBillNo != null  and requestBillNo != ''"> and request_bill_no like concat('%', #{requestBillNo}, '%')</if>
+            <if test="requestorId != null "> and requestor_id = #{requestorId}</if>
+            <if test="requestTime != null "> and request_time = #{requestTime}</if>
+            <if test="sourceLineId != null "> and source_line_id = #{sourceLineId}</if>
+            <if test="sourceSupplierId != null "> and source_supplier_id = #{sourceSupplierId}</if>
+            <if test="sourceCustomerId != null "> and source_customer_id = #{sourceCustomerId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+        </where>
+    </select>
+    
+    <select id="selectSncStockReqhistoryById" parameterType="Long" resultMap="SncStockReqhistoryResult">
+        <include refid="selectSncStockReqhistoryVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSncStockReqhistoryListByRequestorId" parameterType="Long" resultMap="SncStockReqhistoryResult">
+        <include refid="selectSncStockReqhistoryVo"/>
+        where requestor_id = #{requestorId}
+    </select>
+
+    <select id="selectSncStockReqhistoryListBySourceLineId" parameterType="Long" resultMap="SncStockReqhistoryResult">
+        <include refid="selectSncStockReqhistoryVo"/>
+        where source_line_id = #{sourceLineId}
+    </select>
+
+    <select id="selectSncStockReqhistoryListBySourceSupplierId" parameterType="Long" resultMap="SncStockReqhistoryResult">
+        <include refid="selectSncStockReqhistoryVo"/>
+        where source_supplier_id = #{sourceSupplierId}
+    </select>
+
+    <select id="selectSncStockReqhistoryListBySourceCustomerId" parameterType="Long" resultMap="SncStockReqhistoryResult">
+        <include refid="selectSncStockReqhistoryVo"/>
+        where source_customer_id = #{sourceCustomerId}
+    </select>
+
+    <select id="selectSncStockReqhistoryListByProjectId" parameterType="Long" resultMap="SncStockReqhistoryResult">
+        <include refid="selectSncStockReqhistoryVo"/>
+        where project_id = #{projectId}
+    </select>
+        
+    <insert id="insertSncStockReqhistory" parameterType="SncStockReqhistory" useGeneratedKeys="true" keyProperty="id">
+        insert into snc_stock_request
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="ioType != null">io_type,</if>
+            <if test="requestBillId != null">request_bill_id,</if>
+            <if test="requestBillNo != null">request_bill_no,</if>
+            <if test="requestorId != null">requestor_id,</if>
+            <if test="requestTime != null">request_time,</if>
+            <if test="sourceLineId != null">source_line_id,</if>
+            <if test="sourceSupplierId != null">source_supplier_id,</if>
+            <if test="sourceCustomerId != null">source_customer_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="ioType != null">#{ioType},</if>
+            <if test="requestBillId != null">#{requestBillId},</if>
+            <if test="requestBillNo != null">#{requestBillNo},</if>
+            <if test="requestorId != null">#{requestorId},</if>
+            <if test="requestTime != null">#{requestTime},</if>
+            <if test="sourceLineId != null">#{sourceLineId},</if>
+            <if test="sourceSupplierId != null">#{sourceSupplierId},</if>
+            <if test="sourceCustomerId != null">#{sourceCustomerId},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSncStockReqhistory" parameterType="SncStockReqhistory">
+        update snc_stock_request
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="ioType != null">io_type = #{ioType},</if>
+            <if test="requestBillId != null">request_bill_id = #{requestBillId},</if>
+            <if test="requestBillNo != null">request_bill_no = #{requestBillNo},</if>
+            <if test="requestorId != null">requestor_id = #{requestorId},</if>
+            <if test="requestTime != null">request_time = #{requestTime},</if>
+            <if test="sourceLineId != null">source_line_id = #{sourceLineId},</if>
+            <if test="sourceSupplierId != null">source_supplier_id = #{sourceSupplierId},</if>
+            <if test="sourceCustomerId != null">source_customer_id = #{sourceCustomerId},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSncStockReqhistoryById" parameterType="Long">
+        delete from snc_stock_request where id = #{id}
+    </delete>
+
+    <delete id="deleteSncStockReqhistoryByIds" parameterType="String">
+        delete from snc_stock_request where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteSncStockReqhistoryByRequestorId" parameterType="Long">
+        delete from snc_stock_request where requestor_id = #{requestorId}
+    </delete>
+
+    <delete id="deleteSncStockReqhistoryBySourceLineId" parameterType="Long">
+        delete from snc_stock_request where source_line_id = #{sourceLineId}
+    </delete>
+
+    <delete id="deleteSncStockReqhistoryBySourceSupplierId" parameterType="Long">
+        delete from snc_stock_request where source_supplier_id = #{sourceSupplierId}
+    </delete>
+
+    <delete id="deleteSncStockReqhistoryBySourceCustomerId" parameterType="Long">
+        delete from snc_stock_request where source_customer_id = #{sourceCustomerId}
+    </delete>
+
+    <delete id="deleteSncStockReqhistoryByProjectId" parameterType="Long">
+        delete from snc_stock_request where project_id = #{projectId}
+    </delete>
+</mapper>

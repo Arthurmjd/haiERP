@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.del.mapper.DelDeliveryOrderMapper">
+    
+    <resultMap type="DelDeliveryOrder" id="DelDeliveryOrderResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="status"    column="status"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="deliveryDay"    column="delivery_day"    />
+        <result property="addressId"    column="address_id"    />
+        <result property="contact"    column="contact"    />
+        <result property="phone"    column="phone"    />
+        <result property="expressNo"    column="express_no"    />
+        <result property="invoiceNo"    column="invoice_no"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="salesId"    column="sales_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectDelDeliveryOrderVo">
+        select id, bill_no, status, customer_id, delivery_day, address_id, contact, phone, express_no, invoice_no, project_id, sales_id,
+               remark, create_by, create_time, update_by, update_time
+        from del_gd
+    </sql>
+
+    <select id="selectDelDeliveryOrderList" parameterType="DelDeliveryOrder" resultMap="DelDeliveryOrderResult">
+        <include refid="selectDelDeliveryOrderVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+                 and status in (4,5,6,7,8,9,10,11,12,13,14,15)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="deliveryDay != null "> and delivery_day = #{deliveryDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="expressNo != null  and expressNo != ''"> and express_no like concat('%', #{expressNo}, '%')</if>
+            <if test="invoiceNo != null  and invoiceNo != ''"> and invoice_no like concat('%', #{invoiceNo}, '%')</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryOrderDraftList" parameterType="DelDeliveryOrder" resultMap="DelDeliveryOrderResult">
+        <include refid="selectDelDeliveryOrderVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            and status = 0
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="deliveryDay != null "> and delivery_day = #{deliveryDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="expressNo != null  and expressNo != ''"> and express_no like concat('%', #{expressNo}, '%')</if>
+            <if test="invoiceNo != null  and invoiceNo != ''"> and invoice_no like concat('%', #{invoiceNo}, '%')</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryOrderPublishingList" parameterType="DelDeliveryOrder" resultMap="DelDeliveryOrderResult">
+        <include refid="selectDelDeliveryOrderVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            and status in (0,1,2,3,4)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="deliveryDay != null "> and delivery_day = #{deliveryDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="expressNo != null  and expressNo != ''"> and express_no like concat('%', #{expressNo}, '%')</if>
+            <if test="invoiceNo != null  and invoiceNo != ''"> and invoice_no like concat('%', #{invoiceNo}, '%')</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryOrderProcessingList" parameterType="DelDeliveryOrder" resultMap="DelDeliveryOrderResult">
+        <include refid="selectDelDeliveryOrderVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            and status in (5,6,7,8,9,10,11,12,13)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="deliveryDay != null "> and delivery_day = #{deliveryDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="expressNo != null  and expressNo != ''"> and express_no like concat('%', #{expressNo}, '%')</if>
+            <if test="invoiceNo != null  and invoiceNo != ''"> and invoice_no like concat('%', #{invoiceNo}, '%')</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryOrderFinishingList" parameterType="DelDeliveryOrder" resultMap="DelDeliveryOrderResult">
+        <include refid="selectDelDeliveryOrderVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            and status = 16
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="deliveryDay != null "> and delivery_day = #{deliveryDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="expressNo != null  and expressNo != ''"> and express_no like concat('%', #{expressNo}, '%')</if>
+            <if test="invoiceNo != null  and invoiceNo != ''"> and invoice_no like concat('%', #{invoiceNo}, '%')</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryOrderHistoryList" parameterType="DelDeliveryOrder" resultMap="DelDeliveryOrderResult">
+        <include refid="selectDelDeliveryOrderVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            and status in (14,15,17,18)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="deliveryDay != null "> and delivery_day = #{deliveryDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="expressNo != null  and expressNo != ''"> and express_no like concat('%', #{expressNo}, '%')</if>
+            <if test="invoiceNo != null  and invoiceNo != ''"> and invoice_no like concat('%', #{invoiceNo}, '%')</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+
+    <select id="selectDelDeliveryAllList" parameterType="DelDeliveryOrder" resultMap="DelDeliveryOrderResult">
+        <include refid="selectDelDeliveryOrderVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="deliveryDay != null "> and delivery_day = #{deliveryDay}</if>
+            <if test="addressId != null "> and address_id = #{addressId}</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="expressNo != null  and expressNo != ''"> and express_no like concat('%', #{expressNo}, '%')</if>
+            <if test="invoiceNo != null  and invoiceNo != ''"> and invoice_no like concat('%', #{invoiceNo}, '%')</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="salesId != null "> and sales_id = #{salesId}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectDelDeliveryOrderById" parameterType="Long" resultMap="DelDeliveryOrderResult">
+        <include refid="selectDelDeliveryOrderVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectDelDeliveryOrderListByCustomerId" parameterType="Long" resultMap="DelDeliveryOrderResult">
+        <include refid="selectDelDeliveryOrderVo"/>
+        where customer_id = #{customerId}
+    </select>
+
+    <select id="selectDelDeliveryOrderListByAddressId" parameterType="Long" resultMap="DelDeliveryOrderResult">
+        <include refid="selectDelDeliveryOrderVo"/>
+        where address_id = #{addressId}
+    </select>
+
+    <select id="selectDelDeliveryOrderListByProjectId" parameterType="Long" resultMap="DelDeliveryOrderResult">
+        <include refid="selectDelDeliveryOrderVo"/>
+        where project_id = #{projectId}
+    </select>
+
+    <select id="selectDelDeliveryOrderListBySalesId" parameterType="Long" resultMap="DelDeliveryOrderResult">
+        <include refid="selectDelDeliveryOrderVo"/>
+        where sales_id = #{salesId}
+    </select>
+        
+    <insert id="insertDelDeliveryOrder" parameterType="DelDeliveryOrder" useGeneratedKeys="true" keyProperty="id">
+        insert into del_gd
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="status != null">status,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="deliveryDay != null">delivery_day,</if>
+            <if test="addressId != null">address_id,</if>
+            <if test="contact != null">contact,</if>
+            <if test="phone != null">phone,</if>
+            <if test="expressNo != null">express_no,</if>
+            <if test="invoiceNo != null">invoice_no,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="salesId != null">sales_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="deliveryDay != null">#{deliveryDay},</if>
+            <if test="addressId != null">#{addressId},</if>
+            <if test="contact != null">#{contact},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="expressNo != null">#{expressNo},</if>
+            <if test="invoiceNo != null">#{invoiceNo},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="salesId != null">#{salesId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateDelDeliveryOrder" parameterType="DelDeliveryOrder">
+        update del_gd
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="deliveryDay != null">delivery_day = #{deliveryDay},</if>
+            <if test="addressId != null">address_id = #{addressId},</if>
+            <if test="contact != null">contact = #{contact},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="expressNo != null">express_no = #{expressNo},</if>
+            <if test="invoiceNo != null">invoice_no = #{invoiceNo},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="salesId != null">sales_id = #{salesId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteDelDeliveryOrderById" parameterType="Long">
+        delete from del_gd where id = #{id}
+    </delete>
+
+    <delete id="deleteDelDeliveryOrderByIds" parameterType="String">
+        delete from del_gd where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteDelDeliveryOrderByCustomerId" parameterType="Long">
+        delete from del_gd where customer_id = #{customerId}
+    </delete>
+
+    <delete id="deleteDelDeliveryOrderByAddressId" parameterType="Long">
+        delete from del_gd where address_id = #{addressId}
+    </delete>
+
+    <delete id="deleteDelDeliveryOrderByProjectId" parameterType="Long">
+        delete from del_gd where project_id = #{projectId}
+    </delete>
+
+    <delete id="deleteDelDeliveryOrderBySalesId" parameterType="Long">
+        delete from del_gd where sales_id = #{salesId}
+    </delete>
+</mapper>

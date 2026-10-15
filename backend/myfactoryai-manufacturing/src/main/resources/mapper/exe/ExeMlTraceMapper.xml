@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.factoryopen.myfactoryai.manufacturing.exe.mapper.ExeMlTraceMapper">
+    
+    <resultMap type="ExeMlTrace" id="ExeMlTraceResult">
+        <result property="id"    column="id"    />
+        <result property="billNo"    column="bill_no"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productCode"    column="product_code"    />
+        <result property="productName"    column="product_name"    />
+        <result property="productSpec"    column="product_spec"    />
+        <result property="drawNo"    column="draw_no"    />
+        <result property="customerProductNo"    column="customer_product_no"    />
+        <result property="abroadProductNo"    column="abroad_product_no"    />
+        <result property="status"    column="status"    />
+        <result property="processProgress"    column="process_progress"    />
+        <result property="priority"    column="priority"    />
+        <result property="currentProcessSeq"    column="current_process_seq"    />
+        <result property="currentProcessId"    column="current_process_id"    />
+        <result property="currentWorkgroupId"    column="current_workgroup_id"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="quantityDispatched"    column="quantity_dispatched"    />
+        <result property="quantityAccepted"    column="quantity_accepted"    />
+        <result property="quantityScrap"    column="quantity_scrap"    />
+        <result property="quantityRedisp"    column="quantity_redisp"    />
+        <result property="quantityRework"    column="quantity_rework"    />
+        <result property="quantityPending"    column="quantity_pending"    />
+        <result property="quantityAod"    column="quantity_aod"    />
+        <result property="quantitySplit"    column="quantity_split"    />
+        <result property="quantityOutput"    column="quantity_output"    />
+        <result property="scheduleDay"    column="schedule_day"    />
+        <result property="deliveryDay"    column="delivery_day"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="mlType"    column="ml_type"    />
+        <result property="sourceMlId"    column="source_ml_id"    />
+        <result property="woId"    column="wo_id"    />
+        <result property="dispatchingTime"    column="dispatching_time"    />
+        <result property="dispatchingBy"    column="dispatching_by"    />
+        <result property="acceptingTime"    column="accepting_time"    />
+        <result property="acceptingBy"    column="accepting_by"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="startBy"    column="start_by"    />
+        <result property="finishTime"    column="finish_time"    />
+        <result property="finishBy"    column="finish_by"    />
+        <result property="stockreqTime"    column="stockreq_time"    />
+        <result property="stockreqBy"    column="stockreq_by"    />
+        <result property="stockinTime"    column="stockin_time"    />
+        <result property="stockinBy"    column="stockin_by"    />
+        <result property="remark"    column="remark"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="updateBy"    column="update_by"    />
+    </resultMap>
+
+    <sql id="selectExeMlTraceVo">
+        select id, bill_no, product_id, product_code, product_name, product_spec, draw_no, customer_product_no, abroad_product_no,
+               status, process_progress, priority, current_process_seq, current_process_id, current_workgroup_id,
+               unit_id, quantity_dispatched, quantity_accepted, quantity_scrap, quantity_redisp, quantity_rework, quantity_pending, quantity_aod, quantity_split, quantity_output,
+               schedule_day, delivery_day, line_id, project_id, ml_type, source_ml_id, wo_id,
+               dispatching_time, dispatching_by, accepting_time, accepting_by, start_time, start_by, finish_time, finish_by, stockreq_time, stockreq_by, stockin_time, stockin_by,
+               remark, create_time, create_by, update_time, update_by
+        from pln_ml
+    </sql>
+
+    <select id="selectExeMlTraceList" parameterType="ExeMlTrace" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        <where>
+            <if test="id != null "> and id = #{id}</if>
+            <if test="billNo != null  and billNo != ''"> and bill_no like concat('%', #{billNo}, '%')</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productCode != null "> and product_code = #{productCode}</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="productSpec != null  and productSpec != ''"> and product_spec like concat('%', #{productSpec}, '%')</if>
+            <if test="drawNo != null  and drawNo != ''"> and draw_no like concat('%', #{drawNo}, '%')</if>
+            <if test="customerProductNo != null  and customerProductNo != ''"> and customer_product_no like concat('%', #{customerProductNo}, '%')</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''"> and abroad_product_no like concat('%', #{abroadProductNo}, '%')</if>
+                 and status in (4,5,6,7,8,9,10,11,12,13,14,15)
+            <if test="status != null "> and status = #{status}</if>
+            <if test="processProgress != null "> and process_progress = #{processProgress}</if>
+            <if test="priority != null "> and priority = #{priority}</if>
+            <if test="currentProcessId != null "> and current_process_id = #{currentProcessId}</if>
+            <if test="currentWorkgroupId != null "> and current_workgroup_id = #{currentWorkgroupId}</if>
+            <if test="scheduleDay != null "> and schedule_day = #{scheduleDay}</if>
+            <if test="deliveryDay != null "> and delivery_day = #{deliveryDay}</if>
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="mlType != null "> and ml_type = #{mlType}</if>
+            <if test="sourceMlId != null "> and source_ml_id = #{sourceMlId}</if>
+            <if test="woId != null "> and wo_id = #{woId}</if>
+        </where>
+        order by update_time desc
+    </select>
+    
+    <select id="selectExeMlTraceById" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectExeMlTraceListByProductId" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where product_id = #{productId}
+    </select>
+
+    <select id="selectExeMlTraceListByCurrentProcessId" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where current_process_id = #{currentProcessId}
+    </select>
+
+    <select id="selectExeMlTraceListByCurrentWorkgroupId" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where current_workgroup_id = #{currentWorkgroupId}
+    </select>
+
+    <select id="selectExeMlTraceListByUnitId" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where unit_id = #{unitId}
+    </select>
+
+    <select id="selectExeMlTraceListByLineId" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where line_id = #{lineId}
+    </select>
+
+    <select id="selectExeMlTraceListByProjectId" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where project_id = #{projectId}
+    </select>
+
+    <select id="selectExeMlTraceListBySourceMlId" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where source_ml_id = #{sourceMlId}
+    </select>
+
+    <select id="selectExeMlTraceListByWoId" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where wo_id = #{woId}
+    </select>
+
+    <select id="selectExeMlTraceListByDispatchingBy" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where dispatching_by = #{dispatchingBy}
+    </select>
+
+    <select id="selectExeMlTraceListByAcceptingBy" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where accepting_by = #{acceptingBy}
+    </select>
+
+    <select id="selectExeMlTraceListByStartBy" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where start_by = #{startBy}
+    </select>
+
+    <select id="selectExeMlTraceListByFinishBy" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where finish_by = #{finishBy}
+    </select>
+
+    <select id="selectExeMlTraceListByStockinBy" parameterType="Long" resultMap="ExeMlTraceResult">
+        <include refid="selectExeMlTraceVo"/>
+        where stockin_by = #{stockinBy}
+    </select>
+        
+    <insert id="insertExeMlTrace" parameterType="ExeMlTrace" useGeneratedKeys="true" keyProperty="id">
+        insert into pln_ml
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productCode != null">product_code,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="productSpec != null">product_spec,</if>
+            <if test="drawNo != null">draw_no,</if>
+            <if test="customerProductNo != null">customer_product_no,</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no,</if>
+            <if test="status != null">status,</if>
+            <if test="processProgress != null">process_progress,</if>
+            <if test="priority != null">priority,</if>
+            <if test="currentProcessSeq != null">current_process_seq,</if>
+            <if test="currentProcessId != null">current_process_id,</if>
+            <if test="currentWorkgroupId != null">current_workgroup_id,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="quantityDispatched != null">quantity_dispatched,</if>
+            <if test="quantityAccepted != null">quantity_accepted,</if>
+            <if test="quantityScrap != null">quantity_scrap,</if>
+            <if test="quantityRedisp != null">quantity_redisp,</if>
+            <if test="quantityRework != null">quantity_rework,</if>
+            <if test="quantityPending != null">quantity_pending,</if>
+            <if test="quantityAod != null">quantity_aod,</if>
+            <if test="quantitySplit != null">quantity_split,</if>
+            <if test="quantityOutput != null">quantity_output,</if>
+            <if test="scheduleDay != null">schedule_day,</if>
+            <if test="deliveryDay != null">delivery_day,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="mlType != null">ml_type,</if>
+            <if test="sourceMlId != null">source_ml_id,</if>
+            <if test="woId != null">wo_id,</if>
+            <if test="dispatchingTime != null">dispatching_time,</if>
+            <if test="dispatchingBy != null">dispatching_by,</if>
+            <if test="acceptingTime != null">accepting_time,</if>
+            <if test="acceptingBy != null">accepting_by,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="startBy != null">start_by,</if>
+            <if test="finishTime != null">finish_time,</if>
+            <if test="finishBy != null">finish_by,</if>
+            <if test="stockreqTime != null">stockreq_time,</if>
+            <if test="stockreqBy != null">stockreq_by,</if>
+            <if test="stockinTime != null">stockin_time,</if>
+            <if test="stockinBy != null">stockin_by,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="updateBy != null">update_by,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">#{billNo},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productCode != null">#{productCode},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="productSpec != null">#{productSpec},</if>
+            <if test="drawNo != null">#{drawNo},</if>
+            <if test="customerProductNo != null">#{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">#{abroadProductNo},</if>
+            <if test="status != null">#{status},</if>
+            <if test="processProgress != null">#{processProgress},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="currentProcessSeq != null">#{currentProcessSeq},</if>
+            <if test="currentProcessId != null">#{currentProcessId},</if>
+            <if test="currentWorkgroupId != null">#{currentWorkgroupId},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="quantityDispatched != null">#{quantityDispatched},</if>
+            <if test="quantityAccepted != null">#{quantityAccepted},</if>
+            <if test="quantityScrap != null">#{quantityScrap},</if>
+            <if test="quantityRedisp != null">#{quantityRedisp},</if>
+            <if test="quantityRework != null">#{quantityRework},</if>
+            <if test="quantityPending != null">#{quantityPending},</if>
+            <if test="quantityAod != null">#{quantityAod},</if>
+            <if test="quantitySplit != null">#{quantitySplit},</if>
+            <if test="quantityOutput != null">#{quantityOutput},</if>
+            <if test="scheduleDay != null">#{scheduleDay},</if>
+            <if test="deliveryDay != null">#{deliveryDay},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="mlType != null">#{mlType},</if>
+            <if test="sourceMlId != null">#{sourceMlId},</if>
+            <if test="woId != null">#{woId},</if>
+            <if test="dispatchingTime != null">#{dispatchingTime},</if>
+            <if test="dispatchingBy != null">#{dispatchingBy},</if>
+            <if test="acceptingTime != null">#{acceptingTime},</if>
+            <if test="acceptingBy != null">#{acceptingBy},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="startBy != null">#{startBy},</if>
+            <if test="finishTime != null">#{finishTime},</if>
+            <if test="finishBy != null">#{finishBy},</if>
+            <if test="stockreqTime != null">#{stockreqTime},</if>
+            <if test="stockreqBy != null">#{stockreqBy},</if>
+            <if test="stockinTime != null">#{stockinTime},</if>
+            <if test="stockinBy != null">#{stockinBy},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+        </trim>
+    </insert>
+
+    <update id="updateExeMlTrace" parameterType="ExeMlTrace">
+        update pln_ml
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="billNo != null and billNo != ''">bill_no = #{billNo},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productCode != null">product_code = #{productCode},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="productSpec != null">product_spec = #{productSpec},</if>
+            <if test="drawNo != null">draw_no = #{drawNo},</if>
+            <if test="customerProductNo != null">customer_product_no = #{customerProductNo},</if>
+            <if test="abroadProductNo != null  and abroadProductNo != ''">abroad_product_no=#{abroadProductNo},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="processProgress != null">process_progress = #{processProgress},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="currentProcessSeq != null">current_process_seq = #{currentProcessSeq},</if>
+            <if test="currentProcessId != null">current_process_id = #{currentProcessId},</if>
+            <if test="currentWorkgroupId != null">current_workgroup_id = #{currentWorkgroupId},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantityDispatched != null">quantity_dispatched = #{quantityDispatched},</if>
+            <if test="quantityAccepted != null">quantity_accepted = #{quantityAccepted},</if>
+            <if test="quantityScrap != null">quantity_scrap = #{quantityScrap},</if>
+            <if test="quantityRedisp != null">quantity_redisp = #{quantityRedisp},</if>
+            <if test="quantityRework != null">quantity_rework = #{quantityRework},</if>
+            <if test="quantityPending != null">quantity_pending = #{quantityPending},</if>
+            <if test="quantityAod != null">quantity_aod = #{quantityAod},</if>
+            <if test="quantitySplit != null">quantity_split = #{quantitySplit},</if>
+            <if test="quantityOutput != null">quantity_output = #{quantityOutput},</if>
+            <if test="scheduleDay != null">schedule_day = #{scheduleDay},</if>
+            <if test="deliveryDay != null">delivery_day = #{deliveryDay},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="mlType != null">ml_type = #{mlType},</if>
+            <if test="sourceMlId != null">source_ml_id = #{sourceMlId},</if>
+            <if test="woId != null">wo_id = #{woId},</if>
+            <if test="dispatchingTime != null">dispatching_time = #{dispatchingTime},</if>
+            <if test="dispatchingBy != null">dispatching_by = #{dispatchingBy},</if>
+            <if test="acceptingTime != null">accepting_time = #{acceptingTime},</if>
+            <if test="acceptingBy != null">accepting_by = #{acceptingBy},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="startBy != null">start_by = #{startBy},</if>
+            <if test="finishTime != null">finish_time = #{finishTime},</if>
+            <if test="finishBy != null">finish_by = #{finishBy},</if>
+            <if test="stockreqTime != null">stockreq_time = #{stockreqTime},</if>
+            <if test="stockreqBy != null">stockreq_by = #{stockreqBy},</if>
+            <if test="stockinTime != null">stockin_time = #{stockinTime},</if>
+            <if test="stockinBy != null">stockin_by = #{stockinBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteExeMlTraceById" parameterType="Long">
+        delete from pln_ml where id = #{id}
+    </delete>
+
+    <delete id="deleteExeMlTraceByIds" parameterType="String">
+        delete from pln_ml where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteExeMlTraceByProductId" parameterType="Long">
+        delete from pln_ml where product_id = #{productId}
+    </delete>
+
+    <delete id="deleteExeMlTraceByCurrentProcessId" parameterType="Long">
+        delete from pln_ml where current_process_id = #{currentProcessId}
+    </delete>
+
+    <delete id="deleteExeMlTraceByCurrentWorkgroupId" parameterType="Long">
+        delete from pln_ml where current_workgroup_id = #{currentWorkgroupId}
+    </delete>
+
+    <delete id="deleteExeMlTraceByUnitId" parameterType="Long">
+        delete from pln_ml where unit_id = #{unitId}
+    </delete>
+
+    <delete id="deleteExeMlTraceByLineId" parameterType="Long">
+        delete from pln_ml where line_id = #{lineId}
+    </delete>
+
+    <delete id="deleteExeMlTraceByProjectId" parameterType="Long">
+        delete from pln_ml where project_id = #{projectId}
+    </delete>
+
+    <delete id="deleteExeMlTraceBySourceMlId" parameterType="Long">
+        delete from pln_ml where source_ml_id = #{sourceMlId}
+    </delete>
+
+    <delete id="deleteExeMlTraceByWoId" parameterType="Long">
+        delete from pln_ml where wo_id = #{woId}
+    </delete>
+
+    <delete id="deleteExeMlTraceByDispatchingBy" parameterType="Long">
+        delete from pln_ml where dispatching_by = #{dispatchingBy}
+    </delete>
+
+    <delete id="deleteExeMlTraceByAcceptingBy" parameterType="Long">
+        delete from pln_ml where accepting_by = #{acceptingBy}
+    </delete>
+
+    <delete id="deleteExeMlTraceByStartBy" parameterType="Long">
+        delete from pln_ml where start_by = #{startBy}
+    </delete>
+
+    <delete id="deleteExeMlTraceByFinishBy" parameterType="Long">
+        delete from pln_ml where finish_by = #{finishBy}
+    </delete>
+
+    <delete id="deleteExeMlTraceByStockinBy" parameterType="Long">
+        delete from pln_ml where stockin_by = #{stockinBy}
+    </delete>
+</mapper>
