@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">标准成本：小黑称量、确认并用于下一次报价</title>
+  <desc id="desc">材料价、工价和费用率进入订单款式的标准成本试算；工单完工且款式发齐后才能确认冻结，已确认结算可被新报价引用。</desc>
+  <rect width="1600" height="900" fill="#fff"/>
+  <g fill="none" stroke="#202020" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M142 292 L382 273 L396 468 L145 478 Z M185 348 Q256 334 349 337 M185 397 Q271 383 349 388"/>
+    <path d="M497 235 L724 255 L703 470 L485 447 Z M520 307 Q613 310 690 323 M520 362 Q608 367 685 376"/>
+    <path d="M159 553 L361 558 L364 691 L153 690 Z M179 600 Q266 595 339 605"/>
+    <path d="M879 312 L929 692 L831 691 Z M737 369 Q891 386 1060 353 M744 369 L696 563 M1060 355 L1101 551"/>
+    <path d="M640 563 Q690 622 751 561 Z M1041 551 Q1101 616 1162 546 Z"/>
+    <path d="M808 694 L977 693 M786 724 L1002 725"/>
+    <path d="M1197 322 L1435 325 L1439 661 Q1316 678 1190 659 Z"/>
+    <path d="M1228 396 Q1320 388 1405 400 M1229 449 Q1313 443 1405 451 M1230 503 Q1314 498 1409 507" stroke-width="3"/>
+    <path d="M1239 586 Q1320 614 1404 579" stroke="#c03e3b"/>
+  </g>
+  <path d="M817 487 Q864 463 906 491 L920 573 Q907 616 861 621 Q814 610 801 570 Z" fill="#202020"/>
+  <circle cx="839" cy="518" r="8" fill="#fff"/><circle cx="872" cy="517" r="8" fill="#fff"/>
+  <g fill="none" stroke="#202020" stroke-width="5" stroke-linecap="round">
+    <path d="M811 541 Q773 543 737 533 M912 540 Q960 529 983 498 M835 615 L817 676 M891 610 L904 676"/>
+  </g>
+  <g fill="none" stroke="#df9037" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M397 467 Q501 519 640 558 M702 446 Q745 474 801 488 M367 619 Q516 674 645 591 M1162 569 Q1181 551 1193 532"/>
+    <path d="M1178 524 L1197 532 L1178 544"/>
+  </g>
+  <g fill="#202020" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="35">
+    <text x="158" y="230">BOM × 物料价</text>
+    <text x="496" y="201">工序 × 工价</text>
+    <text x="169" y="741">制造费用率</text>
+    <text x="804" y="284">标准成本试算</text>
+  </g>
+  <g fill="#c03e3b" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="39">
+    <text x="1209" y="739">确认后冻结</text>
+  </g>
+  <g fill="#246a93" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="33">
+    <text x="1181" y="283">下次报价引用</text>
+    <text x="556" y="800">确认前须完工且该款发齐</text>
+  </g>
+</svg>

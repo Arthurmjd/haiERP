@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">工单生产：小黑踩动机器把合格件送入库存</title>
+  <desc id="desc">工单冻结 SKU、BOM、工价；现存物料齐套后领料，逐工序报工，合格件完工入库，不良件单独记录，内部员工合格报工生成计件。</desc>
+  <rect width="1600" height="900" fill="#fff"/>
+  <g fill="none" stroke="#1d1d1d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M111 411 Q243 387 366 409 L363 595 Q233 612 108 594 Z"/>
+    <path d="M132 448 Q229 435 337 448 M134 485 Q238 474 334 490 M137 527 Q233 515 336 531" stroke-width="3"/>
+    <path d="M384 532 Q488 502 567 529 M486 515 L484 321 Q697 297 959 312 L970 558 Q769 565 561 552"/>
+    <path d="M543 345 Q619 331 701 341 L698 505 Q633 522 553 509 Z M742 335 L925 335 L923 484 L738 493 Z"/>
+    <path d="M612 411 Q666 394 695 418 M796 383 Q859 372 905 390 M782 438 Q839 428 899 439" stroke-width="2"/>
+    <path d="M583 552 L555 665 L1001 667 L950 557 M599 666 Q737 700 919 670"/>
+    <path d="M983 450 Q1072 436 1156 455 L1151 618 Q1080 642 982 617 Z"/>
+    <path d="M1095 495 Q1130 489 1138 514 M1008 499 L1051 490"/>
+    <path d="M1220 370 L1413 373 L1407 639 L1225 633 Z M1225 462 L1409 465"/>
+    <path d="M1281 429 L1280 398 L1361 402 L1360 433 Z"/>
+    <path d="M1250 503 Q1305 520 1384 505 M1251 555 Q1314 570 1380 552" stroke-width="3"/>
+    <path d="M638 744 Q698 728 756 749 M648 759 Q705 776 746 758" stroke="#c33d3c"/>
+  </g>
+  <path d="M748 429 Q796 415 847 431 L867 523 Q852 566 800 569 Q754 563 737 524 Z" fill="#1d1d1d"/>
+  <circle cx="777" cy="463" r="8" fill="#fff"/><circle cx="810" cy="459" r="8" fill="#fff"/>
+  <g fill="none" stroke="#1d1d1d" stroke-width="5" stroke-linecap="round">
+    <path d="M751 495 Q724 483 698 491 M859 495 Q890 476 917 489 M776 558 Q751 611 697 669 M831 562 Q861 626 895 667"/>
+  </g>
+  <g fill="none" stroke="#e38e33" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M365 465 Q456 409 545 449 M964 473 Q1030 429 1113 473 M1157 489 Q1191 477 1221 478"/>
+    <path d="M1199 467 L1223 477 L1202 489"/>
+  </g>
+  <g fill="#1d1d1d" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="39">
+    <text x="126" y="348">现存物料</text>
+    <text x="576" y="257">冻结 SKU / BOM / 工价</text>
+    <text x="1238" y="305">成品库存</text>
+  </g>
+  <g fill="#236a93" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="34">
+    <text x="982" y="704">合格报工 → 计件</text>
+  </g>
+  <g fill="#c33d3c" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="35">
+    <text x="559" y="823">不良另记，不入库</text>
+  </g>
+</svg>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">分批出货：小黑把订单拆成多批并核对发齐</title>
+  <desc id="desc">每批发货按订单 SKU 未发量和成品批次库存校验；全部 SKU 发齐才记录发齐日期，出货签收另记，退货核对原出货后可按类型回库。</desc>
+  <rect width="1600" height="900" fill="#fff"/>
+  <g fill="none" stroke="#202020" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M132 288 Q259 279 394 287 L401 627 Q250 644 129 626 Z"/>
+    <path d="M159 357 Q261 352 369 358 M159 420 Q255 411 368 419 M160 482 Q259 473 370 483 M161 543 Q259 537 372 543" stroke-width="3"/>
+    <circle cx="375" cy="359" r="10"/><circle cx="376" cy="422" r="10"/><circle cx="377" cy="483" r="10"/>
+    <path d="M805 319 L1017 321 L1015 562 Q913 574 807 559 Z M805 391 L1019 390 M911 321 L910 390"/>
+    <path d="M1116 445 L1370 447 L1366 684 Q1240 695 1112 683 Z M1114 517 L1367 519 M1240 447 L1239 520"/>
+    <path d="M829 418 Q905 433 994 418 M1139 550 Q1240 563 1344 550" stroke-width="3"/>
+    <path d="M460 718 Q776 828 1103 727" stroke="#df8f37" stroke-width="6"/>
+    <path d="M1092 715 L1107 728 L1086 735" stroke="#df8f37" stroke-width="6"/>
+    <path d="M1340 294 Q1401 334 1381 404" stroke="#c33e3d" stroke-width="5"/>
+    <path d="M1369 385 L1381 406 L1392 385" stroke="#c33e3d" stroke-width="5"/>
+  </g>
+  <path d="M550 413 Q604 394 647 421 L665 527 Q651 570 601 577 Q547 567 530 527 Z" fill="#202020"/>
+  <circle cx="570" cy="452" r="8" fill="#fff"/><circle cx="608" cy="451" r="8" fill="#fff"/>
+  <g fill="none" stroke="#202020" stroke-width="5" stroke-linecap="round">
+    <path d="M543 474 Q504 458 474 425 M653 478 Q693 470 720 429 M568 568 L555 640 M622 572 L640 638"/>
+    <path d="M460 413 Q489 422 517 430 M706 418 Q746 411 777 427"/>
+    <path d="M460 413 L480 444 M459 413 L486 403 M704 416 L729 450 M706 417 L737 405"/>
+  </g>
+  <g fill="none" stroke="#e38f35" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M669 492 Q743 473 802 475 M1019 478 Q1063 465 1114 483"/>
+    <path d="M785 462 L806 476 L783 489 M1096 469 L1116 482 L1096 495"/>
+  </g>
+  <g fill="#1f1f1f" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="38">
+    <text x="152" y="224">订单各 SKU</text>
+    <text x="839" y="265">第一批</text>
+    <text x="1151" y="385">后一批</text>
+  </g>
+  <g fill="#c33e3d" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="38">
+    <text x="1090" y="249">全部发齐才记日期</text>
+  </g>
+  <g fill="#226b94" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="34">
+    <text x="740" y="851">退货须核对原批次；符合条件才回库</text>
+  </g>
+  <g fill="none" stroke="#226b94" stroke-width="3" stroke-linecap="round">
+    <path d="M777 755 Q660 704 537 716 M548 706 L532 715 L549 726"/>
+  </g>
+</svg>

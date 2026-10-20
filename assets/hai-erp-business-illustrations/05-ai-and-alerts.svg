@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">受控业务问答：小黑从有权限的抽屉取出记录</title>
+  <desc id="desc">用户选择订单、库存、缺料、成本或交付范围，服务端核验权限并运行固定只读查询，最多二十条记录供模型解释；模型不可用时返回摘要。缺料和逾期预警由规则生成。</desc>
+  <rect width="1600" height="900" fill="#fff"/>
+  <g fill="none" stroke="#202020" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M117 283 Q313 271 502 283 L510 650 Q322 666 111 648 Z"/>
+    <path d="M133 358 L491 353 M130 429 L495 426 M129 502 L498 501 M125 577 L503 575"/>
+    <path d="M296 320 L343 319 M297 392 L343 392 M295 467 L345 467 M295 539 L344 539 M294 614 L345 614"/>
+    <path d="M538 429 Q594 411 642 427 L642 491 Q589 505 535 489 Z"/>
+    <path d="M892 257 L1071 256 L1071 635 L887 633 Z M914 297 L1048 295 L1048 526 L916 526 Z"/>
+    <circle cx="1025" cy="549" r="6" fill="#202020"/>
+    <path d="M1156 319 Q1306 288 1442 330 L1439 589 Q1310 611 1154 583 Z"/>
+    <path d="M1190 386 Q1288 372 1399 382 M1187 436 Q1297 427 1402 437 M1188 490 Q1308 480 1401 490" stroke-width="3"/>
+    <path d="M1154 661 Q1292 639 1441 664 L1442 756 Q1298 766 1153 756 Z" stroke="#c33e3d"/>
+    <path d="M1178 706 Q1312 688 1413 707" stroke="#c33e3d" stroke-width="3"/>
+  </g>
+  <path d="M702 429 Q758 409 798 437 L815 536 Q793 582 749 587 Q694 573 685 527 Z" fill="#202020"/>
+  <circle cx="725" cy="468" r="8" fill="#fff"/><circle cx="758" cy="463" r="8" fill="#fff"/>
+  <g fill="none" stroke="#202020" stroke-width="5" stroke-linecap="round">
+    <path d="M694 484 Q664 461 641 457 M806 492 Q849 475 879 472 M728 580 L709 655 M778 579 L797 651"/>
+  </g>
+  <g fill="none" stroke="#e28d35" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M511 466 Q591 520 678 489 M820 507 Q854 495 888 494 M1073 474 Q1111 459 1155 463"/>
+    <path d="M1137 451 L1158 462 L1138 477"/>
+  </g>
+  <g fill="#202020" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="33">
+    <text x="149" y="248">固定业务范围</text>
+    <text x="156" y="330">订单</text><text x="156" y="402">库存</text>
+    <text x="155" y="475">缺料</text><text x="155" y="549">成本</text>
+    <text x="155" y="625">交付</text>
+    <text x="924" y="221">权限门</text>
+  </g>
+  <g fill="#236b95" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="34">
+    <text x="1178" y="281">最多 20 条只读记录</text>
+    <text x="1159" y="816">模型解释 / 无模型则摘要</text>
+  </g>
+  <g fill="#c33e3d" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="35">
+    <text x="586" y="753">缺料、逾期先由规则算出</text>
+  </g>
+</svg>

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">订单到采购：小黑量出净缺口</title>
+  <desc id="desc">确认订单的 BOM 剩余需求扣除现存库存和已下单未收货量，净缺口产生采购建议；采购下单后分批收货。</desc>
+  <rect width="1600" height="900" fill="#fff"/>
+  <g fill="none" stroke="#202020" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M127 267 Q270 258 409 267 L424 615 Q271 629 119 617 Z"/>
+    <path d="M151 324 Q270 319 384 323 M151 379 Q276 372 381 380 M151 435 Q279 431 382 434 M151 489 Q265 484 377 491" stroke-width="3"/>
+    <path d="M170 269 L167 238 L350 241 L353 267"/>
+    <path d="M1038 344 L1423 343 M1052 345 L1044 656 M1414 343 L1423 656 M1050 496 L1422 498 M1044 654 Q1230 665 1427 654"/>
+    <path d="M1092 448 L1094 382 L1220 379 L1223 449 Z M1255 447 L1252 383 L1376 379 L1379 447 Z"/>
+    <path d="M1110 609 L1112 545 L1233 541 L1236 609 Z M1262 607 L1264 546 L1382 544 L1386 608 Z"/>
+    <path d="M1173 380 L1175 448 M1317 383 L1316 447 M1174 544 L1172 609 M1325 545 L1323 608" stroke-width="2"/>
+    <path d="M681 337 Q789 293 891 337 L896 386 Q788 406 678 385 Z"/>
+    <path d="M899 361 Q948 358 1016 367 M1009 360 L1018 367 L1009 374"/>
+    <path d="M593 573 Q566 615 552 678 M652 581 Q685 622 700 669 M550 677 L534 679 M699 670 L717 670"/>
+  </g>
+  <g fill="none" stroke="#e49136" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M423 430 Q514 389 580 417 M735 405 Q829 451 876 490 M906 521 Q975 570 1038 566"/>
+    <path d="M1020 557 L1041 567 L1023 577"/>
+    <path d="M506 424 L511 456 M546 414 L549 440 M831 463 L814 483 M853 476 L836 500" stroke-width="3"/>
+  </g>
+  <path d="M574 446 Q617 423 672 438 L696 535 Q681 582 620 590 Q561 574 552 523 Z" fill="#1e1e1e"/>
+  <circle cx="609" cy="478" r="8" fill="#fff"/><circle cx="642" cy="477" r="8" fill="#fff"/>
+  <g fill="none" stroke="#1e1e1e" stroke-width="5" stroke-linecap="round">
+    <path d="M561 492 Q518 478 498 448 M691 495 Q726 476 741 438"/>
+    <path d="M589 575 L580 642 M658 575 L672 641"/>
+  </g>
+  <g fill="#1f1f1f" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="39">
+    <text x="144" y="212">已确认订单</text>
+    <text x="146" y="681">BOM 剩余用量</text>
+    <text x="1086" y="293">现存 + 在途</text>
+  </g>
+  <g fill="#c63c38" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="46">
+    <text x="729" y="285">净缺口</text>
+    <text x="717" y="710" font-size="34">草稿不算在途</text>
+  </g>
+  <g fill="#236a93" font-family="KaiTi, STKaiti, Microsoft YaHei, sans-serif" font-size="33">
+    <text x="1063" y="729">下单后分批收货</text>
+  </g>
+  <path d="M775 395 Q790 411 806 395" fill="none" stroke="#c63c38" stroke-width="4" stroke-linecap="round"/>
+</svg>
