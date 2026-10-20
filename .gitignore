@@ -11,6 +11,10 @@ Thumbs.db
 /frontend/dist/
 /frontend/.vite/
 
+# Local dev credentials and logs
+/scripts/env.local.ps1
+/logs/
+
 # Historical reference dump; the demo uses the other SQL files.
 /sql/myfactoryai-free.sql
 

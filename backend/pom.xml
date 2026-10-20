@@ -206,6 +206,7 @@
                     <configuration>
                         <release>21</release>
                         <parameters>true</parameters>
+                        <proc>full</proc>
                         <encoding>${project.build.sourceEncoding}</encoding>
                     </configuration>
                 </plugin>
