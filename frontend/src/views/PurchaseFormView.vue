@@ -46,7 +46,7 @@ async function load() {
 async function submit() {
   const today = new Date().toISOString().slice(0, 10)
   if (!form.supplierId || !form.expectDate || form.expectDate < today) return ElMessage.warning('请选择供应商和有效到货日期')
-  if (form.items.some(item => !item.materialId || !Number.isFinite(item.qty) || item.qty <= 0 || item.unitPrice <= 0 || Math.round(item.qty * 1000) !== item.qty * 1000)) return ElMessage.warning('物料、数量或单价不合法')
+  if (form.items.some(item => !item.materialId || !Number.isFinite(item.qty) || item.qty <= 0 || item.unitPrice <= 0 || Math.abs(item.qty * 1000 - Math.round(item.qty * 1000)) > 1e-6)) return ElMessage.warning('物料、数量或单价不合法')
   if (new Set(form.items.map(item => item.materialId)).size !== form.items.length) return ElMessage.warning('物料不能重复')
   saving.value = true
   try {

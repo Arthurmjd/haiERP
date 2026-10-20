@@ -54,7 +54,7 @@ async function submit() {
   const now = new Date()
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   if (form.deliveryDate < today) return ElMessage.warning('交期不能早于今天')
-  if (form.lines.some(line => !line.skuId || !Number.isInteger(line.qty) || line.qty <= 0 || line.unitPrice <= 0 || Math.round(line.unitPrice * 100) !== line.unitPrice * 100)) return ElMessage.warning('请填写有效 SKU、数量和单价')
+  if (form.lines.some(line => !line.skuId || !Number.isInteger(line.qty) || line.qty <= 0 || line.unitPrice <= 0 || Math.abs(line.unitPrice * 100 - Math.round(line.unitPrice * 100)) > 1e-6)) return ElMessage.warning('请填写有效 SKU、数量和单价')
   if (new Set(form.lines.map(line => line.skuId)).size !== form.lines.length) return ElMessage.warning('同一 SKU 只能添加一次')
   saving.value = true
   try {
