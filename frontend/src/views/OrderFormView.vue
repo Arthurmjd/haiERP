@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Delete, Plus } from '@element-plus/icons-vue'
@@ -19,14 +19,23 @@ const total = computed(() => form.lines.reduce((sum, line) => sum + Number(line.
 const cancelPath = computed(() => editing.value ? `/orders/${route.params.id}` : '/orders')
 const nameOf = (items: { id: string; name: string }[], id?: string) => items.find(item => item.id === id)?.name || '—'
 function skuName(id: string) { const sku = options.value.skus.find(item => item.id === id); return sku ? `${sku.code} · ${nameOf(options.value.styles, sku.styleId)} / ${nameOf(options.value.colors, sku.colorId)} / ${nameOf(options.value.sizes, sku.sizeId)}` : '' }
+function resetForm() {
+  orderNo.value = ''
+  form.customerId = ''
+  form.deliveryDate = ''
+  form.lines = [{ skuId: '', qty: 1, unitPrice: 0 }]
+  error.value = ''
+}
 async function load() {
   loading.value = true
+  error.value = ''
+  resetForm()
   try {
     options.value = await erpApi.options()
     if (!editing.value) return
     const order = await erpApi.order(String(route.params.id))
     if (order.status !== 0) {
-      ElMessage.warning('已确认单据不可编辑')
+      ElMessage.warning('仅草稿订单可编辑')
       await router.replace(`/orders/${order.orderId}`)
       return
     }
@@ -49,7 +58,7 @@ async function submit() {
   if (new Set(form.lines.map(line => line.skuId)).size !== form.lines.length) return ElMessage.warning('同一 SKU 只能添加一次')
   saving.value = true
   try {
-    const draft: OrderDraft = { customerId: form.customerId, deliveryDate: form.deliveryDate, items: form.lines.map(line => { const sku = options.value.skus.find(item => item.id === line.skuId)!; return { styleId: sku.styleId!, colorId: sku.colorId!, sizeId: sku.sizeId!, qty: line.qty, unitPrice: line.unitPrice } }) }
+    const draft: OrderDraft = { customerId: form.customerId, deliveryDate: form.deliveryDate, items: form.lines.map(line => { const sku = options.value.skus.find(item => item.id === line.skuId); if (!sku) throw new Error('所选 SKU 不存在或已停用，请重新选择'); return { styleId: sku.styleId!, colorId: sku.colorId!, sizeId: sku.sizeId!, qty: line.qty, unitPrice: line.unitPrice } }) }
     if (editing.value) {
       await erpApi.updateOrder(String(route.params.id), draft)
       ElMessage.success(`订单 ${orderNo.value} 已更新`)
@@ -62,10 +71,10 @@ async function submit() {
   } catch (e) { ElMessage.error((e as Error).message) }
   finally { saving.value = false }
 }
-onMounted(load)
+watch(() => route.params.id, load, { immediate: true })
 </script>
 <template>
-  <div class="page-head"><div><h1>{{ editing ? '编辑销售订单' : '新建销售订单' }}</h1><p>{{ editing ? `单号 ${orderNo}` : '填写客户、交期及产品色码明细' }}</p></div><el-button @click="router.push(cancelPath)">返回列表</el-button></div>
+  <div class="page-head"><div><h1>{{ editing ? '编辑销售订单' : '新建销售订单' }}</h1><p>{{ editing ? `单号 ${orderNo}` : '填写客户、交期及产品色码明细' }}</p></div><el-button @click="router.push(cancelPath)">{{ editing ? '返回详情' : '返回列表' }}</el-button></div>
   <div v-if="error" class="panel error-state">{{ error }} <el-button text type="primary" @click="load">重试</el-button></div>
   <template v-else><section class="panel"><h2 class="panel-title">订单信息</h2><div class="order-form-grid"><el-form-item label="客户" required><el-select v-model="form.customerId" filterable placeholder="选择客户" :loading="loading" style="width:100%"><el-option v-for="item in options.customers" :key="item.id" :label="item.name" :value="item.id"/></el-select></el-form-item><el-form-item label="交期" required><el-date-picker v-model="form.deliveryDate" type="date" value-format="YYYY-MM-DD" placeholder="选择交期" style="width:100%"/></el-form-item></div></section>
     <section class="panel"><div class="line-toolbar"><h2>产品明细</h2><el-button :icon="Plus" :disabled="form.lines.length >= 100" @click="form.lines.push({ skuId: '', qty: 1, unitPrice: 0 })">添加一行</el-button></div>
