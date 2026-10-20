@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -120,4 +121,23 @@ public interface ErpPurchaseMapper {
         """)
     int finishReceipt(@Param("poId") Long poId,@Param("status") int status,
                       @Param("arrivalDate") LocalDate arrivalDate,@Param("username") String username);
+
+    @Select("""
+        SELECT status, po_no AS poNo
+        FROM pu_purchase_order WHERE po_id = #{poId} AND del_flag = '0' FOR UPDATE
+        """)
+    Map<String, Object> lockDraft(@Param("poId") Long poId);
+
+    @Update("""
+        UPDATE pu_purchase_order SET supplier_id = #{supplierId}, expect_date = #{expectDate},
+          total_amount = #{totalAmount}, update_by = #{updatedBy}, update_time = NOW()
+        WHERE po_id = #{poId} AND status = 0 AND del_flag = '0'
+        """)
+    int update(@Param("poId") Long poId, @Param("supplierId") Long supplierId,
+               @Param("expectDate") LocalDate expectDate,
+               @Param("totalAmount") BigDecimal totalAmount,
+               @Param("updatedBy") String updatedBy);
+
+    @Delete("DELETE FROM pu_purchase_order_item WHERE po_id = #{poId}")
+    int deleteLines(@Param("poId") Long poId);
 }

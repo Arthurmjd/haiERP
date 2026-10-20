@@ -8,8 +8,12 @@ import java.util.Map;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
 import net.factoryopen.myfactoryai.erp.domain.OrderDraftRequest;
+import net.factoryopen.myfactoryai.erp.domain.PurchaseDraftRequest;
 import net.factoryopen.myfactoryai.erp.mapper.ErpOrderMapper;
+import net.factoryopen.myfactoryai.erp.mapper.ErpPurchaseMapper;
 import net.factoryopen.myfactoryai.erp.service.ErpOrderService;
+import net.factoryopen.myfactoryai.erp.service.ErpPurchaseService;
+import net.factoryopen.myfactoryai.erp.service.ErpStockService;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
@@ -70,6 +74,46 @@ class ErpDraftUpdateTest {
             verify(mapper).deleteLines(7L);
             verify(mapper).insertLine(7L, 1L, 2L, 3L, 2, new BigDecimal("10.00"),
                     new BigDecimal("20.00"), "tester");
+        }
+    }
+
+    private PurchaseDraftRequest purchaseRequest() {
+        return new PurchaseDraftRequest(5L, LocalDate.now().plusDays(2),
+                List.of(new PurchaseDraftRequest.Line(9L, new BigDecimal("1.500"), new BigDecimal("4.00"))));
+    }
+
+    @Test
+    void purchaseUpdateRejectsConfirmedDocument() {
+        ErpPurchaseMapper mapper = mock(ErpPurchaseMapper.class);
+        ErpPurchaseService service = new ErpPurchaseService(mapper, mock(ErpStockService.class));
+        when(mapper.lockDraft(3L)).thenReturn(Map.of("status", 3, "poNo", "PO2026000003"));
+
+        ServiceException error = assertThrows(ServiceException.class, () -> service.update(3L, purchaseRequest()));
+
+        assertEquals("仅草稿采购单可编辑", error.getMessage());
+        verify(mapper, never()).update(anyLong(), anyLong(), any(LocalDate.class), any(BigDecimal.class), anyString());
+        verify(mapper, never()).deleteLines(anyLong());
+    }
+
+    @Test
+    void purchaseUpdateReplacesLinesForDraft() {
+        ErpPurchaseMapper mapper = mock(ErpPurchaseMapper.class);
+        ErpPurchaseService service = new ErpPurchaseService(mapper, mock(ErpStockService.class));
+        when(mapper.lockDraft(3L)).thenReturn(Map.of("status", 0, "poNo", "PO2026000003"));
+        when(mapper.activeSupplier(5L)).thenReturn(1);
+        when(mapper.activeMaterial(9L)).thenReturn(1);
+        when(mapper.update(eq(3L), eq(5L), any(LocalDate.class), eq(new BigDecimal("6.00")), eq("tester")))
+                .thenReturn(1);
+
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+            security.when(SecurityUtils::getUsername).thenReturn("tester");
+
+            Map<String, String> result = service.update(3L, purchaseRequest());
+
+            assertEquals("PO2026000003", result.get("poNo"));
+            verify(mapper).deleteLines(3L);
+            verify(mapper).insertLine(3L, 9L, new BigDecimal("1.500"), new BigDecimal("4.00"),
+                    new BigDecimal("6.00"), "tester");
         }
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -53,6 +54,12 @@ public class ErpPurchaseController {
     @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:add')")
     @PostMapping
     public AjaxResult create(@RequestBody PurchaseDraftRequest request) { return AjaxResult.success(service.create(request)); }
+
+    @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:edit')")
+    @PutMapping("/{id}")
+    public AjaxResult update(@PathVariable Long id, @RequestBody PurchaseDraftRequest request) {
+        return AjaxResult.success(service.update(id, request));
+    }
 
     @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:confirm')")
     @PostMapping("/confirm/{id}")
