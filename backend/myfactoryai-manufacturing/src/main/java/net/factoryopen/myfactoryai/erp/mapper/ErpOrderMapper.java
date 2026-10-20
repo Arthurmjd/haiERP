@@ -1,10 +1,12 @@
 package net.factoryopen.myfactoryai.erp.mapper;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 import net.factoryopen.myfactoryai.erp.domain.OrderHeader;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -112,4 +114,23 @@ public interface ErpOrderMapper {
           AND EXISTS (SELECT 1 FROM sd_order_item WHERE order_id=#{orderId})
         """)
     int confirm(@Param("orderId") Long orderId, @Param("updatedBy") String updatedBy);
+
+    @Select("""
+        SELECT status, order_no AS orderNo
+        FROM sd_order WHERE order_id = #{orderId} AND del_flag = '0' FOR UPDATE
+        """)
+    Map<String, Object> lockDraft(@Param("orderId") Long orderId);
+
+    @Update("""
+        UPDATE sd_order SET customer_id = #{customerId}, delivery_date = #{deliveryDate},
+          total_amount = #{totalAmount}, update_by = #{updatedBy}, update_time = NOW()
+        WHERE order_id = #{orderId} AND status = 0 AND del_flag = '0'
+        """)
+    int update(@Param("orderId") Long orderId, @Param("customerId") Long customerId,
+               @Param("deliveryDate") LocalDate deliveryDate,
+               @Param("totalAmount") BigDecimal totalAmount,
+               @Param("updatedBy") String updatedBy);
+
+    @Delete("DELETE FROM sd_order_item WHERE order_id = #{orderId}")
+    int deleteLines(@Param("orderId") Long orderId);
 }
