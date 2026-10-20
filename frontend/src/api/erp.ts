@@ -44,6 +44,7 @@ export const erpApi = {
   },
   order: (id: string) => isDemoMode() ? demoApi.order(id) : payload<Order>(http.get(`/erp/sd/order/${encodeURIComponent(id)}`)),
   createOrder: (draft: OrderDraft) => isDemoMode() ? demoApi.createOrder(draft) : payload<{ orderId: string; orderNo: string }>(http.post('/erp/sd/order', draft)),
+  updateOrder: (id: string, draft: OrderDraft) => isDemoMode() ? demoApi.updateOrder(id, draft) : payload<{ orderId: string; orderNo: string }>(http.put(`/erp/sd/order/${encodeURIComponent(id)}`, draft)),
   confirmOrder: async (id: string) => {
     if (isDemoMode()) return demoApi.confirmOrder(id)
     await http.post<Envelope>(`/erp/sd/order/confirm/${encodeURIComponent(id)}`)
@@ -59,6 +60,7 @@ export const erpApi = {
   },
   purchase: (id: string) => isDemoMode() ? demoApi.purchase(id) : payload<PurchaseOrder>(http.get(`/erp/pu/purchaseOrder/${encodeURIComponent(id)}`)),
   createPurchase: (draft: PurchaseDraft) => isDemoMode() ? demoApi.createPurchase(draft) : payload<{ poId: string; poNo: string }>(http.post('/erp/pu/purchaseOrder', draft)),
+  updatePurchase: (id: string, draft: PurchaseDraft) => isDemoMode() ? demoApi.updatePurchase(id, draft) : payload<{ poId: string; poNo: string }>(http.put(`/erp/pu/purchaseOrder/${encodeURIComponent(id)}`, draft)),
   confirmPurchase: async (id: string) => {
     if (isDemoMode()) return demoApi.confirmPurchase(id)
     await http.post<Envelope>(`/erp/pu/purchaseOrder/confirm/${encodeURIComponent(id)}`)

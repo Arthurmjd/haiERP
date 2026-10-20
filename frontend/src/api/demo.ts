@@ -506,6 +506,26 @@ export const demoApi = {
     savePurchases(purchases)
     return { poId, poNo }
   },
+  updatePurchase: async (id: string, draft: PurchaseDraft) => {
+    const purchases = readPurchases()
+    const purchase = purchases.find(item => item.poId === id)
+    if (!purchase || purchase.status !== 0) throw new Error('仅草稿采购单可编辑')
+    const supplier = purchaseOptions.suppliers.find(item => item.id === draft.supplierId)
+    if (!supplier || !draft.items.length) throw new Error('供应商或采购明细无效')
+    const items = draft.items.map((item, index) => {
+      const material = purchaseOptions.materials.find(value => value.id === item.materialId)
+      if (!material) throw new Error('物料不存在')
+      return { itemId: `${id}-${index}`, materialId: material.id, materialCode: material.code!, materialName: material.name, unit: material.unit!, qty: item.qty, unitPrice: item.unitPrice, amount: Math.round(item.qty * item.unitPrice * 100) / 100, receivedQty: 0, remainingQty: item.qty }
+    })
+    purchase.supplierId = supplier.id
+    purchase.supplierName = supplier.name
+    purchase.expectDate = draft.expectDate
+    purchase.items = items
+    purchase.totalAmount = items.reduce((sum, item) => sum + item.amount, 0)
+    purchase.lineCount = items.length
+    savePurchases(purchases)
+    return { poId: purchase.poId, poNo: purchase.poNo }
+  },
   confirmPurchase: async (id: string) => {
     const purchases = readPurchases()
     const purchase = purchases.find(item => item.poId === id)
@@ -552,6 +572,27 @@ export const demoApi = {
     orders.push({ orderId, orderNo, customerId: customer.id, customerName: customer.name, orderDate: dateOffset(0), deliveryDate: draft.deliveryDate, status: 0, totalAmount: items.reduce((sum, item) => sum + item.amount, 0), fullShipDate: null, fulfillmentState: '未发齐', lineCount: items.length, orderQty: items.reduce((sum, item) => sum + item.qty, 0), items })
     saveOrders(orders)
     return { orderId, orderNo }
+  },
+  updateOrder: async (id: string, draft: OrderDraft) => {
+    const orders = readOrders()
+    const order = orders.find(item => item.orderId === id)
+    if (!order || order.status !== 0) throw new Error('仅草稿订单可编辑')
+    const customer = options.customers.find(item => item.id === draft.customerId)
+    if (!customer || !draft.items.length) throw new Error('客户或订单明细无效')
+    const items = draft.items.map((item, index) => {
+      const sku = options.skus.find(candidate => candidate.styleId === item.styleId && candidate.colorId === item.colorId && candidate.sizeId === item.sizeId)
+      if (!sku) throw new Error('SKU 不存在')
+      return line(sku.id, item.qty, item.unitPrice, 0, `${Date.now()}-${index}`)
+    })
+    order.customerId = customer.id
+    order.customerName = customer.name
+    order.deliveryDate = draft.deliveryDate
+    order.items = items
+    order.totalAmount = items.reduce((sum, item) => sum + item.amount, 0)
+    order.lineCount = items.length
+    order.orderQty = items.reduce((sum, item) => sum + item.qty, 0)
+    saveOrders(orders)
+    return { orderId: order.orderId, orderNo: order.orderNo }
   },
   confirmOrder: async (id: string) => {
     const orders = readOrders()
