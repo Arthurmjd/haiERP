@@ -2,6 +2,8 @@
 
 服装制造 ERP 实训项目。前端为 Vue 3 + TypeScript + Element Plus，后端为 Java 21 + Spring Boot（基于 myFactoryAI/RuoYi 底座），数据使用 MySQL 和 Redis。同一网址登录后按角色进入不同工作台。
 
+组内理解订单到采购、生产、出货、成本和 AI 的接力关系，请看[业务逻辑图](docs/业务逻辑图.md)。
+
 ## 环境准备
 
 每位组员在自己的电脑上安装并确认：
