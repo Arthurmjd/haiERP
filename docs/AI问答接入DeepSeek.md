@@ -76,10 +76,12 @@ $env:OPENAI_MODEL    = 'deepseek-v4-flash'
 | 现象 | 原因 | 处理 |
 |---|---|---|
 | 一直显示「数据摘要」 | 密钥没配或没重启 | 先看启动日志那两行 |
-| 日志显示已就绪但仍无模型分析 | 模型名不对 / 余额不足 / 网络不通 | 用下面的 curl 直接打接口 |
+| 日志显示已就绪但仍是「数据摘要」 | 看 `logs/sys-info.log` 里的 `[AI]` 告警，会写明是空内容还是调用失败 | 按下一行排查 |
+| 告警「模型返回空内容 … 是否含推理=true」 | v4 默认开思考，推理 token 吃光 `max_tokens` | 已默认关闭 `thinking`，别把这个参数删掉 |
 | 报 `Authentication Fails` | 密钥错或已删除 | 重新建一个 |
 | 报 `Model Not Exist` | 用了已弃用的 `deepseek-chat` | 改成 `deepseek-v4-flash` |
 | 报 402 / `Insufficient Balance` | 账户余额不足 | 充值 |
+| 回答里出现 `1791820800000` 这类数字 | 日期被序列化成时间戳 | 已给 ObjectMapper 注册 JavaTimeModule，别回退成裸 `new ObjectMapper()` |
 
 绕过应用直接验证接口：
 
@@ -108,6 +110,15 @@ $env:OPENAI_MODEL    = 'deepseek-v4-flash'   # 按中转站支持的模型名填
 
 ## 六、实现说明（改代码时看这里）
 
+- 提示词：`myfactoryai-manufacturing/.../erp/support/ErpAiPrompts.java`
+  - `QA_SYSTEM` / `ALERT_SYSTEM` 是两段系统提示词，角色设定为服装代工厂的业务分析助手
+  - `SCOPES` 是每个查询范围的**字段字典与判断要点**，必须与
+    `ErpAiReadMapper` 的 SQL 别名保持一致（例如 `gapQty=净缺口`、`status=9 已取消`）。
+    模型看不懂字段含义就会把数字解释错，这是最容易出问题的地方
+  - `userMessage()` 会把**今天日期**拼进去，否则"哪些订单交期最紧"这类问题模型无法判断
+  - 记录按 JSON 传给模型，不是 Java 的 `Map.toString`（后者是 `key=value` 形式，容易串行）
+  - 改提示词后跑 `mvn -pl myfactoryai-admin -am test -Dtest=ErpAiPromptsTest`，
+    该测试钉住了关键约束：日期、字段字典、JSON 格式、只读护栏
 - 配置类：`myfactoryai-ai/.../ai/config/LLMConfig.java`
   - `isDeepseekConfigured()` 统一判断密钥是否可用（把 `unset`、占位值都算作未配置，
     避免每次提问白打一次 401 请求）
@@ -115,9 +126,12 @@ $env:OPENAI_MODEL    = 'deepseek-v4-flash'   # 按中转站支持的模型名填
   - 连不上/超时：连接 5s（`spring.ai.openai.timeout.connect-ms`），
     读取 30s（`read-ms`）
 - 调用方：`ErpAiQuestionController`（业务问答）、`ErpAlertController`（预警解读）
+  - 请求带 `temperature=0.3`（业务分析要稳定复现）和 `max_tokens`（控成本）
   - 模型调用被 `try/catch` 包住，失败时**降级为数据摘要**，不会把整个请求打挂
   - 返回体里的 `modelUsed` 就是给前端区分「模型分析 / 数据摘要」用的
-- 前端：`AiAssistantView.vue`，`modelUsed ? '模型分析' : '数据摘要'`
+- 前端：`AiAssistantView.vue`
+  - 结果右上角 `modelUsed ? '模型分析' : '数据摘要'`
+  - 每个查询范围内置几条示例问题（`examples`），点击直接填入输入框
 - 前端 axios 超时是 15s，所以后端等待模型的时间不要超过这个值，否则页面会先超时。
 
 ## 七、安全提醒

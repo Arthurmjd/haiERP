@@ -8,6 +8,9 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.exception.ServiceException;
 import net.factoryopen.myfactoryai.ai.config.LLMConfig;
 import net.factoryopen.myfactoryai.erp.mapper.ErpReadMapper;
+import net.factoryopen.myfactoryai.erp.support.ErpAiPrompts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ErpAlertController {
+    private static final Logger log = LoggerFactory.getLogger(ErpAlertController.class);
     private final ErpReadMapper mapper;
     private final LLMConfig llm;
     public ErpAlertController(ErpReadMapper mapper,LLMConfig llm) { this.mapper=mapper; this.llm=llm; }
@@ -38,17 +42,27 @@ public class ErpAlertController {
         if (!llm.isDeepseekConfigured())
             return AjaxResult.success(Map.of("alertId",id,"explanation",fallback,"modelUsed",false));
         try {
-            Map<String,Object> body = Map.of("model",llm.getDeepseekModel(),"stream",false,"messages",List.of(
-                    Map.of("role","system","content","你是服装工厂 ERP 运营助手。仅根据给定规则预警，写两句简短中文：说明风险和下一步核查。不推断未提供的事实，不给自动执行指令。"),
-                    Map.of("role","user","content",fallback)));
+            Map<String,Object> body = Map.of(
+                    "model",llm.getDeepseekModel(),
+                    "stream",false,
+                    "temperature",0.3,
+                    // 同业务问答：v4 默认带思考，推理 token 会挤占 max_tokens 导致正文为空
+                    "thinking",Map.of("type","disabled"),
+                    "max_tokens",400,
+                    "messages",List.of(
+                        Map.of("role","system","content",ErpAiPrompts.ALERT_SYSTEM),
+                        Map.of("role","user","content",ErpAiPrompts.alertMessage(alert,fallback))));
             Map<?,?> response = llm.getWebClient("deepseek").post().bodyValue(body).retrieve()
-                    .bodyToMono(Map.class).block(Duration.ofSeconds(8));
+                    .bodyToMono(Map.class).block(Duration.ofSeconds(10));
             List<?> choices = response == null ? null : (List<?>)response.get("choices");
             Map<?,?> first = choices == null || choices.isEmpty() ? null : (Map<?,?>)choices.get(0);
             Map<?,?> message = first == null ? null : (Map<?,?>)first.get("message");
             String content = message == null ? null : (String)message.get("content");
             if (content != null && !content.isBlank()) return AjaxResult.success(Map.of("alertId",id,"explanation",content.trim(),"modelUsed",true));
-        } catch (RuntimeException ignored) { /* Rules remain available when the model is offline. */ }
+            log.warn("[AI] 预警解读返回空内容，使用规则文案。finish_reason={}", first == null ? null : first.get("finish_reason"));
+        } catch (RuntimeException e) {
+            log.warn("[AI] 预警解读调用模型失败，使用规则文案：{}", e.getMessage());
+        }
         return AjaxResult.success(Map.of("alertId",id,"explanation",fallback,"modelUsed",false));
     }
 }
