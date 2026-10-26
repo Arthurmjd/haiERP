@@ -35,8 +35,7 @@ public class ErpAlertController {
         String fallback = "shortage".equals(alert.get("alertType"))
                 ? "物料 " + alert.get("subject") + " 当前净缺口 " + alert.get("triggerValue") + alert.get("unit") + "。请核对在途采购和生产计划。"
                 : "订单 " + alert.get("subject") + " 已逾期 " + alert.get("triggerValue") + " 天且尚未发齐。请核对工单与成品库存。";
-        String key = llm.getDeepseekApiKey();
-        if (key == null || key.isBlank() || key.startsWith("your-") || key.startsWith("sk-placeholder"))
+        if (!llm.isDeepseekConfigured())
             return AjaxResult.success(Map.of("alertId",id,"explanation",fallback,"modelUsed",false));
         try {
             Map<String,Object> body = Map.of("model",llm.getDeepseekModel(),"stream",false,"messages",List.of(

@@ -33,6 +33,15 @@ $env:REDIS_PASSWORD = ''
 # 留空时 start-all 会自动生成一个并写回 env.local.ps1
 $env:TOKEN_SECRET = ''
 
+# ---------- AI 问答（DeepSeek） ----------
+# 留空则 AI 问答降级为「数据摘要」，只展示查询到的数据，不生成分析文字。
+# 申请密钥：https://platform.deepseek.com/api_keys
+$env:OPENAI_API_KEY = ''
+# 可选：默认走 DeepSeek 官方；改用中转站时填中转站地址（带不带 /v1 都行）
+$env:OPENAI_BASE_URL = 'https://api.deepseek.com/v1'
+# 可选：deepseek-v4-flash（快、便宜）或 deepseek-v4-pro（强推理）
+$env:OPENAI_MODEL = 'deepseek-v4-flash'
+
 # ---------- 工具路径（可选，留空则自动探测 PATH 和常见安装目录） ----------
 # 例：'C:\Program Files\Redis-8.2.3-Windows-x64-cygwin-with-Service\Redis-8.2.3-Windows-x64-cygwin-with-Service'
 $RedisHome = ''

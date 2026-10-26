@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { erpApi, type AiAnswer } from '../api/erp'
+import { enumLabel, type EnumKey } from '../api/labels'
 import { useUserStore } from '../stores/user'
 
 const user = useUserStore()
@@ -26,6 +27,10 @@ const labels: Record<string, string> = {
   fullShipDate: '发齐日期', deliveryState: '交付状态', delayDays: '偏差天数',
 }
 const columns = computed(() => result.value?.rows[0] ? Object.keys(result.value.rows[0]) : [])
+// 各查询范围里哪一列是状态码，用于把数字翻成中文（订单范围的 status 是订单状态）
+const statusEnum = computed<EnumKey | undefined>(() => mode.value === 'orders' ? 'orderStatus' : undefined)
+const cellText = (row: Record<string, unknown>, key: string) =>
+  statusEnum.value && key === 'status' ? enumLabel(statusEnum.value, row[key]) : row[key]
 async function ask() {
   if (!mode.value || !question.value.trim()) return ElMessage.warning('请填写问题并选择查询范围')
   loading.value = true; result.value = null
@@ -47,7 +52,7 @@ async function ask() {
   <section v-if="result" class="panel ai-result" aria-live="polite">
     <div class="line-toolbar"><h2>分析结果</h2><span class="detail-label">{{ result.dataTime.replace('T', ' ').slice(0, 19) }} · {{ result.modelUsed ? '模型分析' : '数据摘要' }}</span></div>
     <p class="ai-answer">{{ result.answer }}</p>
-    <div class="table-wrap"><el-table :data="result.rows" stripe empty-text="暂无记录"><el-table-column v-for="key in columns" :key="key" :prop="key" :label="labels[key] || key" min-width="130"/></el-table></div>
+    <div class="table-wrap"><el-table :data="result.rows" stripe empty-text="暂无记录"><el-table-column v-for="key in columns" :key="key" :label="labels[key] || key" min-width="130"><template #default="scope">{{ cellText(scope.row, key) }}</template></el-table-column></el-table></div>
   </section>
 </template>
 

@@ -323,6 +323,10 @@ function New-HaiErpEnvFile {
 `$env:REDIS_PORT = '$redisPort'
 `$env:REDIS_PASSWORD = '$redisPasswordEsc'
 `$env:TOKEN_SECRET = '$tokenSecret'
+# AI 问答：留空则降级为数据摘要。填上 DeepSeek 密钥后重启后端即可启用。
+`$env:OPENAI_API_KEY = ''
+`$env:OPENAI_BASE_URL = 'https://api.deepseek.com/v1'
+`$env:OPENAI_MODEL = 'deepseek-v4-flash'
 "@
 
     Set-Content -Path $script:HaiErpEnvFile -Value $content -Encoding UTF8

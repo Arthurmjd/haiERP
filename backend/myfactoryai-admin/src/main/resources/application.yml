@@ -29,12 +29,20 @@ spring:
       chat:
         options:
           model: qwen-plus
+    # DeepSeek 使用 OpenAI 兼容协议，所以沿用 openai.* 这组键，不要被名字误导。
+    # 启用步骤见 docs/AI问答接入DeepSeek.md
     openai:
       api-key: ${OPENAI_API_KEY:unset}
+      # 官方地址是 https://api.deepseek.com（带不带 /v1 都可用）；换中转站只需改这里
       base-url: ${OPENAI_BASE_URL:https://api.deepseek.com/v1}
       chat:
         options:
-          model: deepseek-chat
+          # deepseek-chat / deepseek-reasoner 已于 2026-07-24 弃用。
+          # 现役：deepseek-v4-flash（快、便宜，适合问答），deepseek-v4-pro（强推理）
+          model: ${OPENAI_MODEL:deepseek-v4-flash}
+      timeout:
+        connect-ms: 5000
+        read-ms: 30000
     nl2sql:
       metadata:
         # provider 可选值：database（动态召回） 或 hardcoded（硬编码精准模式）
@@ -43,7 +51,7 @@ spring:
           # 定时刷新间隔（分钟），默认 120 分钟
           refresh-interval-minutes: 120
     insight:
-      default-model: deepseek-chat
+      default-model: ${OPENAI_MODEL:deepseek-v4-flash}
     business:
       knowledge:
         # 知识库文档 URL 列表（支持多个）
