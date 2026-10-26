@@ -83,9 +83,7 @@ VALUES
   (90075, '报价失效', 90025, 4, '#', NULL, 1, 0, 'F', '0', '0', 'sd:quotation:expire', '#', 'admin', NOW(), ''),
   (90076, '新增员工', 90022, 1, '#', NULL, 1, 0, 'F', '0', '0', 'hr:employee:add', '#', 'admin', NOW(), ''),
   (90077, '编辑员工', 90022, 2, '#', NULL, 1, 0, 'F', '0', '0', 'hr:employee:edit', '#', 'admin', NOW(), ''),
-  (90078, '看板缺料汇总', 90001, 3, '#', NULL, 1, 0, 'F', '0', '0', 'dashboard:mrp:list', '#', 'admin', NOW(), ''),
-  (90079, '编辑订单', 90002, 4, '#', NULL, 1, 0, 'F', '0', '0', 'sd:order:edit', '#', 'admin', NOW(), ''),
-  (90080, '编辑采购', 90008, 5, '#', NULL, 1, 0, 'F', '0', '0', 'pu:purchaseOrder:edit', '#', 'admin', NOW(), '')
+  (90078, '看板缺料汇总', 90001, 3, '#', NULL, 1, 0, 'F', '0', '0', 'dashboard:mrp:list', '#', 'admin', NOW(), '')
 ON DUPLICATE KEY UPDATE menu_name=VALUES(menu_name), parent_id=VALUES(parent_id),
   order_num=VALUES(order_num), path=VALUES(path), component=VALUES(component),
   menu_type=VALUES(menu_type), status=VALUES(status), perms=VALUES(perms);
@@ -107,11 +105,11 @@ WHERE NOT EXISTS (SELECT 1 FROM sys_role r WHERE r.role_key=planned.role_key AND
 -- Admin has all permissions in RuoYi; these grants cover existing non-admin roles.
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id)
 SELECT r.role_id, m.menu_id
-FROM sys_role r JOIN sys_menu m ON m.menu_id BETWEEN 90000 AND 90080
+FROM sys_role r JOIN sys_menu m ON m.menu_id BETWEEN 90000 AND 90078
 WHERE r.role_key = 'supervisor'
-   OR (r.role_key IN ('sales', 'salesAssistant') AND m.menu_id IN (90000,90001,90002,90003,90004,90005,90016,90025,90033,90034,90036,90038,90039,90040,90041,90042,90043,90044,90050,90051,90064,90065,90070,90071,90074,90075,90079))
+   OR (r.role_key IN ('sales', 'salesAssistant') AND m.menu_id IN (90000,90001,90002,90003,90004,90005,90016,90025,90033,90034,90036,90038,90039,90040,90041,90042,90043,90044,90050,90051,90064,90065,90070,90071,90074,90075))
    OR (r.role_key = 'hr' AND m.menu_id IN (90000,90001,90022,90023,90024,90048,90049,90076,90077))
-   OR (r.role_key = 'buyer' AND m.menu_id IN (90000,90001,90006,90008,90009,90010,90011,90012,90015,90017,90070,90071,90073,90080))
+   OR (r.role_key = 'buyer' AND m.menu_id IN (90000,90001,90006,90008,90009,90010,90011,90012,90015,90017,90070,90071,90073))
    OR (r.role_key = 'mc' AND m.menu_id IN (90000,90001,90007,90013,90014,90015,90018,90019,90020,90021,90026,90027,90028,90029,90030,90031,90032,90070,90071,90072))
    OR (r.role_key = 'dataVisitor' AND m.menu_id IN (90000,90001,90002,90003,90006,90007,90008,90009,90013,90014,90015,90016,90017,90018,90019,90020,90021,90026,90027,90032,90033,90034,90036,90038,90042,90070,90071))
    OR (r.role_key = 'planner' AND m.menu_id IN (90000,90001,90002,90003,90006,90008,90009,90010,90011,90012,90013,90014,90015,90017,90026,90027,90028,90033,90034,90070,90071,90073,90078,90080))
@@ -151,18 +149,21 @@ VALUES
   (90097, '删除供应商', 90017, 3, '#', NULL, 1, 0, 'F', '0', '0', 'md:supplier:remove', '#', 'admin', NOW(), ''),
   (90098, '删除工序', 90018, 3, '#', NULL, 1, 0, 'F', '0', '0', 'md:process:remove', '#', 'admin', NOW(), ''),
   (90099, '删除报价单', 90025, 5, '#', NULL, 1, 0, 'F', '0', '0', 'sd:quotation:remove', '#', 'admin', NOW(), ''),
-  (90100, '删除成本单', 90035, 4, '#', NULL, 1, 0, 'F', '0', '0', 'fn:settlement:remove', '#', 'admin', NOW(), '')
+  (90100, '删除成本单', 90035, 4, '#', NULL, 1, 0, 'F', '0', '0', 'fn:settlement:remove', '#', 'admin', NOW(), ''),
+  (90101, '编辑订单', 90002, 6, '#', NULL, 1, 0, 'F', '0', '0', 'sd:order:edit', '#', 'admin', NOW(), ''),
+  (90102, '编辑采购', 90008, 7, '#', NULL, 1, 0, 'F', '0', '0', 'pu:purchaseOrder:edit', '#', 'admin', NOW(), '')
 ON DUPLICATE KEY UPDATE menu_name=VALUES(menu_name), parent_id=VALUES(parent_id),
   order_num=VALUES(order_num), perms=VALUES(perms);
 
 -- 各岗位只拿到自己业务范围内的删除/作废权。admin 在 RuoYi 里本身拥有全部权限。
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id)
 SELECT r.role_id, m.menu_id
-FROM sys_role r JOIN sys_menu m ON m.menu_id BETWEEN 90079 AND 90100
-WHERE (r.role_key IN ('sales','salesAssistant') AND m.menu_id IN (90081,90082,90099))
-   OR (r.role_key = 'planner' AND m.menu_id IN (90083,90084,90087,90088))
+FROM sys_role r JOIN sys_menu m ON m.menu_id BETWEEN 90079 AND 90102
+WHERE (r.role_key IN ('sales','salesAssistant') AND m.menu_id IN (90081,90082,90099,90101))
+   OR (r.role_key = 'planner' AND m.menu_id IN (90083,90084,90087,90088,90102))
    OR (r.role_key = 'production' AND m.menu_id IN (90087,90088))
    OR (r.role_key = 'wh' AND m.menu_id IN (90089,90090,90091,90092))
    OR (r.role_key = 'hr' AND m.menu_id IN (90080))
+   OR (r.role_key = 'buyer' AND m.menu_id IN (90102))
    OR (r.role_key = 'finance' AND m.menu_id IN (90100))
    OR (r.role_key = 'mc' AND m.menu_id IN (90079,90085,90086,90093,90094,90095,90096,90097,90098));

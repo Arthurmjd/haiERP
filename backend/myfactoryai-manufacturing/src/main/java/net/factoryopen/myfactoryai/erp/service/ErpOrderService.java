@@ -37,6 +37,49 @@ public class ErpOrderService {
 
     @Transactional
     public Map<String, String> create(OrderDraftRequest request) {
+        ValidatedDraft draft = validate(request);
+        OrderHeader header = new OrderHeader();
+        header.setOrderNo(DocNos.temp("SO"));
+        header.setCustomerId(request.customerId());
+        header.setDeliveryDate(request.deliveryDate());
+        header.setTotalAmount(draft.total());
+        header.setCreatedBy(SecurityUtils.getUsername());
+        mapper.insert(header);
+        String orderNo = DocNos.formal("SO", header.getOrderId());
+        mapper.setOrderNo(header.getOrderId(), orderNo);
+        for (ValidatedLine validated : draft.lines()) {
+            OrderDraftRequest.Line line = validated.line();
+            mapper.insertLine(header.getOrderId(), line.styleId(), line.colorId(), line.sizeId(),
+                    line.qty(), line.unitPrice(), validated.amount(), header.getCreatedBy());
+        }
+        return Map.of("orderId", header.getOrderId().toString(), "orderNo", orderNo);
+    }
+
+    @Transactional
+    public Map<String, String> update(Long orderId, OrderDraftRequest request) {
+        if (orderId == null || orderId <= 0) throw new ServiceException("订单编号不合法", 1001);
+        Map<String, Object> locked = mapper.lockDraft(orderId);
+        if (locked == null) throw new ServiceException("订单不存在", 1001);
+        if (((Number) locked.get("status")).intValue() != 0) {
+            throw new ServiceException("仅草稿订单可编辑", 2001);
+        }
+        ValidatedDraft draft = validate(request);
+        String username = SecurityUtils.getUsername();
+        if (mapper.update(orderId, request.customerId(), request.deliveryDate(),
+                draft.total(), username) != 1) {
+            throw new ServiceException("订单状态已变化，请刷新后重试", 2001);
+        }
+        mapper.deleteLines(orderId);
+        for (ValidatedLine validated : draft.lines()) {
+            OrderDraftRequest.Line line = validated.line();
+            mapper.insertLine(orderId, line.styleId(), line.colorId(), line.sizeId(),
+                    line.qty(), line.unitPrice(), validated.amount(), username);
+        }
+        return Map.of("orderId", orderId.toString(),
+                "orderNo", String.valueOf(locked.get("orderNo")));
+    }
+
+    private ValidatedDraft validate(OrderDraftRequest request) {
         if (request == null || request.customerId() == null || request.deliveryDate() == null
                 || request.items() == null || request.items().isEmpty()
                 || request.items().size() > 100 || request.deliveryDate().isBefore(LocalDate.now())) {
@@ -67,21 +110,7 @@ public class ErpOrderService {
         if (total.compareTo(new BigDecimal("9999999999.99")) > 0) {
             throw new ServiceException("订单金额超出上限", 1001);
         }
-        OrderHeader header = new OrderHeader();
-        header.setOrderNo(DocNos.temp("SO"));
-        header.setCustomerId(request.customerId());
-        header.setDeliveryDate(request.deliveryDate());
-        header.setTotalAmount(total);
-        header.setCreatedBy(SecurityUtils.getUsername());
-        mapper.insert(header);
-        String orderNo = DocNos.formal("SO", header.getOrderId());
-        mapper.setOrderNo(header.getOrderId(), orderNo);
-        for (ValidatedLine validated : lines) {
-            OrderDraftRequest.Line line = validated.line();
-            mapper.insertLine(header.getOrderId(), line.styleId(), line.colorId(), line.sizeId(),
-                    line.qty(), line.unitPrice(), validated.amount(), header.getCreatedBy());
-        }
-        return Map.of("orderId", header.getOrderId().toString(), "orderNo", orderNo);
+        return new ValidatedDraft(lines, total);
     }
 
     @Transactional
@@ -93,4 +122,6 @@ public class ErpOrderService {
     }
 
     private record ValidatedLine(OrderDraftRequest.Line line, BigDecimal amount) {}
+
+    private record ValidatedDraft(List<ValidatedLine> lines, BigDecimal total) {}
 }

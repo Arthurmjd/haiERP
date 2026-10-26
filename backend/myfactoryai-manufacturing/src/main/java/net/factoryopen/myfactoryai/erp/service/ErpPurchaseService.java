@@ -39,6 +39,45 @@ public class ErpPurchaseService {
 
     @Transactional
     public Map<String,String> create(PurchaseDraftRequest request) {
+        ValidatedDraft draft = validate(request);
+        PurchaseHeader header = new PurchaseHeader();
+        header.setPoNo(DocNos.temp("PO"));
+        header.setSupplierId(request.supplierId());
+        header.setExpectDate(request.expectDate());
+        header.setTotalAmount(draft.total());
+        header.setCreatedBy(SecurityUtils.getUsername());
+        mapper.insert(header);
+        String no = DocNos.formal("PO", header.getPoId());
+        mapper.setPoNo(header.getPoId(),no);
+        for (PurchaseDraftRequest.Line line : draft.lines()) {
+            mapper.insertLine(header.getPoId(),line.materialId(),line.qty(),line.unitPrice(),
+                    line.qty().multiply(line.unitPrice()).setScale(2,RoundingMode.HALF_UP),header.getCreatedBy());
+        }
+        return Map.of("poId",header.getPoId().toString(),"poNo",no);
+    }
+
+    @Transactional
+    public Map<String,String> update(Long poId, PurchaseDraftRequest request) {
+        if (poId == null || poId <= 0) throw new ServiceException("采购单编号不合法",1001);
+        Map<String,Object> locked = mapper.lockDraft(poId);
+        if (locked == null) throw new ServiceException("采购单不存在",1001);
+        if (((Number) locked.get("status")).intValue() != 0) {
+            throw new ServiceException("仅草稿采购单可编辑",2001);
+        }
+        ValidatedDraft draft = validate(request);
+        String username = SecurityUtils.getUsername();
+        if (mapper.update(poId,request.supplierId(),request.expectDate(),draft.total(),username) != 1) {
+            throw new ServiceException("采购单状态已变化，请刷新后重试",2001);
+        }
+        mapper.deleteLines(poId);
+        for (PurchaseDraftRequest.Line line : draft.lines()) {
+            mapper.insertLine(poId,line.materialId(),line.qty(),line.unitPrice(),
+                    line.qty().multiply(line.unitPrice()).setScale(2,RoundingMode.HALF_UP),username);
+        }
+        return Map.of("poId",poId.toString(),"poNo",String.valueOf(locked.get("poNo")));
+    }
+
+    private ValidatedDraft validate(PurchaseDraftRequest request) {
         if (request == null || request.supplierId() == null || request.expectDate() == null
                 || request.expectDate().isBefore(LocalDate.now()) || request.items() == null
                 || request.items().isEmpty() || request.items().size() > 100) {
@@ -59,21 +98,10 @@ public class ErpPurchaseService {
             total = total.add(line.qty().multiply(line.unitPrice()).setScale(2,RoundingMode.HALF_UP));
         }
         if (total.compareTo(new BigDecimal("9999999999.99")) > 0) throw new ServiceException("采购金额超出上限",1001);
-        PurchaseHeader header = new PurchaseHeader();
-        header.setPoNo(DocNos.temp("PO"));
-        header.setSupplierId(request.supplierId());
-        header.setExpectDate(request.expectDate());
-        header.setTotalAmount(total);
-        header.setCreatedBy(SecurityUtils.getUsername());
-        mapper.insert(header);
-        String no = DocNos.formal("PO", header.getPoId());
-        mapper.setPoNo(header.getPoId(),no);
-        for (PurchaseDraftRequest.Line line : request.items()) {
-            mapper.insertLine(header.getPoId(),line.materialId(),line.qty(),line.unitPrice(),
-                    line.qty().multiply(line.unitPrice()).setScale(2,RoundingMode.HALF_UP),header.getCreatedBy());
-        }
-        return Map.of("poId",header.getPoId().toString(),"poNo",no);
+        return new ValidatedDraft(request.items(), total);
     }
+
+    private record ValidatedDraft(List<PurchaseDraftRequest.Line> lines, BigDecimal total) {}
 
     @Transactional
     public void confirm(Long id) {
