@@ -57,6 +57,32 @@ exit
 
 ## 启动服务
 
+### 一键启动（推荐）
+
+双击 `scripts/start-all.bat`。脚本会依次完成：
+
+1. 检查 java / mvn / node / npm 是否可用
+2. 启动 MySQL（服务已在运行则跳过）
+3. 校验数据库能登录、`hai_erp_demo` 库存在
+4. 启动 Redis（已在运行则跳过）
+5. 打开后端与前端两个窗口，后端按需自动增量构建
+
+**首次运行**会询问 MySQL 密码等配置，写入 `scripts/env.local.ps1`。
+该文件已被 `.gitignore` 忽略，不会提交，之后每次双击都不再询问。
+
+关闭服务：双击 `scripts/stop-all.bat`（可选择是否一并停止 Redis；MySQL 作为系统服务不受影响）。
+
+| 文件 | 作用 |
+| --- | --- |
+| `scripts/start-all.bat` | 一键启动入口（双击） |
+| `scripts/stop-all.bat` | 停止前后端进程（双击） |
+| `scripts/env.local.example.ps1` | 本地配置模板；不双击启动时可复制为 `env.local.ps1` 手工填写 |
+| `scripts/watch-backend-log.ps1` | 单独查看后端日志（可选） |
+
+若不想用脚本，也可以按下面的手动步骤启动。
+
+### 手动启动
+
 1. 启动 Redis。在单独终端运行 `redis-server`；若 Redis 已作为服务启动，用 `redis-cli ping` 确认返回 `PONG` 即可。
 2. 在仓库根目录打开一个新的 PowerShell 终端，启动后端。以下密码输入方式兼容 Windows PowerShell 5.1 和 PowerShell 7：
 
