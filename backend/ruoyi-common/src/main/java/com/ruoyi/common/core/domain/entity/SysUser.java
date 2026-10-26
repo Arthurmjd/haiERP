@@ -121,6 +121,11 @@ public class SysUser extends BaseEntity {
     private List<SysRole> roles;
 
     /**
+     * 角色名称汇总（列表查询用，逗号分隔）
+     */
+    private String roleNames;
+
+    /**
      * 角色组
      */
     private Long[] roleIds;
@@ -303,6 +308,14 @@ public class SysUser extends BaseEntity {
 
     public void setRoles(List<SysRole> roles) {
         this.roles = roles;
+    }
+
+    public String getRoleNames() {
+        return roleNames;
+    }
+
+    public void setRoleNames(String roleNames) {
+        this.roleNames = roleNames;
     }
 
     public Long[] getRoleIds() {

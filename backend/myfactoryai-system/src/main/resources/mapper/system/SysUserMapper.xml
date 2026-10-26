@@ -26,6 +26,7 @@
         <result property="updateBy" column="update_by"/>
         <result property="updateTime" column="update_time"/>
         <result property="remark" column="remark"/>
+        <result property="roleNames" column="role_names"/>
         <association property="dept" javaType="SysDept" resultMap="deptResult"/>
         <collection property="roles" javaType="java.util.List" resultMap="RoleResult"/>
     </resultMap>
@@ -91,7 +92,9 @@
 
     <select id="selectUserList" parameterType="SysUser" resultMap="SysUserResult">
         select u.user_id,u.comp_id, u.dept_id, u.line_id, u.group_id, u.nick_name, u.user_name, u.email, u.avatar, u.phonenumber, u.sex,
-        u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time, u.remark, d.dept_name, d.leader from
+        u.status, u.del_flag, u.login_ip, u.login_date, u.create_by, u.create_time, u.remark, d.dept_name, d.leader,
+        (select group_concat(r.role_name separator ',') from sys_user_role ur
+           join sys_role r on r.role_id = ur.role_id where ur.user_id = u.user_id) as role_names from
         sys_user u
         left join sys_dept d on u.dept_id = d.dept_id
         where u.del_flag = '0'
