@@ -72,6 +72,12 @@ exit
 
 关闭服务：双击 `scripts/stop-all.bat`（可选择是否一并停止 Redis；MySQL 作为系统服务不受影响）。
 
+重复双击不会报错：端口 8080 / 5173 已被占用时，脚本会提示并跳过对应组件，只补启动没起来的部分。
+需要全部重来，先运行 `scripts/stop-all.bat`。
+
+后端窗口出现 `Started MyFactoryAIApplication` 才算启动成功。若启动十几秒后窗口就退出，
+先看 `开发启动说明.md` 的「常见启动故障」章节 —— 最常见的原因是连错了数据库。
+
 | 文件 | 作用 |
 | --- | --- |
 | `scripts/start-all.bat` | 一键启动入口（双击） |
