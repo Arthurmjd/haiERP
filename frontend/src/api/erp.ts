@@ -107,6 +107,37 @@ export const erpApi = {
   askAi: (mode: string, question: string) => isDemoMode() ? demoApi.askAi(mode, question) : payload<AiAnswer>(http.post('/ai/erp/ask', { mode, question })),
   adjustStock: (itemType: number, itemId: string, batchNo: string, actualQty: number, reason: string, requestKey: string) => isDemoMode() ? demoApi.adjustStock(itemType, itemId, batchNo, actualQty, reason) : payload<{ itemId: string; previousQty: number; actualQty: number; delta: number }>(http.post('/erp/st/txn/adjust', { itemType, itemId, batchNo, actualQty, reason, requestKey })),
   generatePurchaseFromMrp: (supplierId: string, expectDate: string, materialIds: string[], requestKey: string) => isDemoMode() ? demoApi.generatePurchaseFromMrp(supplierId, expectDate, materialIds) : payload<{ poId: string; poNo: string }>(http.post('/erp/pu/suggestion/generate', { supplierId, expectDate, materialIds, requestKey })),
+
+  removeMaster: async (resource: string, id: string) => {
+    if (isDemoMode()) throw new Error('演示模式不支持删除，请连真实后端后再试')
+    await http.delete<Envelope>(`${masterPath(resource)}/${encodeURIComponent(id)}`)
+  },
+  changeEmployeeStatus: async (id: string, status: 0 | 1) => {
+    if (isDemoMode()) throw new Error('演示模式不支持离职/复职操作')
+    await http.post<Envelope>(`/erp/hr/employee/${encodeURIComponent(id)}/status`, { status })
+  },
+  deleteOrder: (id: string) => docDelete('/erp/sd/order', id),
+  cancelOrder: (id: string) => docCancel('/erp/sd/order', id),
+  deletePurchase: (id: string) => docDelete('/erp/pu/purchaseOrder', id),
+  cancelPurchase: (id: string) => docCancel('/erp/pu/purchaseOrder', id),
+  deleteWorkOrder: (id: string) => docDelete('/erp/pr/workOrder', id),
+  cancelWorkOrder: (id: string) => docCancel('/erp/pr/workOrder', id),
+  deleteShipment: (id: string) => docDelete('/erp/sh/shipment', id),
+  cancelShipment: (id: string) => docCancel('/erp/sh/shipment', id),
+  deleteReturn: (id: string) => docDelete('/erp/sh/return', id),
+  cancelReturn: (id: string) => docCancel('/erp/sh/return', id),
+  deleteQuotation: (id: string) => docDelete('/erp/sd/quotation', id),
+  deleteSettlement: (id: string) => docDelete('/erp/fn/settlement', id),
+}
+
+async function docDelete(path: string, id: string) {
+  if (isDemoMode()) throw new Error('演示模式不支持删除，请连真实后端后再试')
+  await http.delete<Envelope>(`${path}/${encodeURIComponent(id)}`)
+}
+
+async function docCancel(path: string, id: string) {
+  if (isDemoMode()) throw new Error('演示模式不支持作废，请连真实后端后再试')
+  await http.post<Envelope>(`${path}/cancel/${encodeURIComponent(id)}`)
 }
 
 function masterPath(resource: string) { return resource === 'employee' ? '/erp/hr/employee' : `/erp/md/${encodeURIComponent(resource)}` }

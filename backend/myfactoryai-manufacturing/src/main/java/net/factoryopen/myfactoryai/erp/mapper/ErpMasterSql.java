@@ -31,6 +31,54 @@ public final class ErpMasterSql {
 
     public static Spec spec(String resource) { return SPECS.get(resource); }
 
+    /**
+     * 一条引用关系：哪张表的哪个字段指向当前档案，label 是给用户看的业务名。
+     * extra 用于带额外条件的引用（例如 st_inventory 要区分 item_type）。
+     */
+    public record Ref(String table,String column,String label,String extra) {
+        public Ref(String table,String column,String label) { this(table,column,label,null); }
+    }
+
+    /**
+     * 主数据表既没有 del_flag 也没有外键约束，删除前必须在这里登记所有引用点，
+     * 否则会留下指向已删除档案的孤儿数据（列表查询不校验关联，会显示成空白）。
+     */
+    private static final Map<String,List<Ref>> REFS = Map.of(
+      "category",List.of(new Ref("md_style","category_id","款式")),
+      "color",List.of(new Ref("md_sku","color_id","SKU")),
+      "size",List.of(new Ref("md_sku","size_id","SKU")),
+      "style",List.of(
+          new Ref("md_sku","style_id","SKU"),
+          new Ref("md_bom","style_id","BOM"),
+          new Ref("md_style_process","style_id","工艺路线"),
+          new Ref("sd_order_item","style_id","销售订单"),
+          new Ref("sd_quotation_item","style_id","报价单")),
+      "material",List.of(
+          new Ref("md_bom","material_id","BOM"),
+          new Ref("pu_purchase_order_item","material_id","采购单"),
+          new Ref("pr_work_order_material","material_id","工单用料"),
+          new Ref("st_inventory","item_id","库存","item_type=1")),
+      "process",List.of(
+          new Ref("md_style_process","process_id","工艺路线"),
+          new Ref("pr_work_order_process","process_id","工单工序")),
+      "customer",List.of(
+          new Ref("sd_order","customer_id","销售订单"),
+          new Ref("sd_quotation","customer_id","报价单"),
+          new Ref("sh_shipment","customer_id","出货单")),
+      "supplier",List.of(new Ref("pu_purchase_order","supplier_id","采购单")),
+      "sku",List.of(
+          new Ref("sh_shipment_item","sku_id","出货单"),
+          new Ref("sh_return_item","sku_id","退货单"),
+          new Ref("pr_work_order_sku","sku_id","工单"),
+          new Ref("st_inventory","item_id","库存","item_type=2")),
+      "employee",List.of(
+          new Ref("pr_process_report","emp_id","报工记录"),
+          new Ref("hr_piece_wage","emp_id","计件工资"),
+          new Ref("hr_salary_slip","emp_id","工资单"))
+    );
+
+    public static List<Ref> refs(String resource) { return REFS.getOrDefault(resource,List.of()); }
+
     public static String insert(Map<String,Object> args) {
         Spec spec = spec((String)args.get("resource"));
         String columns = spec.fields().stream().map(Field::column).collect(Collectors.joining(","));
@@ -48,5 +96,25 @@ public final class ErpMasterSql {
         Spec spec = spec((String)args.get("resource"));
         String columns = spec.fields().stream().map(field -> field.column()+" AS " + field.key()).collect(Collectors.joining(","));
         return "SELECT CAST(" + spec.idColumn() + " AS CHAR) AS id," + columns + " FROM " + spec.table() + " WHERE " + spec.idColumn() + "=#{id}";
+    }
+
+    /** 各引用点的命中条数，供删除前校验 */
+    public static String refCounts(Map<String,Object> args) {
+        List<Ref> refs = refs((String)args.get("resource"));
+        StringBuilder sql = new StringBuilder();
+        for (int i = 0; i < refs.size(); i++) {
+            Ref ref = refs.get(i);
+            if (i > 0) sql.append(" UNION ALL ");
+            sql.append("SELECT '").append(ref.label()).append("' AS label,COUNT(*) AS cnt FROM ")
+               .append(ref.table()).append(" WHERE ").append(ref.column()).append("=#{id}");
+            if (ref.extra() != null) sql.append(" AND ").append(ref.extra());
+        }
+        if (sql.length() == 0) sql.append("SELECT '引用' AS label,0 AS cnt");
+        return sql.toString();
+    }
+
+    public static String delete(Map<String,Object> args) {
+        Spec spec = spec((String)args.get("resource"));
+        return "DELETE FROM " + spec.table() + " WHERE " + spec.idColumn() + "=#{id}";
     }
 }

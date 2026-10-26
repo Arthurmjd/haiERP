@@ -52,6 +52,48 @@ public class ErpMasterService {
         catch (DuplicateKeyException e) { throw new ServiceException("编码或名称已存在",2006); }
     }
 
+    /**
+     * 删除档案。主数据表没有 del_flag、也没有外键约束，所以必须先自己查引用，
+     * 被引用过的档案不允许物理删除，否则单据里会出现空白的关联名称。
+     */
+    @Transactional
+    public void delete(String resource,Long id) {
+        if (id == null || id <= 0) throw new ServiceException("档案 ID 不合法",1001);
+        checkSpec(resource);
+        Map<String,Object> current = mapper.detail(Map.of("resource",resource,"id",id));
+        if (current == null) throw new ServiceException("档案不存在或已删除",1001);
+        Map<String,Object> refArgs = new HashMap<>();
+        refArgs.put("resource",resource); refArgs.put("id",id);
+        List<String> used = new java.util.ArrayList<>();
+        for (Map<String,Object> row : mapper.refCounts(refArgs)) {
+            long count = ((Number)row.get("cnt")).longValue();
+            if (count > 0) used.add(row.get("label") + " " + count + " 条");
+        }
+        if (!used.isEmpty()) {
+            throw new ServiceException("该档案已被" + String.join("、",used)
+                    + "引用，不能删除；如需停用请编辑后把状态改为停用",2007);
+        }
+        Map<String,Object> args = new HashMap<>();
+        args.put("resource",resource); args.put("id",id);
+        if (mapper.delete(args) != 1) throw new ServiceException("档案已变化，请刷新后重试",2006);
+    }
+
+    /**
+     * 员工在职/离职切换。0 离职 1 在职。离职前不校验引用——历史上报过工、
+     * 领过工资的员工本来就应该保留记录，只是不能再排产。
+     */
+    @Transactional
+    public void changeStatus(String resource,Long id,Integer status) {
+        if (status == null || (status != 0 && status != 1)) throw new ServiceException("状态只能是 0（停用/离职）或 1（启用/在职）",1001);
+        Map<String,Object> old = detail(resource,id);
+        Map<String,Object> input = new HashMap<>();
+        input.put("status",status);
+        Map<String,Object> args = new HashMap<>();
+        args.put("resource",resource); args.put("id",id);
+        args.put("row",normalize(checkSpec(resource),input,old)); args.put("username",SecurityUtils.getUsername());
+        if (mapper.update(args) != 1) throw new ServiceException("档案已变化，请刷新后重试",2006);
+    }
+
     @Transactional
     public Map<String,String> generateSku(Long styleId,Long colorId,Long sizeId) {
         if (styleId == null || colorId == null || sizeId == null) throw new ServiceException("款式、颜色和尺码必填",1001);

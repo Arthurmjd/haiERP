@@ -12,6 +12,14 @@ const quotation = ref<Quotation | null>(null)
 const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
+async function removeQuotation() {
+  if (!quotation.value) return
+  try { await ElMessageBox.confirm(`确定删除待确认报价单 ${quotation.value.quoteNo}？`, '删除报价单', { type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消' }) }
+  catch { return }
+  saving.value = true
+  try { await erpApi.deleteQuotation(quotation.value.quoteId); ElMessage.success('报价单已删除'); router.push('/sales/quotations') }
+  catch (e) { ElMessage.error((e as Error).message); saving.value = false }
+}
 async function transition(action: 'accept' | 'expire') {
   if (!quotation.value || quotation.value.status !== 0) return
   const label = action === 'accept' ? '接受' : '失效'
@@ -31,7 +39,7 @@ async function load() {
 watch(() => route.params.id, load, { immediate: true })
 </script>
 <template>
-  <div class="page-head"><div><h1>{{ quotation?.quoteNo || '报价单' }}</h1><p>报价与成本参考</p></div><div class="head-actions"><el-button @click="router.push('/sales/quotations')">返回列表</el-button><el-button v-if="quotation?.status === 0 && user.can('sd:quotation:expire')" :loading="saving" @click="transition('expire')">标记失效</el-button><el-button v-if="quotation?.status === 0 && user.can('sd:quotation:accept')" type="primary" :loading="saving" @click="transition('accept')">接受报价</el-button></div></div>
+  <div class="page-head"><div><h1>{{ quotation?.quoteNo || '报价单' }}</h1><p>报价与成本参考</p></div><div class="head-actions"><el-button @click="router.push('/sales/quotations')">返回列表</el-button><el-button v-if="quotation?.status === 0 && user.can('sd:quotation:expire')" :loading="saving" @click="transition('expire')">标记失效</el-button><el-button v-if="quotation?.status === 0 && user.can('sd:quotation:accept')" type="primary" :loading="saving" @click="transition('accept')">接受报价</el-button><el-button v-if="quotation?.status === 0 && user.can('sd:quotation:remove')" type="danger" plain :loading="saving" @click="removeQuotation">删除</el-button></div></div>
   <div v-if="loading" class="loading-state">正在加载…</div><div v-else-if="error" class="panel error-state">{{ error }} <el-button text type="primary" @click="load">重试</el-button></div>
   <template v-else-if="quotation"><section class="panel"><h2 class="panel-title">报价信息</h2><div class="detail-grid"><div><div class="detail-label">客户</div><div class="detail-value">{{ quotation.customerName }}</div></div><div><div class="detail-label">日期</div><div class="detail-value">{{ quotation.quoteDate }}</div></div><div><div class="detail-label">金额</div><div class="detail-value">¥{{ Number(quotation.totalAmount).toFixed(2) }}</div></div><div><div class="detail-label">状态</div><el-tag :type="enumTagType('quoteStatus', quotation.status)">{{ enumLabel('quoteStatus', quotation.status) }}</el-tag></div></div></section><section class="panel"><h2 class="panel-title">报价明细</h2><div class="table-wrap"><el-table :data="quotation.items" stripe><el-table-column prop="styleName" label="款式" min-width="170"/><el-table-column prop="qty" label="数量" min-width="90"/><el-table-column prop="unitPrice" label="报价单价" min-width="110"/><el-table-column prop="costRef" label="参考成本" min-width="110"/><el-table-column prop="amount" label="金额" min-width="120"/><el-table-column prop="sourceSettleId" label="来源结算 ID" min-width="130"/></el-table></div></section></template>
 </template>

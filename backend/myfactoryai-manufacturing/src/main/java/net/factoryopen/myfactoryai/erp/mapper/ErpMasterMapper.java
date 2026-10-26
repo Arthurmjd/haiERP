@@ -3,6 +3,7 @@ package net.factoryopen.myfactoryai.erp.mapper;
 import java.util.Map;
 import java.util.List;
 
+import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Mapper;
@@ -25,6 +26,12 @@ public interface ErpMasterMapper {
 
     @SelectProvider(type=ErpMasterSql.class,method="detail")
     Map<String,Object> detail(Map<String,Object> args);
+
+    @SelectProvider(type=ErpMasterSql.class,method="refCounts")
+    List<Map<String,Object>> refCounts(Map<String,Object> args);
+
+    @DeleteProvider(type=ErpMasterSql.class,method="delete")
+    int delete(Map<String,Object> args);
 
     @Select("SELECT CONCAT(s.style_no,'-',c.color_code,'-',z.size_code) FROM md_style s JOIN md_color c ON c.color_id=#{colorId} AND c.status=1 JOIN md_size z ON z.size_id=#{sizeId} AND z.status=1 WHERE s.style_id=#{styleId} AND s.status=1")
     String skuCode(@Param("styleId") Long styleId,@Param("colorId") Long colorId,@Param("sizeId") Long sizeId);

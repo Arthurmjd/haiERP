@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { catalogPage, catalogs, masterForms, masterResource } from '../api/catalog'
 import { erpApi, type Option, type OrderOptions } from '../api/erp'
 import { enumLabel, enumTagType } from '../api/labels'
@@ -36,6 +36,9 @@ const resource = computed(() => masterResource(key.value))
 const editableCatalog = computed(() => group.value === 'master' && key.value !== 'skus' || group.value === 'hr' && key.value === 'employees')
 const editPermission = computed(() => group.value === 'hr' ? 'hr:employee:edit' : `md:${resource.value}:edit`)
 const addPermission = computed(() => group.value === 'hr' ? 'hr:employee:add' : `md:${resource.value}:add`)
+// 删除覆盖主数据全部（含 SKU）与员工；编辑仍沿用 editableCatalog
+const removableCatalog = computed(() => group.value === 'master' || group.value === 'hr' && key.value === 'employees')
+const removePermission = computed(() => group.value === 'hr' ? 'hr:employee:remove' : `md:${resource.value}:remove`)
 const skuOpen = ref(false)
 const skuOptions = ref<Pick<OrderOptions, 'styles' | 'colors' | 'sizes'> | null>(null)
 const skuDraft = ref({ styleId: '', colorId: '', sizeId: '' })
@@ -103,12 +106,43 @@ async function load() {
   catch (e) { error.value = (e as Error).message; ElMessage.error(error.value) }
   finally { loading.value = false }
 }
+
+function rowTitle(row: Record<string, unknown>) {
+  return String(row.name ?? row.code ?? row.id ?? '')
+}
+
+async function removeRow(row: Record<string, unknown>) {
+  try {
+    await ElMessageBox.confirm(
+      `确定删除「${rowTitle(row)}」吗？已被业务引用的档案不允许删除，系统会提示改用停用。`,
+      '删除确认', { type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消' })
+  } catch { return }
+  try {
+    await erpApi.removeMaster(resource.value, String(row.id))
+    ElMessage.success('已删除')
+    await load()
+  } catch (e) { ElMessage.error((e as Error).message) }
+}
+
+async function toggleEmployee(row: Record<string, unknown>) {
+  const target: 0 | 1 = Number(row.status) === 1 ? 0 : 1
+  const label = target === 0 ? '离职' : '复职'
+  try {
+    await ElMessageBox.confirm(`确定将「${rowTitle(row)}」标记为${label}吗？`, `${label}确认`,
+      { type: 'warning', confirmButtonText: label, cancelButtonText: '取消' })
+  } catch { return }
+  try {
+    await erpApi.changeEmployeeStatus(String(row.id), target)
+    ElMessage.success(`已${label}`)
+    await load()
+  } catch (e) { ElMessage.error((e as Error).message) }
+}
 watch([group, key], () => { page.value = 1; load() }, { immediate: true })
 </script>
 <template>
   <div v-if="spec"><div class="page-head"><div><h1>{{ spec.title }}</h1></div><div class="head-actions"><el-date-picker v-if="group === 'reports' && key === 'ontime'" v-model="asOfDate" type="date" value-format="YYYY-MM-DD" :disabled-date="(date: Date) => date.getTime() > Date.now()" @change="page=1; load()"/><el-button v-if="editableCatalog && user.can(addPermission)" type="primary" @click="openMaster()">新增{{ spec.title }}</el-button><el-button v-if="group === 'master' && key === 'skus' && user.can('md:sku:generate')" type="primary" @click="openSku">生成 SKU</el-button><el-button v-if="group === 'hr' && key === 'salary' && user.can('hr:salarySlip:generate')" type="primary" @click="openSalary">生成工资单</el-button><el-button @click="load">刷新</el-button></div></div>
     <el-tabs :model-value="key" class="catalog-tabs" @tab-change="(name: string | number) => router.push(`/${group}/${name}`)"><el-tab-pane v-for="[tabKey, item] in tabs" :key="tabKey" :label="item.title" :name="tabKey"/></el-tabs>
-    <section class="panel"><div v-if="error" class="error-state">{{ error }}</div><div class="table-wrap"><el-table v-loading="loading" :data="rows" stripe empty-text="暂无数据" @row-click="openRow"><el-table-column v-for="column in spec.columns" :key="column.prop" :label="column.label" :min-width="column.width || 120"><template #default="scope"><el-tag v-if="column.enum" size="small" :type="enumTagType(column.enum, scope.row[column.prop])">{{ enumLabel(column.enum, scope.row[column.prop]) }}</el-tag><span v-else>{{ scope.row[column.prop] }}</span></template></el-table-column><el-table-column v-if="group === 'master' && key === 'styles'" label="工艺" width="100"><template #default="scope"><el-button text type="primary" @click.stop="router.push(`/master/styles/${scope.row.id}`)">BOM / 工序</el-button></template></el-table-column><el-table-column v-if="group === 'hr' && key === 'salary' && user.can('hr:salarySlip:confirm')" label="操作" width="100"><template #default="scope"><el-button v-if="scope.row.status === 0" text type="primary" :loading="salarySaving" @click.stop="confirmSalary(String(scope.row.id))">确认</el-button></template></el-table-column></el-table></div><div class="pagination"><el-pagination v-model:current-page="page" background layout="prev, pager, next, total" :total="total" :page-size="10" @current-change="load"/></div></section>
+    <section class="panel"><div v-if="error" class="error-state">{{ error }}</div><div class="table-wrap"><el-table v-loading="loading" :data="rows" stripe empty-text="暂无数据" @row-click="openRow"><el-table-column v-for="column in spec.columns" :key="column.prop" :label="column.label" :min-width="column.width || 120"><template #default="scope"><el-tag v-if="column.enum" size="small" :type="enumTagType(column.enum, scope.row[column.prop])">{{ enumLabel(column.enum, scope.row[column.prop]) }}</el-tag><span v-else>{{ scope.row[column.prop] }}</span></template></el-table-column><el-table-column v-if="group === 'hr' && key === 'employees' && user.can('hr:employee:edit')" label="员工操作" width="100"><template #default="scope"><el-button v-if="Number(scope.row.status) === 1" text type="warning" size="small" @click.stop="toggleEmployee(scope.row)">离职</el-button><el-button v-else text type="success" size="small" @click.stop="toggleEmployee(scope.row)">复职</el-button></template></el-table-column><el-table-column v-if="removableCatalog && user.can(removePermission)" label="操作" width="120"><template #default="scope"><el-button v-if="editableCatalog && user.can(editPermission)" text type="primary" size="small" @click.stop="openMaster(scope.row)">编辑</el-button><el-button text type="danger" size="small" @click.stop="removeRow(scope.row)">删除</el-button></template></el-table-column><el-table-column v-if="group === 'master' && key === 'styles'" label="工艺" width="100"><template #default="scope"><el-button text type="primary" @click.stop="router.push(`/master/styles/${scope.row.id}`)">BOM / 工序</el-button></template></el-table-column><el-table-column v-if="group === 'hr' && key === 'salary' && user.can('hr:salarySlip:confirm')" label="操作" width="100"><template #default="scope"><el-button v-if="scope.row.status === 0" text type="primary" :loading="salarySaving" @click.stop="confirmSalary(String(scope.row.id))">确认</el-button></template></el-table-column></el-table></div><div class="pagination"><el-pagination v-model:current-page="page" background layout="prev, pager, next, total" :total="total" :page-size="10" @current-change="load"/></div></section>
     <el-dialog v-model="salaryOpen" title="生成工资单" width="min(460px, 94vw)"><el-form label-position="top"><el-form-item label="员工"><el-select v-model="salaryEmployeeId" style="width:100%"><el-option v-for="item in salaryEmployees" :key="item.id" :label="item.name" :value="item.id"/></el-select></el-form-item><el-form-item label="工资期"><el-date-picker v-model="salaryMonth" type="month" value-format="YYYY-MM" style="width:100%"/></el-form-item></el-form><template #footer><el-button @click="salaryOpen=false">取消</el-button><el-button type="primary" :loading="salarySaving" @click="generateSalary">生成</el-button></template></el-dialog>
     <el-dialog v-model="masterOpen" :title="`${masterId ? '编辑' : '新增'}${spec.title}`" width="min(580px, 94vw)"><el-form label-position="top" class="order-form-grid"><el-form-item v-for="field in masterFields" :key="field.key" :label="field.label" :required="field.required"><el-select v-if="field.kind === 'status'" v-model="masterDraft[field.key]" style="width:100%"><el-option :label="resource === 'employee' ? '在职' : '启用'" :value="1"/><el-option :label="resource === 'employee' ? '离职' : '停用'" :value="0"/></el-select><el-select v-else-if="field.kind === 'gender'" v-model="masterDraft[field.key]" style="width:100%"><el-option label="女" :value="0"/><el-option label="男" :value="1"/><el-option v-if="resource !== 'employee'" label="中性" :value="2"/></el-select><el-select v-else-if="field.kind === 'employeeType'" v-model="masterDraft[field.key]" style="width:100%"><el-option label="生产计件" :value="1"/><el-option label="职能固定薪" :value="2"/></el-select><el-select v-else-if="field.kind === 'department'" v-model="masterDraft[field.key]" clearable style="width:100%"><el-option v-for="item in departments" :key="item.id" :label="item.name" :value="item.id"/></el-select><el-select v-else-if="field.kind === 'category'" v-model="masterDraft[field.key]" style="width:100%"><el-option label="面料" :value="1"/><el-option label="辅料" :value="2"/></el-select><el-date-picker v-else-if="field.kind === 'date'" v-model="masterDraft[field.key]" type="date" value-format="YYYY-MM-DD" style="width:100%"/><el-input-number v-else-if="field.kind === 'number'" v-model="masterDraft[field.key]" :min="0" style="width:100%"/><el-input v-else v-model="masterDraft[field.key]"/></el-form-item></el-form><template #footer><el-button @click="masterOpen=false">取消</el-button><el-button type="primary" :loading="masterSaving" @click="saveMaster">保存</el-button></template></el-dialog>
     <el-dialog v-model="skuOpen" title="生成 SKU" width="min(500px, 94vw)"><el-form label-position="top"><el-form-item label="款式"><el-select v-model="skuDraft.styleId" style="width:100%"><el-option v-for="item in skuOptions?.styles" :key="item.id" :label="`${item.code} · ${item.name}`" :value="item.id"/></el-select></el-form-item><el-form-item label="颜色"><el-select v-model="skuDraft.colorId" style="width:100%"><el-option v-for="item in skuOptions?.colors" :key="item.id" :label="item.name" :value="item.id"/></el-select></el-form-item><el-form-item label="尺码"><el-select v-model="skuDraft.sizeId" style="width:100%"><el-option v-for="item in skuOptions?.sizes" :key="item.id" :label="item.name" :value="item.id"/></el-select></el-form-item></el-form><template #footer><el-button @click="skuOpen=false">取消</el-button><el-button type="primary" :loading="masterSaving" @click="generateSku">生成</el-button></template></el-dialog>

@@ -3,7 +3,9 @@ package net.factoryopen.myfactoryai.web.controller.erp;
 import com.ruoyi.common.core.domain.AjaxResult;
 import net.factoryopen.myfactoryai.erp.domain.ShipmentRequest;
 import net.factoryopen.myfactoryai.erp.service.ErpShipmentService;
+import net.factoryopen.myfactoryai.erp.service.ErpDocService;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/erp/sh")
 public class ErpShipmentController {
     private final ErpShipmentService service;
-    public ErpShipmentController(ErpShipmentService service) { this.service = service; }
+    private final ErpDocService docs;
+
+    public ErpShipmentController(ErpShipmentService service, ErpDocService docs) {
+        this.service = service;
+        this.docs = docs;
+    }
 
     @PreAuthorize("@ss.hasPermi('sh:shipment:query')")
     @GetMapping("/shipment/{id}")
@@ -44,4 +51,24 @@ public class ErpShipmentController {
     @PreAuthorize("@ss.hasPermi('sh:return:handle')")
     @PostMapping("/return/handle/{id}")
     public AjaxResult handleReturn(@PathVariable Long id,@RequestBody ShipmentRequest.Action request) { service.handleReturn(id,request); return AjaxResult.success(); }
+
+    /** 删除待发货出货单（含明细）。已发货后不允许，避免掩盖出库记录。 */
+    @PreAuthorize("@ss.hasPermi('sh:shipment:remove')")
+    @DeleteMapping("/shipment/{id}")
+    public AjaxResult removeShipment(@PathVariable Long id) { docs.deleteDraft("sh:shipment", id); return AjaxResult.success(); }
+
+    /** 作废待发货出货单。 */
+    @PreAuthorize("@ss.hasPermi('sh:shipment:cancel')")
+    @PostMapping("/shipment/cancel/{id}")
+    public AjaxResult cancelShipment(@PathVariable Long id) { docs.cancel("sh:shipment", id); return AjaxResult.success(); }
+
+    /** 删除待处理退货单（含明细）。已处理的不允许删除。 */
+    @PreAuthorize("@ss.hasPermi('sh:return:remove')")
+    @DeleteMapping("/return/{id}")
+    public AjaxResult removeReturn(@PathVariable Long id) { docs.deleteDraft("sh:return", id); return AjaxResult.success(); }
+
+    /** 作废待处理退货单。 */
+    @PreAuthorize("@ss.hasPermi('sh:return:cancel')")
+    @PostMapping("/return/cancel/{id}")
+    public AjaxResult cancelReturn(@PathVariable Long id) { docs.cancel("sh:return", id); return AjaxResult.success(); }
 }
