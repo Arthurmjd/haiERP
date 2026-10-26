@@ -103,7 +103,7 @@ $env:DB_PASSWORD = [System.Net.NetworkCredential]::new('', $dbPassword).Password
 Remove-Variable dbPassword
 $env:REDIS_HOST = '127.0.0.1'
 $env:TOKEN_SECRET = [guid]::NewGuid().ToString('N')
-mvn -DskipTests package
+mvn clean -DskipTests package
 java -jar myfactoryai-admin/target/myfactoryai-admin.jar --server.address=127.0.0.1
 ```
 
@@ -140,7 +140,7 @@ npm run dev
 - 前端构建：在 `frontend` 目录运行 `npm run build`。
 - 前端提示 `ECONNREFUSED 127.0.0.1:8080`：后端未启动或端口不一致，先查看后端终端是否显示启动成功。
 - 登录失败：确认四份 SQL 按上述顺序导入、MySQL 和 Redis 均在运行，且后端连接的是 `hai_erp_demo`。
-- 修改后端代码后：先停止旧后端，再执行 `mvn -DskipTests package` 并重启 JAR；运行中的旧 JAR 不会自动更新，且在 Windows 上可能占用文件导致打包失败。
+- 修改后端代码后：先停止旧后端，再执行 `mvn clean -DskipTests package` 并重启 JAR；运行中的旧 JAR 不会自动更新，且在 Windows 上可能占用文件导致打包失败。删除或移动源码后必须带 `clean`，否则 `target/` 里的旧 class 和 mapper XML 会继续被打进 JAR，引发启动报错。
 
 更多实现状态和验收事项见 [开发启动说明](开发启动说明.md)、[需求分析](AI-ERP需求分析文档.md)、[接口设计](AI-ERP接口设计文档.md) 和 [数据库设计](AI-ERP数据库设计文档.md)。
 

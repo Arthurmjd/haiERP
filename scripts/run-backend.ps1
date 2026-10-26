@@ -40,7 +40,9 @@ try {
         Write-Host '检测到源码变更（或首次运行），正在构建后端...' -ForegroundColor Yellow
         Write-Host '首次构建需要 2-5 分钟，请耐心等待。' -ForegroundColor DarkGray
         Write-Host ''
-        & $mvn -DskipTests package
+        # 必须 clean：删除源码后 target 里的旧 class / mapper XML 仍会被打进 jar，
+        # 曾导致 myfactoryai-manufacturing 残留 210 个遗留 mapper，启动即报类型别名找不到。
+        & $mvn clean -DskipTests package
         if ($LASTEXITCODE -ne 0) {
             Write-Host ''
             Write-Host '后端构建失败，请查看上方 Maven 输出。' -ForegroundColor Red
