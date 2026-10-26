@@ -2,7 +2,6 @@ package net.factoryopen.myfactoryai.erp.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +10,7 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
 import net.factoryopen.myfactoryai.erp.domain.CostRequest;
 import net.factoryopen.myfactoryai.erp.mapper.ErpCostMapper;
+import net.factoryopen.myfactoryai.erp.support.DocNos;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,11 +53,11 @@ public class ErpCostService {
         BigDecimal overheadRate = settlement == null ? BigDecimal.valueOf(8) : decimal(settlement,"overheadRate");
         if (settlement == null) {
             Map<String,Object> header = new HashMap<>();
-            header.put("settleNo","CS-TMP-" + java.util.UUID.randomUUID());
+            header.put("settleNo",DocNos.temp("CS"));
             header.put("orderId",request.orderId()); header.put("styleId",request.styleId());
             header.put("qty",qty); header.put("username",SecurityUtils.getUsername());
             mapper.insert(header); id=number(header,"settleId");
-            mapper.setNo(id,"CS" + LocalDate.now().getYear() + String.format("%06d",id));
+            mapper.setNo(id,DocNos.formal("CS",id));
         } else { id=number(settlement,"settleId"); mapper.deleteDetails(id); }
         BigDecimal materialCost = insertLines(id,1,materials);
         BigDecimal laborCost = insertLines(id,2,processes);

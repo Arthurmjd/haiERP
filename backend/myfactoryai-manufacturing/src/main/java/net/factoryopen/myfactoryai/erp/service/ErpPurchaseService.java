@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
@@ -16,6 +15,7 @@ import net.factoryopen.myfactoryai.erp.domain.PurchaseDraftRequest;
 import net.factoryopen.myfactoryai.erp.domain.PurchaseReceiptRequest;
 import net.factoryopen.myfactoryai.erp.mapper.ErpPurchaseMapper;
 import net.factoryopen.myfactoryai.erp.mapper.PurchaseHeader;
+import net.factoryopen.myfactoryai.erp.support.DocNos;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,13 +60,13 @@ public class ErpPurchaseService {
         }
         if (total.compareTo(new BigDecimal("9999999999.99")) > 0) throw new ServiceException("采购金额超出上限",1001);
         PurchaseHeader header = new PurchaseHeader();
-        header.setPoNo("PO-TMP-" + UUID.randomUUID());
+        header.setPoNo(DocNos.temp("PO"));
         header.setSupplierId(request.supplierId());
         header.setExpectDate(request.expectDate());
         header.setTotalAmount(total);
         header.setCreatedBy(SecurityUtils.getUsername());
         mapper.insert(header);
-        String no = "PO" + LocalDate.now().getYear() + String.format("%06d",header.getPoId());
+        String no = DocNos.formal("PO", header.getPoId());
         mapper.setPoNo(header.getPoId(),no);
         for (PurchaseDraftRequest.Line line : request.items()) {
             mapper.insertLine(header.getPoId(),line.materialId(),line.qty(),line.unitPrice(),

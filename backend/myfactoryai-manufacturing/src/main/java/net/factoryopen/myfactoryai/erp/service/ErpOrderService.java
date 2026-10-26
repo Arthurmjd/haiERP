@@ -8,13 +8,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
 import net.factoryopen.myfactoryai.erp.domain.OrderDraftRequest;
 import net.factoryopen.myfactoryai.erp.domain.OrderHeader;
 import net.factoryopen.myfactoryai.erp.mapper.ErpOrderMapper;
+import net.factoryopen.myfactoryai.erp.support.DocNos;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,13 +68,13 @@ public class ErpOrderService {
             throw new ServiceException("订单金额超出上限", 1001);
         }
         OrderHeader header = new OrderHeader();
-        header.setOrderNo("SO-TMP-" + UUID.randomUUID());
+        header.setOrderNo(DocNos.temp("SO"));
         header.setCustomerId(request.customerId());
         header.setDeliveryDate(request.deliveryDate());
         header.setTotalAmount(total);
         header.setCreatedBy(SecurityUtils.getUsername());
         mapper.insert(header);
-        String orderNo = "SO" + LocalDate.now().getYear() + String.format("%06d", header.getOrderId());
+        String orderNo = DocNos.formal("SO", header.getOrderId());
         mapper.setOrderNo(header.getOrderId(), orderNo);
         for (ValidatedLine validated : lines) {
             OrderDraftRequest.Line line = validated.line();
