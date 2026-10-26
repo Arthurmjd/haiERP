@@ -1,5 +1,6 @@
 import { http, payload, pageTotal, type Envelope, type Page } from './client'
 import { demoApi, isDemoMode } from './demo'
+import { enumLabel } from './labels'
 
 export interface Option { id: string; name: string; code?: string; styleId?: string; colorId?: string; sizeId?: string }
 export interface OrderOptions { customers: Option[]; styles: Option[]; colors: Option[]; sizes: Option[]; skus: Option[] }
@@ -32,8 +33,8 @@ export interface StyleProcessLine { processId: string; processName: string; seq:
 export interface Alert { id: string; alertType: string; title: string; subject: string; triggerValue: number; unit: string; sourceType: string; sourceId: string }
 export interface AiAnswer { answer: string; rows: Record<string, unknown>[]; source: string; dataTime: string; modelUsed: boolean }
 
-const orderStatuses: Record<number, string> = { 0: '草稿', 1: '已确认', 2: '生产中', 3: '已完工', 4: '已发齐', 5: '已完成', 9: '已取消' }
-export const orderStatusLabel = (status: number) => orderStatuses[status] || `状态 ${status}`
+/** 订单状态文案统一由 labels.ts 提供，避免各页面各写一套 */
+export const orderStatusLabel = (status: number) => enumLabel('orderStatus', status)
 
 export const erpApi = {
   options: () => isDemoMode() ? demoApi.options() : payload<OrderOptions>(http.get('/erp/md/orderOptions')),

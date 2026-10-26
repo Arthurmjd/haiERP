@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import { Refresh } from '@element-plus/icons-vue'
 import { catalogPage, catalogs, type CatalogSpec } from '../api/catalog'
 import { erpApi } from '../api/erp'
+import { enumLabel, enumTagType, type EnumKey } from '../api/labels'
 import { useUserStore } from '../stores/user'
 import type { RoleKey } from '../roles'
 
@@ -11,7 +12,7 @@ interface Metric {
   label: string
   path: string
   permission: string
-  columns: { prop: string; label: string }[]
+  columns: { prop: string; label: string; enum?: EnumKey }[]
   load: () => Promise<{ total: number; rows: object[] }>
 }
 
@@ -101,7 +102,7 @@ watch(() => user.activeRole, load, { immediate: true })
   <section v-if="firstMetric" class="role-section">
     <div class="line-toolbar"><h2>最近{{ firstMetric.label }}</h2><RouterLink :to="firstMetric.path"><el-button text type="primary">查看全部</el-button></RouterLink></div>
     <div class="table-wrap"><el-table :data="recentRows" v-loading="loading" stripe empty-text="暂无记录">
-      <el-table-column v-for="column in firstMetric.columns" :key="column.prop" :prop="column.prop" :label="column.label" min-width="130" show-overflow-tooltip />
+      <el-table-column v-for="column in firstMetric.columns" :key="column.prop" :label="column.label" min-width="130" show-overflow-tooltip><template #default="scope"><el-tag v-if="column.enum" size="small" :type="enumTagType(column.enum, scope.row[column.prop])">{{ enumLabel(column.enum, scope.row[column.prop]) }}</el-tag><span v-else>{{ scope.row[column.prop] }}</span></template></el-table-column>
     </el-table></div>
   </section>
 </template>
