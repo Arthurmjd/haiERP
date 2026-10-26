@@ -2,6 +2,7 @@
 
 ## 运行环境
 - JDK 21 `E:\soft\Java\jdk-21`；Maven `E:\soft\apache-maven-3.9.4-bin\apache-maven-3.9.4\bin\mvn.cmd`（需显式设 `JAVA_HOME`）。
+- 用户级环境变量已配置：`JAVA_HOME`、`MAVEN_HOME`，PATH 含两者 `bin`；改完需新开终端才生效。
 - Node `C:\Program Files\nodejs\node.exe`；MySQL 8.4:3306（库 `hai_erp_demo`）；Redis `E:\soft\redis-x64`:6379。
 - 演示账号 8 个：admin/sales/planner/production/wh/finance/hr/boss，密码 `Demo@2026!`。
 

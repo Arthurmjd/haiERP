@@ -100,6 +100,8 @@ function Find-Executable {
 
 function Resolve-Maven {
     $paths = @()
+    # MAVEN_HOME 优先（可在 env.local.ps1 里覆盖，不必改系统 PATH）
+    if ($env:MAVEN_HOME) { $paths += (Join-Path $env:MAVEN_HOME 'bin\mvn.cmd') }
     $paths += (Join-Path $env:ProgramFiles 'apache-maven-3.9.11-bin\apache-maven-3.9.11\bin\mvn.cmd')
     if ($env:ProgramFiles) {
         $dirs = Get-ChildItem -Path $env:ProgramFiles -Filter 'apache-maven-*' -Directory -ErrorAction SilentlyContinue

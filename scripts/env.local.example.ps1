@@ -38,3 +38,9 @@ $env:TOKEN_SECRET = ''
 $RedisHome = ''
 # 例：'C:\Program Files\MySQL\MySQL Server 8.4\bin'
 $MySqlHome = ''
+
+# ---------- JDK / Maven（可选） ----------
+# 系统已设 JAVA_HOME、且 mvn 已在 PATH 中时，下面两行不用管。
+# 不想改系统环境变量，就在这里直接指定，只在启动脚本内生效：
+# $env:JAVA_HOME  = 'E:\soft\Java\jdk-21'
+# $env:MAVEN_HOME = 'E:\soft\apache-maven-3.9.4-bin\apache-maven-3.9.4'
