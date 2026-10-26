@@ -9,8 +9,10 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import net.factoryopen.myfactoryai.erp.domain.OrderDraftRequest;
 import net.factoryopen.myfactoryai.erp.mapper.ErpOrderMapper;
+import net.factoryopen.myfactoryai.erp.service.ErpDocService;
 import net.factoryopen.myfactoryai.erp.service.ErpOrderService;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,10 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class ErpOrderController {
     private final ErpOrderMapper mapper;
     private final ErpOrderService service;
+    private final ErpDocService docs;
 
-    public ErpOrderController(ErpOrderMapper mapper, ErpOrderService service) {
+    public ErpOrderController(ErpOrderMapper mapper, ErpOrderService service, ErpDocService docs) {
         this.mapper = mapper;
         this.service = service;
+        this.docs = docs;
     }
 
     @PreAuthorize("@ss.hasPermi('sd:order:list')")
@@ -70,6 +74,22 @@ public class ErpOrderController {
     @PostMapping("/confirm/{id}")
     public AjaxResult confirm(@PathVariable Long id) {
         service.confirm(id);
+        return AjaxResult.success();
+    }
+
+    /** 删除草稿订单（含明细）。已确认或已产生工单/出货单时不允许。 */
+    @PreAuthorize("@ss.hasPermi('sd:order:remove')")
+    @DeleteMapping("/{id}")
+    public AjaxResult remove(@PathVariable Long id) {
+        docs.deleteDraft("sd:order", id);
+        return AjaxResult.success();
+    }
+
+    /** 作废订单：草稿或已确认可作废，已有工单/出货单时不允许。 */
+    @PreAuthorize("@ss.hasPermi('sd:order:cancel')")
+    @PostMapping("/cancel/{id}")
+    public AjaxResult cancel(@PathVariable Long id) {
+        docs.cancel("sd:order", id);
         return AjaxResult.success();
     }
 }

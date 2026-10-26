@@ -2,19 +2,18 @@ package net.factoryopen.myfactoryai.erp.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
 import net.factoryopen.myfactoryai.erp.domain.QuotationRequest;
 import net.factoryopen.myfactoryai.erp.mapper.ErpQuotationMapper;
+import net.factoryopen.myfactoryai.erp.support.DocNos;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,12 +72,12 @@ public class ErpQuotationService {
             total = total.add(price.multiply(BigDecimal.valueOf(qty)));
         }
         Map<String,Object> header = new HashMap<>();
-        header.put("quoteNo","QT-TMP-" + UUID.randomUUID()); header.put("customerId",customerId);
+        header.put("quoteNo",DocNos.temp("QT")); header.put("customerId",customerId);
         header.put("totalAmount",total); header.put("requestKey",request.requestKey());
         header.put("username",SecurityUtils.getUsername());
         mapper.insert(header);
         Long id = number(header,"quoteId");
-        String no = "QT" + LocalDate.now().getYear() + String.format("%06d",id);
+        String no = DocNos.formal("QT",id);
         mapper.setNo(id,no);
         for (int i=0;i<settlements.size();i++) {
             Map<String,Object> line = settlements.get(i);

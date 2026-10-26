@@ -8,13 +8,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
 import net.factoryopen.myfactoryai.erp.domain.ShipmentRequest;
 import net.factoryopen.myfactoryai.erp.mapper.ErpShipmentMapper;
 import net.factoryopen.myfactoryai.erp.mapper.ErpStockMapper;
+import net.factoryopen.myfactoryai.erp.support.DocNos;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,13 +58,13 @@ public class ErpShipmentService {
             if (remaining < entry.getValue()) throw new ServiceException("出货超过订单未发数量",2006);
         }
         Map<String,Object> header = new HashMap<>();
-        header.put("shipmentNo","SH-TMP-" + UUID.randomUUID());
+        header.put("shipmentNo",DocNos.temp("SH"));
         header.put("orderId",request.orderId()); header.put("customerId",number(order,"customerId"));
         header.put("logisticsCompany",request.logisticsCompany()); header.put("logisticsNo",request.logisticsNo());
         header.put("username",SecurityUtils.getUsername());
         mapper.insertShipment(header);
         Long id = number(header,"shipmentId");
-        String no = "SH" + LocalDate.now().getYear() + String.format("%06d",id);
+        String no = DocNos.formal("SH",id);
         mapper.setShipmentNo(id,no);
         for (ShipmentRequest.Line line : lines) mapper.insertShipmentLine(id,line.skuId(),line.batchNo().trim(),line.qty(),SecurityUtils.getUsername());
         return Map.of("shipmentId",id.toString(),"shipmentNo",no);
@@ -128,14 +128,14 @@ public class ErpShipmentService {
         if (shipment == null || !List.of(1,2).contains(number(shipment,"status").intValue())) throw new ServiceException("原出货单尚未出库",2001);
         validateReturnLines(request.shipmentId(),lines);
         Map<String,Object> header = new HashMap<>();
-        header.put("returnNo","RT-TMP-" + UUID.randomUUID());
+        header.put("returnNo",DocNos.temp("RT"));
         header.put("shipmentId",request.shipmentId()); header.put("orderId",number(shipment,"orderId"));
         header.put("customerId",number(shipment,"customerId")); header.put("reason",request.reason());
         header.put("returnType",request.returnType()); header.put("isRestock",request.isRestock());
         header.put("refundAmount",request.refundAmount()); header.put("username",SecurityUtils.getUsername());
         mapper.insertReturn(header);
         Long id = number(header,"returnId");
-        String no = "RT" + LocalDate.now().getYear() + String.format("%06d",id);
+        String no = DocNos.formal("RT",id);
         mapper.setReturnNo(id,no);
         for (ShipmentRequest.Line line : lines) mapper.insertReturnLine(id,line.skuId(),line.batchNo().trim(),line.qty(),SecurityUtils.getUsername());
         return Map.of("returnId",id.toString(),"returnNo",no);

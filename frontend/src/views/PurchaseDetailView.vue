@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { erpApi, type PurchaseOrder } from '../api/erp'
+import { enumLabel, enumTagType } from '../api/labels'
 import { useUserStore } from '../stores/user'
 
 const route = useRoute()
@@ -22,6 +23,23 @@ async function confirm() {
   saving.value = true
   try { await erpApi.confirmPurchase(purchase.value.poId); ElMessage.success('采购单已确认'); await load() } catch (e) { ElMessage.error((e as Error).message) } finally { saving.value = false }
 }
+async function removePurchase() {
+  if (!purchase.value) return
+  try { await ElMessageBox.confirm(`确定删除草稿采购单 ${purchase.value.poNo}？删除后不可恢复。`, '删除采购单', { type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消' }) }
+  catch { return }
+  saving.value = true
+  try { await erpApi.deletePurchase(purchase.value.poId); ElMessage.success('采购单已删除'); router.push('/purchases') }
+  catch (e) { ElMessage.error((e as Error).message); saving.value = false }
+}
+async function cancelPurchase() {
+  if (!purchase.value) return
+  try { await ElMessageBox.confirm(`确定作废采购单 ${purchase.value.poNo}？作废后单据保留但不再参与业务。`, '作废采购单', { type: 'warning', confirmButtonText: '作废', cancelButtonText: '取消' }) }
+  catch { return }
+  saving.value = true
+  try { await erpApi.cancelPurchase(purchase.value.poId); ElMessage.success('采购单已作废'); await load() }
+  catch (e) { ElMessage.error((e as Error).message) }
+  finally { saving.value = false }
+}
 function openReceipt() {
   receiptLines.value = (purchase.value?.items || []).filter(item => Number(item.remainingQty) > 0).map(item => ({ itemId: item.itemId, qty: 0, batchNo: '', remainingQty: Number(item.remainingQty), materialName: item.materialName }))
   arrivalDate.value = new Date().toISOString().slice(0, 10)
@@ -39,9 +57,9 @@ async function receive() {
 onMounted(load)
 </script>
 <template>
-  <div class="page-head"><div><h1>{{ purchase?.poNo || '采购详情' }}</h1><p>采购明细与累计收货</p></div><div class="head-actions"><el-button @click="router.push('/purchases')">返回列表</el-button><el-button v-if="purchase?.status === 0 && user.can('pu:purchaseOrder:confirm')" type="primary" :loading="saving" @click="confirm">确认采购</el-button><el-button v-if="purchase && [1,2].includes(purchase.status) && user.can('pu:purchaseOrder:receive')" type="primary" @click="openReceipt">登记收货</el-button></div></div>
+  <div class="page-head"><div><h1>{{ purchase?.poNo || '采购详情' }}</h1><p>采购明细与累计收货</p></div><div class="head-actions"><el-button @click="router.push('/purchases')">返回列表</el-button><el-button v-if="purchase?.status === 0 && user.can('pu:purchaseOrder:confirm')" type="primary" :loading="saving" @click="confirm">确认采购</el-button><el-button v-if="purchase && [1,2].includes(purchase.status) && user.can('pu:purchaseOrder:receive')" type="primary" @click="openReceipt">登记收货</el-button><el-button v-if="purchase?.status === 0 && user.can('pu:purchaseOrder:remove')" type="danger" plain :loading="saving" @click="removePurchase">删除</el-button><el-button v-if="purchase && purchase.status !== 9 && user.can('pu:purchaseOrder:cancel')" type="danger" plain :loading="saving" @click="cancelPurchase">作废</el-button></div></div>
   <div v-if="loading" class="loading-state">正在加载…</div><div v-else-if="error" class="panel error-state">{{ error }} <el-button text type="primary" @click="load">重试</el-button></div>
-  <template v-else-if="purchase"><section class="panel"><h2 class="panel-title">采购信息</h2><div class="detail-grid"><div><div class="detail-label">供应商</div><div class="detail-value">{{ purchase.supplierName }}</div></div><div><div class="detail-label">下单日期</div><div class="detail-value">{{ purchase.orderDate }}</div></div><div><div class="detail-label">预计到货</div><div class="detail-value">{{ purchase.expectDate }}</div></div><div><div class="detail-label">实际到齐</div><div class="detail-value">{{ purchase.actualArrivalDate || '—' }}</div></div><div><div class="detail-label">采购金额</div><div class="detail-value">¥{{ Number(purchase.totalAmount).toFixed(2) }}</div></div></div></section>
+  <template v-else-if="purchase"><section class="panel"><h2 class="panel-title">采购信息</h2><div class="detail-grid"><div><div class="detail-label">供应商</div><div class="detail-value">{{ purchase.supplierName }}</div></div><div><div class="detail-label">下单日期</div><div class="detail-value">{{ purchase.orderDate }}</div></div><div><div class="detail-label">预计到货</div><div class="detail-value">{{ purchase.expectDate }}</div></div><div><div class="detail-label">状态</div><el-tag :type="enumTagType('purchaseStatus', purchase.status)">{{ enumLabel('purchaseStatus', purchase.status) }}</el-tag></div><div><div class="detail-label">实际到齐</div><div class="detail-value">{{ purchase.actualArrivalDate || '—' }}</div></div><div><div class="detail-label">采购金额</div><div class="detail-value">¥{{ Number(purchase.totalAmount).toFixed(2) }}</div></div></div></section>
     <section class="panel"><h2 class="panel-title">物料明细</h2><div class="table-wrap"><el-table :data="purchase.items || []" stripe><el-table-column prop="materialCode" label="编码" min-width="140"/><el-table-column prop="materialName" label="物料" min-width="160"/><el-table-column prop="unit" label="单位" width="70"/><el-table-column prop="qty" label="采购量" width="105"/><el-table-column prop="receivedQty" label="已收" width="105"/><el-table-column prop="remainingQty" label="未收" width="105"/><el-table-column label="单价" width="100"><template #default="scope">¥{{ Number(scope.row.unitPrice).toFixed(2) }}</template></el-table-column><el-table-column label="金额" width="120"><template #default="scope">¥{{ Number(scope.row.amount).toFixed(2) }}</template></el-table-column></el-table></div></section>
   </template>
   <el-dialog v-model="receiving" title="登记收货" width="min(680px, 94vw)"><el-form-item label="到货日期"><el-date-picker v-model="arrivalDate" type="date" value-format="YYYY-MM-DD"/></el-form-item><div v-for="item in receiptLines" :key="item.itemId" class="receipt-line"><span>{{ item.materialName }} · 未收 {{ item.remainingQty }}</span><el-input-number v-model="item.qty" :min="0" :max="item.remainingQty" :precision="3" controls-position="right" aria-label="本次收货数量"/><el-input v-model="item.batchNo" placeholder="批次号" aria-label="批次号"/></div><template #footer><el-button @click="receiving=false">取消</el-button><el-button type="primary" :loading="saving" @click="receive">确认收货</el-button></template></el-dialog>

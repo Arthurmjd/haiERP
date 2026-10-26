@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { erpApi, type Option, type WorkOrder } from '../api/erp'
+import { enumLabel, enumTagType } from '../api/labels'
 import { useUserStore } from '../stores/user'
 
 const route = useRoute()
@@ -24,6 +25,23 @@ async function load() {
   try { order.value = await erpApi.workOrder(String(route.params.id)) }
   catch (e) { error.value = (e as Error).message }
   finally { loading.value = false }
+}
+async function removeWorkOrder() {
+  if (!order.value) return
+  try { await ElMessageBox.confirm(`确定删除待开工工单 ${order.value.woNo}？SKU、用料、工序明细会一并删除。`, '删除工单', { type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消' }) }
+  catch { return }
+  saving.value = true
+  try { await erpApi.deleteWorkOrder(order.value.woId); ElMessage.success('工单已删除'); router.push('/production/workOrders') }
+  catch (e) { ElMessage.error((e as Error).message); saving.value = false }
+}
+async function cancelWorkOrder() {
+  if (!order.value) return
+  try { await ElMessageBox.confirm(`确定作废工单 ${order.value.woNo}？`, '作废工单', { type: 'warning', confirmButtonText: '作废', cancelButtonText: '取消' }) }
+  catch { return }
+  saving.value = true
+  try { await erpApi.cancelWorkOrder(order.value.woId); ElMessage.success('工单已作废'); await load() }
+  catch (e) { ElMessage.error((e as Error).message) }
+  finally { saving.value = false }
 }
 async function issue() {
   if (!order.value) return
@@ -66,10 +84,10 @@ onMounted(load)
 </script>
 
 <template>
-  <div class="page-head"><div><h1>{{ order?.woNo || '工单详情' }}</h1><p>生产进度与领料入库</p></div><div class="head-actions"><el-button @click="router.push('/production/workOrders')">返回列表</el-button><el-button v-if="order?.status === 0 && user.can('pr:workOrder:issue')" type="primary" :loading="saving" @click="issue">领料开工</el-button><el-button v-if="order?.status === 1 && user.can('pr:process:report')" @click="openReport">登记报工</el-button><el-button v-if="order?.status === 1 && user.can('pr:workOrder:finish')" type="primary" @click="openFinish">完工入库</el-button></div></div>
+  <div class="page-head"><div><h1>{{ order?.woNo || '工单详情' }}</h1><p>生产进度与领料入库</p></div><div class="head-actions"><el-button @click="router.push('/production/workOrders')">返回列表</el-button><el-button v-if="order?.status === 0 && user.can('pr:workOrder:issue')" type="primary" :loading="saving" @click="issue">领料开工</el-button><el-button v-if="order?.status === 1 && user.can('pr:process:report')" @click="openReport">登记报工</el-button><el-button v-if="order?.status === 1 && user.can('pr:workOrder:finish')" type="primary" @click="openFinish">完工入库</el-button><el-button v-if="order?.status === 0 && user.can('pr:workOrder:remove')" type="danger" plain :loading="saving" @click="removeWorkOrder">删除</el-button><el-button v-if="order && [0,1].includes(order.status) && user.can('pr:workOrder:cancel')" type="danger" plain :loading="saving" @click="cancelWorkOrder">作废</el-button></div></div>
   <div v-if="loading" class="loading-state">正在加载…</div><div v-else-if="error" class="panel error-state">{{ error }} <el-button text type="primary" @click="load">重试</el-button></div>
   <template v-else-if="order">
-    <section class="panel"><h2 class="panel-title">工单信息</h2><div class="detail-grid"><div><div class="detail-label">款式</div><div class="detail-value">{{ order.styleName }}</div></div><div><div class="detail-label">计划数量</div><div class="detail-value">{{ order.qty }}</div></div><div><div class="detail-label">状态</div><el-tag :type="order.status === 2 ? 'success' : order.status === 1 ? 'primary' : 'info'">{{ order.status === 2 ? '已完工' : order.status === 1 ? '生产中' : '待开工' }}</el-tag></div><div><div class="detail-label">计划完工</div><div class="detail-value">{{ order.planEndDate || '—' }}</div></div><div><div class="detail-label">实际开工</div><div class="detail-value">{{ order.actualStartDate || '—' }}</div></div><div><div class="detail-label">实际完工</div><div class="detail-value">{{ order.actualEndDate || '—' }}</div></div></div></section>
+    <section class="panel"><h2 class="panel-title">工单信息</h2><div class="detail-grid"><div><div class="detail-label">款式</div><div class="detail-value">{{ order.styleName }}</div></div><div><div class="detail-label">计划数量</div><div class="detail-value">{{ order.qty }}</div></div><div><div class="detail-label">状态</div><el-tag :type="enumTagType('workOrderStatus', order.status)">{{ enumLabel('workOrderStatus', order.status) }}</el-tag></div><div><div class="detail-label">计划完工</div><div class="detail-value">{{ order.planEndDate || '—' }}</div></div><div><div class="detail-label">实际开工</div><div class="detail-value">{{ order.actualStartDate || '—' }}</div></div><div><div class="detail-label">实际完工</div><div class="detail-value">{{ order.actualEndDate || '—' }}</div></div></div></section>
     <section class="panel"><h2 class="panel-title">色码计划</h2><div class="table-wrap"><el-table :data="order.skus" stripe><el-table-column prop="skuCode" label="SKU" min-width="170"/><el-table-column prop="planQty" label="计划" min-width="90"/><el-table-column prop="completedQty" label="已入库" min-width="90"/><el-table-column label="待入库" min-width="90"><template #default="scope">{{ scope.row.planQty - scope.row.completedQty }}</template></el-table-column></el-table></div></section>
     <section class="panel"><h2 class="panel-title">冻结用料</h2><div class="table-wrap"><el-table :data="order.materials" stripe><el-table-column prop="materialCode" label="编码" min-width="140"/><el-table-column prop="materialName" label="物料" min-width="160"/><el-table-column prop="unit" label="单位" min-width="70"/><el-table-column prop="planQty" label="计划用量" min-width="100"/><el-table-column prop="issuedQty" label="已领" min-width="100"/></el-table></div></section>
     <section class="panel"><h2 class="panel-title">工序进度</h2><div class="table-wrap"><el-table :data="order.processes" stripe><el-table-column prop="seq" label="顺序" width="70"/><el-table-column prop="processName" label="工序" min-width="140"/><el-table-column prop="planQty" label="计划" min-width="90"/><el-table-column prop="doneQty" label="合格" min-width="90"/><el-table-column prop="badQty" label="不良" min-width="90"/><el-table-column label="方式" min-width="90"><template #default="scope">{{ scope.row.isOutsourced ? '外发' : '内部' }}</template></el-table-column></el-table></div></section>

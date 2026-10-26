@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { erpApi, orderStatusLabel, type Alert, type Overview, type Order } from '../api/erp'
+import { enumTagType } from '../api/labels'
 import { useUserStore } from '../stores/user'
 
 const user = useUserStore()
@@ -45,7 +46,7 @@ onMounted(load)
       <div v-if="user.can('fn:settlement:list')" class="kpi"><div class="kpi-label">标准毛利</div><div class="kpi-value">{{ currency(overview.standardGrossProfit) }}</div></div>
     </div>
     <section v-if="user.can('sd:order:list')" class="panel"><div class="line-toolbar"><h2>最近订单</h2><RouterLink to="/orders"><el-button text type="primary">查看全部</el-button></RouterLink></div>
-      <div class="table-wrap"><el-table :data="orders" stripe empty-text="暂无订单"><el-table-column prop="orderNo" label="订单号" min-width="150"/><el-table-column prop="customerName" label="客户" min-width="150"/><el-table-column prop="deliveryDate" label="交期" min-width="120"/><el-table-column label="金额" min-width="120"><template #default="scope">{{ currency(scope.row.totalAmount) }}</template></el-table-column><el-table-column label="状态" width="90"><template #default="scope"><el-tag :type="scope.row.status === 0 ? 'info' : 'success'" size="small">{{ orderStatusLabel(scope.row.status) }}</el-tag></template></el-table-column></el-table></div>
+      <div class="table-wrap"><el-table :data="orders" stripe empty-text="暂无订单"><el-table-column prop="orderNo" label="订单号" min-width="150"/><el-table-column prop="customerName" label="客户" min-width="150"/><el-table-column prop="deliveryDate" label="交期" min-width="120"/><el-table-column label="金额" min-width="120"><template #default="scope">{{ currency(scope.row.totalAmount) }}</template></el-table-column><el-table-column label="状态" width="90"><template #default="scope"><el-tag :type="enumTagType('orderStatus', scope.row.status)" size="small">{{ orderStatusLabel(scope.row.status) }}</el-tag></template></el-table-column></el-table></div>
     </section>
     <section v-if="user.can('dashboard:alerts:list')" class="panel"><h2 class="panel-title">业务预警</h2><div class="table-wrap"><el-table :data="alerts" stripe empty-text="暂无预警"><el-table-column prop="title" label="类型" min-width="140"/><el-table-column prop="subject" label="对象" min-width="160"/><el-table-column label="触发值" min-width="110"><template #default="scope">{{ scope.row.triggerValue }} {{ scope.row.unit }}</template></el-table-column><el-table-column v-if="user.can('dashboard:alerts:explain')" label="分析" width="100"><template #default="scope"><el-button text type="primary" @click="explain(scope.row)">查看</el-button></template></el-table-column></el-table></div></section>
   </template>

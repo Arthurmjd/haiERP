@@ -10,8 +10,10 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import net.factoryopen.myfactoryai.erp.domain.PurchaseDraftRequest;
 import net.factoryopen.myfactoryai.erp.domain.PurchaseReceiptRequest;
 import net.factoryopen.myfactoryai.erp.mapper.ErpPurchaseMapper;
+import net.factoryopen.myfactoryai.erp.service.ErpDocService;
 import net.factoryopen.myfactoryai.erp.service.ErpPurchaseService;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,10 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class ErpPurchaseController {
     private final ErpPurchaseMapper mapper;
     private final ErpPurchaseService service;
+    private final ErpDocService docs;
 
-    public ErpPurchaseController(ErpPurchaseMapper mapper, ErpPurchaseService service) {
+    public ErpPurchaseController(ErpPurchaseMapper mapper, ErpPurchaseService service, ErpDocService docs) {
         this.mapper = mapper;
         this.service = service;
+        this.docs = docs;
     }
 
     @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:list')")
@@ -68,4 +72,14 @@ public class ErpPurchaseController {
     @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:receive')")
     @PostMapping("/receive")
     public AjaxResult receive(@RequestBody PurchaseReceiptRequest request) { return AjaxResult.success(service.receive(request)); }
+
+    /** 删除草稿采购单（含明细）。已下单或已到货时不允许。 */
+    @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:remove')")
+    @DeleteMapping("/{id}")
+    public AjaxResult remove(@PathVariable Long id) { docs.deleteDraft("pu:purchaseOrder", id); return AjaxResult.success(); }
+
+    /** 作废采购单：草稿或已下单可作废，已开始到货时不允许。 */
+    @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:cancel')")
+    @PostMapping("/cancel/{id}")
+    public AjaxResult cancel(@PathVariable Long id) { docs.cancel("pu:purchaseOrder", id); return AjaxResult.success(); }
 }

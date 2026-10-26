@@ -123,3 +123,46 @@ WHERE r.role_key = 'supervisor'
 -- Remove legacy salary grants if this seed was already applied before role workspaces.
 DELETE rm FROM sys_role_menu rm JOIN sys_role r ON r.role_id = rm.role_id
 WHERE r.role_key = 'boss' AND rm.menu_id IN (90022,90023,90024);
+
+-- 90079 起：删除（remove）与作废（cancel）。此前全系统没有任何删除权限，
+-- 导致主数据、单据只能增改不能删。作废只给状态机里有 9（已取消）的单据。
+INSERT INTO sys_menu
+  (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache,
+   menu_type, visible, status, perms, icon, create_by, create_time, remark)
+VALUES
+  (90079, '删除品类', 90021, 3, '#', NULL, 1, 0, 'F', '0', '0', 'md:category:remove', '#', 'admin', NOW(), ''),
+  (90080, '删除员工', 90022, 3, '#', NULL, 1, 0, 'F', '0', '0', 'hr:employee:remove', '#', 'admin', NOW(), ''),
+  (90081, '删除订单', 90002, 4, '#', NULL, 1, 0, 'F', '0', '0', 'sd:order:remove', '#', 'admin', NOW(), ''),
+  (90082, '作废订单', 90002, 5, '#', NULL, 1, 0, 'F', '0', '0', 'sd:order:cancel', '#', 'admin', NOW(), ''),
+  (90083, '删除采购单', 90008, 5, '#', NULL, 1, 0, 'F', '0', '0', 'pu:purchaseOrder:remove', '#', 'admin', NOW(), ''),
+  (90084, '作废采购单', 90008, 6, '#', NULL, 1, 0, 'F', '0', '0', 'pu:purchaseOrder:cancel', '#', 'admin', NOW(), ''),
+  (90085, '删除颜色', 90019, 3, '#', NULL, 1, 0, 'F', '0', '0', 'md:color:remove', '#', 'admin', NOW(), ''),
+  (90086, '删除尺码', 90020, 3, '#', NULL, 1, 0, 'F', '0', '0', 'md:size:remove', '#', 'admin', NOW(), ''),
+  (90087, '删除工单', 90026, 6, '#', NULL, 1, 0, 'F', '0', '0', 'pr:workOrder:remove', '#', 'admin', NOW(), ''),
+  (90088, '作废工单', 90026, 7, '#', NULL, 1, 0, 'F', '0', '0', 'pr:workOrder:cancel', '#', 'admin', NOW(), ''),
+  (90089, '删除出货单', 90033, 5, '#', NULL, 1, 0, 'F', '0', '0', 'sh:shipment:remove', '#', 'admin', NOW(), ''),
+  (90090, '作废出货单', 90033, 6, '#', NULL, 1, 0, 'F', '0', '0', 'sh:shipment:cancel', '#', 'admin', NOW(), ''),
+  (90091, '删除退货单', 90034, 4, '#', NULL, 1, 0, 'F', '0', '0', 'sh:return:remove', '#', 'admin', NOW(), ''),
+  (90092, '作废退货单', 90034, 5, '#', NULL, 1, 0, 'F', '0', '0', 'sh:return:cancel', '#', 'admin', NOW(), ''),
+  (90093, '删除款式', 90013, 3, '#', NULL, 1, 0, 'F', '0', '0', 'md:style:remove', '#', 'admin', NOW(), ''),
+  (90094, '删除 SKU', 90014, 3, '#', NULL, 1, 0, 'F', '0', '0', 'md:sku:remove', '#', 'admin', NOW(), ''),
+  (90095, '删除物料', 90015, 3, '#', NULL, 1, 0, 'F', '0', '0', 'md:material:remove', '#', 'admin', NOW(), ''),
+  (90096, '删除客户', 90016, 3, '#', NULL, 1, 0, 'F', '0', '0', 'md:customer:remove', '#', 'admin', NOW(), ''),
+  (90097, '删除供应商', 90017, 3, '#', NULL, 1, 0, 'F', '0', '0', 'md:supplier:remove', '#', 'admin', NOW(), ''),
+  (90098, '删除工序', 90018, 3, '#', NULL, 1, 0, 'F', '0', '0', 'md:process:remove', '#', 'admin', NOW(), ''),
+  (90099, '删除报价单', 90025, 5, '#', NULL, 1, 0, 'F', '0', '0', 'sd:quotation:remove', '#', 'admin', NOW(), ''),
+  (90100, '删除成本单', 90035, 4, '#', NULL, 1, 0, 'F', '0', '0', 'fn:settlement:remove', '#', 'admin', NOW(), '')
+ON DUPLICATE KEY UPDATE menu_name=VALUES(menu_name), parent_id=VALUES(parent_id),
+  order_num=VALUES(order_num), perms=VALUES(perms);
+
+-- 各岗位只拿到自己业务范围内的删除/作废权。admin 在 RuoYi 里本身拥有全部权限。
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id)
+SELECT r.role_id, m.menu_id
+FROM sys_role r JOIN sys_menu m ON m.menu_id BETWEEN 90079 AND 90100
+WHERE (r.role_key IN ('sales','salesAssistant') AND m.menu_id IN (90081,90082,90099))
+   OR (r.role_key = 'planner' AND m.menu_id IN (90083,90084,90087,90088))
+   OR (r.role_key = 'production' AND m.menu_id IN (90087,90088))
+   OR (r.role_key = 'wh' AND m.menu_id IN (90089,90090,90091,90092))
+   OR (r.role_key = 'hr' AND m.menu_id IN (90080))
+   OR (r.role_key = 'finance' AND m.menu_id IN (90100))
+   OR (r.role_key = 'mc' AND m.menu_id IN (90079,90085,90086,90093,90094,90095,90096,90097,90098));

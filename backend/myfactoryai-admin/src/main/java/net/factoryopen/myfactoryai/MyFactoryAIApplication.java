@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 @EnableAsync
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class},
-        scanBasePackages = {"net.factoryopen.myfactoryai","net.factoryopen.core","com.ruoyi","org.jeecg.modules.jmreport"})
+        scanBasePackages = {"net.factoryopen.myfactoryai","com.ruoyi","org.jeecg.modules.jmreport"})
 @MapperScan({"com.ruoyi.**.mapper","net.factoryopen.myfactoryai.**.mapper"})
 public class MyFactoryAIApplication {
     private static final Logger log = LoggerFactory.getLogger(MyFactoryAIApplication.class);

@@ -3,7 +3,9 @@ package net.factoryopen.myfactoryai.web.controller.erp;
 import com.ruoyi.common.core.domain.AjaxResult;
 import net.factoryopen.myfactoryai.erp.domain.WorkOrderRequest;
 import net.factoryopen.myfactoryai.erp.service.ErpWorkOrderService;
+import net.factoryopen.myfactoryai.erp.service.ErpDocService;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,7 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/erp/pr/workOrder")
 public class ErpWorkOrderController {
     private final ErpWorkOrderService service;
-    public ErpWorkOrderController(ErpWorkOrderService service) { this.service = service; }
+    private final ErpDocService docs;
+
+    public ErpWorkOrderController(ErpWorkOrderService service, ErpDocService docs) {
+        this.service = service;
+        this.docs = docs;
+    }
 
     @PreAuthorize("@ss.hasPermi('pr:workOrder:query')")
     @GetMapping("/{id}")
@@ -42,4 +49,14 @@ public class ErpWorkOrderController {
     public AjaxResult finish(@PathVariable Long id,@RequestBody WorkOrderRequest.Finish request) {
         service.finish(id,request); return AjaxResult.success();
     }
+
+    /** 删除待开工工单（含 SKU/用料/工序）。已领料或已报工时不允许。 */
+    @PreAuthorize("@ss.hasPermi('pr:workOrder:remove')")
+    @DeleteMapping("/{id}")
+    public AjaxResult remove(@PathVariable Long id) { docs.deleteDraft("pr:workOrder", id); return AjaxResult.success(); }
+
+    /** 作废待开工工单；领料后库存已变动，不允许作废。 */
+    @PreAuthorize("@ss.hasPermi('pr:workOrder:cancel')")
+    @PostMapping("/cancel/{id}")
+    public AjaxResult cancel(@PathVariable Long id) { docs.cancel("pr:workOrder", id); return AjaxResult.success(); }
 }

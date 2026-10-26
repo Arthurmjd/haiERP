@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
@@ -18,6 +17,7 @@ import net.factoryopen.myfactoryai.erp.mapper.ErpStockMapper;
 import net.factoryopen.myfactoryai.erp.mapper.ErpWorkOrderMapper;
 import net.factoryopen.myfactoryai.erp.mapper.ProcessReportRow;
 import net.factoryopen.myfactoryai.erp.mapper.WorkOrderHeader;
+import net.factoryopen.myfactoryai.erp.support.DocNos;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,13 +57,13 @@ public class ErpWorkOrderService {
         if (qty <= 0) throw new ServiceException("生产数量不合法",1001);
         String username = SecurityUtils.getUsername();
         WorkOrderHeader header = new WorkOrderHeader();
-        header.setWoNo("WO-TMP-" + UUID.randomUUID());
+        header.setWoNo(DocNos.temp("WO"));
         header.setOrderId(request.orderId());
         header.setStyleId(request.styleId());
         header.setQty(qty);
         header.setCreatedBy(username);
         mapper.insert(header);
-        String no = "WO" + LocalDate.now().getYear() + String.format("%06d",header.getWoId());
+        String no = DocNos.formal("WO",header.getWoId());
         mapper.setNo(header.getWoId(),no);
         for (Map<String,Object> row : skus) {
             mapper.insertSku(header.getWoId(),longValue(row,"skuId"),((Number) row.get("qty")).intValue(),username);
