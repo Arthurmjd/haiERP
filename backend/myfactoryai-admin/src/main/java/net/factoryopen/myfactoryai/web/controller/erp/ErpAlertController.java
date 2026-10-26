@@ -6,9 +6,9 @@ import java.util.Map;
 
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.exception.ServiceException;
-import net.factoryopen.myfactoryai.ai.config.LLMConfig;
 import net.factoryopen.myfactoryai.erp.mapper.ErpReadMapper;
 import net.factoryopen.myfactoryai.erp.support.ErpAiPrompts;
+import net.factoryopen.myfactoryai.web.ai.DeepSeekConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ErpAlertController {
     private static final Logger log = LoggerFactory.getLogger(ErpAlertController.class);
     private final ErpReadMapper mapper;
-    private final LLMConfig llm;
-    public ErpAlertController(ErpReadMapper mapper,LLMConfig llm) { this.mapper=mapper; this.llm=llm; }
+    private final DeepSeekConfig llm;
+    public ErpAlertController(ErpReadMapper mapper,DeepSeekConfig llm) { this.mapper=mapper; this.llm=llm; }
 
     @PreAuthorize("@ss.hasPermi('dashboard:alerts:list')")
     @GetMapping("/erp/dashboard/alerts")
@@ -39,11 +39,11 @@ public class ErpAlertController {
         String fallback = "shortage".equals(alert.get("alertType"))
                 ? "物料 " + alert.get("subject") + " 当前净缺口 " + alert.get("triggerValue") + alert.get("unit") + "。请核对在途采购和生产计划。"
                 : "订单 " + alert.get("subject") + " 已逾期 " + alert.get("triggerValue") + " 天且尚未发齐。请核对工单与成品库存。";
-        if (!llm.isDeepseekConfigured())
+        if (!llm.isConfigured())
             return AjaxResult.success(Map.of("alertId",id,"explanation",fallback,"modelUsed",false));
         try {
             Map<String,Object> body = Map.of(
-                    "model",llm.getDeepseekModel(),
+                    "model",llm.getModel(),
                     "stream",false,
                     "temperature",0.3,
                     // 同业务问答：v4 默认带思考，推理 token 会挤占 max_tokens 导致正文为空
@@ -52,7 +52,7 @@ public class ErpAlertController {
                     "messages",List.of(
                         Map.of("role","system","content",ErpAiPrompts.ALERT_SYSTEM),
                         Map.of("role","user","content",ErpAiPrompts.alertMessage(alert,fallback))));
-            Map<?,?> response = llm.getWebClient("deepseek").post().bodyValue(body).retrieve()
+            Map<?,?> response = llm.deepSeekWebClient().post().bodyValue(body).retrieve()
                     .bodyToMono(Map.class).block(Duration.ofSeconds(10));
             List<?> choices = response == null ? null : (List<?>)response.get("choices");
             Map<?,?> first = choices == null || choices.isEmpty() ? null : (Map<?,?>)choices.get(0);

@@ -9,9 +9,9 @@ import java.util.Map;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.framework.web.service.PermissionService;
-import net.factoryopen.myfactoryai.ai.config.LLMConfig;
 import net.factoryopen.myfactoryai.erp.mapper.ErpAiReadMapper;
 import net.factoryopen.myfactoryai.erp.support.ErpAiPrompts;
+import net.factoryopen.myfactoryai.web.ai.DeepSeekConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,9 +29,9 @@ public class ErpAiQuestionController {
 
     private final ErpAiReadMapper mapper;
     private final PermissionService permissions;
-    private final LLMConfig llm;
+    private final DeepSeekConfig llm;
 
-    public ErpAiQuestionController(ErpAiReadMapper mapper,PermissionService permissions,LLMConfig llm) {
+    public ErpAiQuestionController(ErpAiReadMapper mapper,PermissionService permissions,DeepSeekConfig llm) {
         this.mapper=mapper; this.permissions=permissions; this.llm=llm;
     }
 
@@ -64,10 +64,10 @@ public class ErpAiQuestionController {
                 : "已按「" + scopeTitle + "」查出 " + rows.size() + " 条记录（非全量），请核对下方数据。";
         String answer = fallback;
         boolean modelUsed = false;
-        if (llm.isDeepseekConfigured()) {
+        if (llm.isConfigured()) {
             try {
                 Map<String,Object> body = Map.of(
-                    "model",llm.getDeepseekModel(),
+                    "model",llm.getModel(),
                     "stream",false,
                     // 业务分析要稳定复现，温度压低；答案限长以控成本，提示词里也要求 200 字内
                     "temperature",0.3,
@@ -80,7 +80,7 @@ public class ErpAiQuestionController {
                         Map.of("role","system","content",ErpAiPrompts.QA_SYSTEM),
                         Map.of("role","user","content",
                             ErpAiPrompts.userMessage(request.mode(),request.question(),rows,LocalDate.now()))));
-                Map<?,?> response = llm.getWebClient("deepseek").post().bodyValue(body).retrieve()
+                Map<?,?> response = llm.deepSeekWebClient().post().bodyValue(body).retrieve()
                         .bodyToMono(Map.class).block(Duration.ofSeconds(10));
                 List<?> choices = response == null ? null : (List<?>) response.get("choices");
                 Map<?,?> first = choices == null || choices.isEmpty() ? null : (Map<?,?>) choices.get(0);
