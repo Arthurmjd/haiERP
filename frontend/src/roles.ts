@@ -9,7 +9,7 @@ export interface RoleProfile {
 }
 
 export const roleProfiles: Record<RoleKey, RoleProfile> = {
-  admin: { label: '管理员', heading: '运营工作台', focus: '全业务运行概览', navigation: ['/', '/orders', '/purchases', '/mrp', '/production/workOrders', '/inventory', '/shipping/shipments', '/cost/settlements', '/hr/employees', '/reports/ontime', '/ai'] },
+  admin: { label: '管理员', heading: '运营工作台', focus: '全业务运行概览', navigation: ['/', '/orders', '/purchases', '/mrp', '/production/workOrders', '/inventory', '/shipping/shipments', '/cost/settlements', '/hr/employees', '/reports/ontime', '/ai', '/system/operlog'] },
   sales: { label: '销售', heading: '销售工作台', focus: '报价、订单与客户交付', navigation: ['/', '/orders', '/sales/quotations', '/master/customers', '/shipping/shipments', '/shipping/returns', '/reports/ontime'] },
   planner: { label: '计划员', heading: '计划采购工作台', focus: '缺料、采购与生产准备', navigation: ['/', '/mrp', '/purchases', '/master/materials', '/master/suppliers', '/production/workOrders', '/orders'] },
   production: { label: '生产主管', heading: '生产工作台', focus: '工单、领料与报工', navigation: ['/', '/production/workOrders', '/inventory', '/master/styles', '/master/processes', '/orders'] },

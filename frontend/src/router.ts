@@ -25,6 +25,7 @@ const router = createRouter({
     { path: '/mrp', name: 'mrp', component: () => import('./views/MrpView.vue'), meta: { permission: 'pu:suggestion:list' } },
     { path: '/inventory', name: 'inventory', component: () => import('./views/InventoryView.vue'), meta: { permission: 'st:inventory:list' } },
     { path: '/ai', name: 'ai-assistant', component: () => import('./views/AiAssistantView.vue'), meta: { permission: 'dashboard:overview:list' } },
+    { path: '/system/operlog', name: 'oper-log', component: () => import('./views/OperLogView.vue'), meta: { permission: 'monitor:operlog:list' } },
     { path: '/:group(master|hr|sales|production|inventory|shipping|cost|reports)/:key', name: 'catalog', component: () => import('./views/CatalogView.vue') },
     { path: '/forbidden', name: 'forbidden', component: () => import('./views/ForbiddenView.vue') },
     { path: '/:pathMatch(.*)*', redirect: '/' },

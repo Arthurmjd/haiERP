@@ -1,6 +1,8 @@
 package net.factoryopen.myfactoryai.web.controller.erp;
 
+import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.enums.BusinessType;
 import net.factoryopen.myfactoryai.erp.domain.ShipmentRequest;
 import net.factoryopen.myfactoryai.erp.service.ErpShipmentService;
 import net.factoryopen.myfactoryai.erp.service.ErpDocService;
@@ -24,6 +26,7 @@ public class ErpShipmentController {
         this.docs = docs;
     }
 
+    @Log(title = "出货单", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('sh:shipment:query')")
     @GetMapping("/shipment/{id}")
     public AjaxResult shipment(@PathVariable Long id) { return AjaxResult.success(service.shipment(id)); }
@@ -32,10 +35,12 @@ public class ErpShipmentController {
     @PostMapping("/shipment")
     public AjaxResult create(@RequestBody ShipmentRequest.Create request) { return AjaxResult.success(service.create(request)); }
 
+    @Log(title = "出货发货", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('sh:shipment:ship')")
     @PostMapping("/shipment/ship/{id}")
     public AjaxResult ship(@PathVariable Long id,@RequestBody ShipmentRequest.Action request) { service.ship(id,request); return AjaxResult.success(); }
 
+    @Log(title = "出货签收", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('sh:shipment:sign')")
     @PostMapping("/shipment/sign/{id}")
     public AjaxResult sign(@PathVariable Long id) { service.sign(id); return AjaxResult.success(); }
@@ -44,30 +49,36 @@ public class ErpShipmentController {
     @GetMapping("/return/{id}")
     public AjaxResult returned(@PathVariable Long id) { return AjaxResult.success(service.returned(id)); }
 
+    @Log(title = "退货单", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('sh:return:add')")
     @PostMapping("/return")
     public AjaxResult createReturn(@RequestBody ShipmentRequest.ReturnCreate request) { return AjaxResult.success(service.createReturn(request)); }
 
+    @Log(title = "退货处理", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('sh:return:handle')")
     @PostMapping("/return/handle/{id}")
     public AjaxResult handleReturn(@PathVariable Long id,@RequestBody ShipmentRequest.Action request) { service.handleReturn(id,request); return AjaxResult.success(); }
 
     /** 删除待发货出货单（含明细）。已发货后不允许，避免掩盖出库记录。 */
+    @Log(title = "出货单", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('sh:shipment:remove')")
     @DeleteMapping("/shipment/{id}")
     public AjaxResult removeShipment(@PathVariable Long id) { docs.deleteDraft("sh:shipment", id); return AjaxResult.success(); }
 
     /** 作废待发货出货单。 */
+    @Log(title = "出货单作废", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('sh:shipment:cancel')")
     @PostMapping("/shipment/cancel/{id}")
     public AjaxResult cancelShipment(@PathVariable Long id) { docs.cancel("sh:shipment", id); return AjaxResult.success(); }
 
     /** 删除待处理退货单（含明细）。已处理的不允许删除。 */
+    @Log(title = "退货单", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('sh:return:remove')")
     @DeleteMapping("/return/{id}")
     public AjaxResult removeReturn(@PathVariable Long id) { docs.deleteDraft("sh:return", id); return AjaxResult.success(); }
 
     /** 作废待处理退货单。 */
+    @Log(title = "退货单作废", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('sh:return:cancel')")
     @PostMapping("/return/cancel/{id}")
     public AjaxResult cancelReturn(@PathVariable Long id) { docs.cancel("sh:return", id); return AjaxResult.success(); }

@@ -1,6 +1,8 @@
 package net.factoryopen.myfactoryai.web.controller.erp;
 
+import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.enums.BusinessType;
 import net.factoryopen.myfactoryai.erp.domain.QuotationRequest;
 import net.factoryopen.myfactoryai.erp.service.ErpQuotationService;
 import net.factoryopen.myfactoryai.erp.service.ErpDocService;
@@ -25,19 +27,23 @@ public class ErpQuotationController {
     @GetMapping("/{id}")
     public AjaxResult detail(@PathVariable Long id) { return AjaxResult.success(service.detail(id)); }
 
+    @Log(title = "报价单", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('sd:quotation:fromSettlement')")
     @PostMapping("/fromSettlement")
     public AjaxResult fromSettlement(@RequestBody QuotationRequest request) { return AjaxResult.success(service.fromSettlement(request)); }
 
+    @Log(title = "报价接受", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('sd:quotation:accept')")
     @PostMapping("/accept/{id}")
     public AjaxResult accept(@PathVariable Long id) { service.transition(id,1); return AjaxResult.success(); }
 
+    @Log(title = "报价失效", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('sd:quotation:expire')")
     @PostMapping("/expire/{id}")
     public AjaxResult expire(@PathVariable Long id) { service.transition(id,2); return AjaxResult.success(); }
 
     /** 删除待确认报价单（含明细）。已接受或已失效的报价单保留备查。 */
+    @Log(title = "报价单", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('sd:quotation:remove')")
     @DeleteMapping("/{id}")
     public AjaxResult remove(@PathVariable Long id) { docs.deleteDraft("sd:quotation", id); return AjaxResult.success(); }

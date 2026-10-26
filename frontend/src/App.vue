@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router'
-import { ChatDotRound, Coin, DataAnalysis, Document, Goods, Menu, Operation, ShoppingCart, SwitchButton, TrendCharts, Van, User } from '@element-plus/icons-vue'
+import { ChatDotRound, Coin, DataAnalysis, Document, Goods, Menu, Operation, ShoppingCart, SwitchButton, Tickets, TrendCharts, Van, User } from '@element-plus/icons-vue'
 import { catalogs } from './api/catalog'
 import { roleProfiles, type RoleKey } from './roles'
 import { useUserStore } from './stores/user'
@@ -32,6 +32,7 @@ const links = [
   { path: '/cost/settlements', text: '标准成本', icon: Coin, permission: 'fn:settlement:list' },
   { path: '/reports/ontime', text: '经营报表', icon: DataAnalysis, permission: 'dashboard:ontime:list' },
   { path: '/ai', text: '业务问答', icon: ChatDotRound, permission: 'dashboard:overview:list' },
+  { path: '/system/operlog', text: '操作日志', icon: Tickets, permission: 'monitor:operlog:list' },
 ]
 const primaryLinks = computed(() => user.profile.navigation
   .map(path => links.find(link => link.path === path))

@@ -151,19 +151,22 @@ VALUES
   (90099, '删除报价单', 90025, 5, '#', NULL, 1, 0, 'F', '0', '0', 'sd:quotation:remove', '#', 'admin', NOW(), ''),
   (90100, '删除成本单', 90035, 4, '#', NULL, 1, 0, 'F', '0', '0', 'fn:settlement:remove', '#', 'admin', NOW(), ''),
   (90101, '编辑订单', 90002, 6, '#', NULL, 1, 0, 'F', '0', '0', 'sd:order:edit', '#', 'admin', NOW(), ''),
-  (90102, '编辑采购', 90008, 7, '#', NULL, 1, 0, 'F', '0', '0', 'pu:purchaseOrder:edit', '#', 'admin', NOW(), '')
+  (90102, '编辑采购', 90008, 7, '#', NULL, 1, 0, 'F', '0', '0', 'pu:purchaseOrder:edit', '#', 'admin', NOW(), ''),
+  (90103, '查看操作日志', 90001, 9, '#', NULL, 1, 0, 'F', '0', '0', 'monitor:operlog:list', '#', 'admin', NOW(), ''),
+  (90104, '清理操作日志', 90001, 10, '#', NULL, 1, 0, 'F', '0', '0', 'monitor:operlog:remove', '#', 'admin', NOW(), '')
 ON DUPLICATE KEY UPDATE menu_name=VALUES(menu_name), parent_id=VALUES(parent_id),
   order_num=VALUES(order_num), perms=VALUES(perms);
 
 -- 各岗位只拿到自己业务范围内的删除/作废权。admin 在 RuoYi 里本身拥有全部权限。
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id)
 SELECT r.role_id, m.menu_id
-FROM sys_role r JOIN sys_menu m ON m.menu_id BETWEEN 90079 AND 90102
+FROM sys_role r JOIN sys_menu m ON m.menu_id BETWEEN 90079 AND 90104
 WHERE (r.role_key IN ('sales','salesAssistant') AND m.menu_id IN (90081,90082,90099,90101))
    OR (r.role_key = 'planner' AND m.menu_id IN (90083,90084,90087,90088,90102))
    OR (r.role_key = 'production' AND m.menu_id IN (90087,90088))
    OR (r.role_key = 'wh' AND m.menu_id IN (90089,90090,90091,90092))
    OR (r.role_key = 'hr' AND m.menu_id IN (90080))
    OR (r.role_key = 'buyer' AND m.menu_id IN (90102))
+   OR (r.role_key = 'boss' AND m.menu_id IN (90103))
    OR (r.role_key = 'finance' AND m.menu_id IN (90100))
    OR (r.role_key = 'mc' AND m.menu_id IN (90079,90085,90086,90093,90094,90095,90096,90097,90098));
