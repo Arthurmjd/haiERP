@@ -22,7 +22,7 @@ const links = [
   { path: '/master/suppliers', text: '供应商', icon: ShoppingCart, permission: 'md:supplier:list' },
   { path: '/master/materials', text: '物料档案', icon: Goods, permission: 'md:material:list' },
   { path: '/master/processes', text: '工序档案', icon: Operation, permission: 'md:process:list' },
-  { path: '/hr/employees', text: '人事薪资', icon: User, permission: 'hr:employee:list' },
+  { path: '/hr/employees', text: '人事', icon: User, permission: 'hr:employee:list' },
   { path: '/hr/wages', text: '计件工资', icon: Coin, permission: 'hr:pieceWage:list' },
   { path: '/hr/salary', text: '工资单', icon: Document, permission: 'hr:salarySlip:list' },
   { path: '/sales/quotations', text: '销售报价', icon: Document, permission: 'sd:quotation:list' },
