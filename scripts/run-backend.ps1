@@ -55,12 +55,15 @@ try {
 
     if (-not (Test-Path $jar)) { throw "构建产物不存在：$jar" }
 
+    $backendPort = if ($env:SERVER_PORT) { $env:SERVER_PORT } else { '8080' }
+
     Write-Host ''
-    Write-Host '正在启动后端 http://127.0.0.1:8080 ...' -ForegroundColor Green
+    Write-Host "正在启动后端 http://127.0.0.1:$backendPort ..." -ForegroundColor Green
+    Write-Host "  数据库：$env:DB_NAME @ $($env:DB_HOST):$($env:DB_PORT)（用户 $env:DB_USER）" -ForegroundColor DarkGray
     Write-Host '看到 Started MyFactoryAIApplication 即启动成功。' -ForegroundColor DarkGray
     Write-Host ''
 
-    & java -jar $jar --server.address=127.0.0.1
+    & java -jar $jar "--server.port=$backendPort" --server.address=127.0.0.1
 
     Write-Host ''
     Write-Host '后端进程已退出。' -ForegroundColor Yellow

@@ -15,6 +15,14 @@ $env:DB_NAME = 'hai_erp_demo'
 $env:DB_USER = 'root'
 $env:DB_PASSWORD = 'CHANGE_ME'
 
+# 可选：脚本会用上面四项自动拼出 JDBC URL 传给后端。
+# 只有需要额外连接参数时才取消注释，直接指定完整 URL（其余四项仍用于连库自检）。
+# $env:DB_URL = 'jdbc:mysql://127.0.0.1:3306/hai_erp_demo?useSSL=false&serverTimezone=Asia/Shanghai'
+
+# ---------- 端口 ----------
+# 后端监听端口，默认 8080
+$env:SERVER_PORT = '8080'
+
 # ---------- Redis ----------
 $env:REDIS_HOST = '127.0.0.1'
 $env:REDIS_PORT = '6379'

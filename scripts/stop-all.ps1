@@ -11,6 +11,7 @@ try {
     } else {
         $env:REDIS_PORT = '6379'
     }
+    if (-not $env:SERVER_PORT) { $env:SERVER_PORT = '8080' }
 
     Write-Host ''
     Write-Host '  HaiERP 停止脚本' -ForegroundColor Cyan
@@ -18,7 +19,7 @@ try {
 
     $targets = @()
 
-    foreach ($port in @(8080, 5173)) {
+    foreach ($port in @([int]$env:SERVER_PORT, 5173)) {
         $pids = Get-PortPids -Port $port
         foreach ($procId in $pids) {
             $proc = Get-Process -Id $procId -ErrorAction SilentlyContinue

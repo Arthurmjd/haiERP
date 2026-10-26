@@ -23,13 +23,26 @@ try {
     Write-Step '依赖工具检查通过（java / mvn / node / npm）' 'Green'
 
     # ---------- 2. 端口占用 ----------
-    foreach ($port in @(8080, 5173)) {
-        if (Test-Port -Port $port) {
-            throw ("端口 $port 已被占用（$(Get-PortOwner -Port $port)）。`n" +
-                   "  请先关闭该进程，或运行 scripts\stop-all.bat 释放端口。")
-        }
+    # 已经在跑就跳过对应组件，让脚本可以重复双击（幂等）
+    $backendPort   = [int]$env:SERVER_PORT
+    $launchBackend  = $true
+    $launchFrontend = $true
+
+    if (Test-Port -Port $backendPort) {
+        $owner = Get-PortOwner -Port $backendPort
+        Write-Step "后端端口 $backendPort 已被占用（$owner），跳过启动后端" 'Yellow'
+        Write-Step "  如果这不是本项目的进程，请运行 scripts\stop-all.bat 释放端口" 'DarkGray'
+        $launchBackend = $false
     }
-    Write-Step '端口 8080 / 5173 空闲' 'Green'
+    if (Test-Port -Port 5173) {
+        $owner = Get-PortOwner -Port 5173
+        Write-Step "前端端口 5173 已被占用（$owner），跳过启动前端" 'Yellow'
+        Write-Step "  如果这不是本项目的进程，请运行 scripts\stop-all.bat 释放端口" 'DarkGray'
+        $launchFrontend = $false
+    }
+    if ($launchBackend -and $launchFrontend) {
+        Write-Step "端口 $backendPort / 5173 空闲" 'Green'
+    }
 
     # ---------- 3. MySQL ----------
     $dbPort = [int]$env:DB_PORT
@@ -140,16 +153,20 @@ try {
     }
 
     # ---------- 6. 打开后端 / 前端 ----------
-    Write-Step '正在打开后端与前端窗口...' 'Yellow'
-    Open-DevWindows
+    if ($launchBackend -or $launchFrontend) {
+        Write-Step '正在打开开发窗口...' 'Yellow'
+        Open-DevWindows -Backend $launchBackend -Frontend $launchFrontend
+    } else {
+        Write-Step '前后端均已在运行，无需重复启动' 'Green'
+    }
 
     # ---------- 7. 汇总 ----------
     Start-Sleep -Seconds 2
     Write-Host ''
     Write-Host '  ----------------------------------------------' -ForegroundColor DarkGray
     Write-Host '   前端   http://127.0.0.1:5173' -ForegroundColor Green
-    Write-Host '   后端   http://127.0.0.1:8080' -ForegroundColor Green
-    Write-Host '   接口文档 http://127.0.0.1:8080/swagger-ui/index.html' -ForegroundColor DarkGray
+    Write-Host "   后端   http://127.0.0.1:$backendPort" -ForegroundColor Green
+    Write-Host "   接口文档 http://127.0.0.1:$backendPort/swagger-ui/index.html" -ForegroundColor DarkGray
     Write-Host '   演示账号 admin / Demo@2026!' -ForegroundColor Gray
     Write-Host '  ----------------------------------------------' -ForegroundColor DarkGray
     Write-Host '   首次构建后端需要 2-5 分钟，' -ForegroundColor DarkGray

@@ -352,6 +352,15 @@ function Import-HaiErpEnv {
     if (-not $env:DB_USER)    { $env:DB_USER = 'root' }
     if (-not $env:REDIS_HOST) { $env:REDIS_HOST = '127.0.0.1' }
     if (-not $env:REDIS_PORT) { $env:REDIS_PORT = '6379' }
+    if (-not $env:SERVER_PORT){ $env:SERVER_PORT = '8080' }
+
+    # 后端读的是完整 JDBC URL（application-druid.yml 的 ${DB_URL:...}），
+    # 而不是 DB_HOST / DB_PORT / DB_NAME 这三个变量。
+    # 这里由三段拼出来，保持 env.local.ps1 只有一个来源。
+    # 需要额外连接参数时，可在 env.local.ps1 里直接写 $env:DB_URL 覆盖。
+    if (-not $env:DB_URL) {
+        $env:DB_URL = "jdbc:mysql://$($env:DB_HOST):$($env:DB_PORT)/$($env:DB_NAME)?useSSL=false&serverTimezone=Asia/Shanghai"
+    }
 
     # 后端 token.secret 必填，缺失会导致启动失败，这里自动补一个并持久化
     if (-not $env:TOKEN_SECRET) {
@@ -395,21 +404,36 @@ function Test-RedisPing {
 # ---------------------- 开发窗口 ----------------------
 
 function Open-DevWindows {
+    param(
+        [bool]$Backend  = $true,
+        [bool]$Frontend = $true
+    )
+
     $backendScript  = Join-Path $script:HaiErpScripts 'run-backend.ps1'
     $frontendScript = Join-Path $script:HaiErpScripts 'run-frontend.ps1'
     $root           = $script:HaiErpRoot
 
+    if (-not $Backend -and -not $Frontend) { return }
+
     $wt = Get-Command wt.exe -ErrorAction SilentlyContinue
     if ($wt) {
         # 一次性提交，避免多次调用 wt 时 split-pane 目标窗口错乱
-        $wtArgs = @(
-            '-w', '-1',
-            'new-tab', '--title', 'HaiERP-Backend', '-d', $root,
-            'powershell', '-NoProfile', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', $backendScript,
-            ';',
-            'split-pane', '-V', '--size', '0.5', '--title', 'HaiERP-Frontend', '-d', $root,
-            'powershell', '-NoProfile', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', $frontendScript
-        )
+        $wtArgs = @('-w', '-1')
+
+        if ($Backend) {
+            $wtArgs += @('new-tab', '--title', 'HaiERP-Backend', '-d', $root,
+                         'powershell', '-NoProfile', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', $backendScript)
+        }
+        if ($Frontend) {
+            if ($Backend) {
+                $wtArgs += @(';', 'split-pane', '-V', '--size', '0.5')
+            } else {
+                $wtArgs += @('new-tab')
+            }
+            $wtArgs += @('--title', 'HaiERP-Frontend', '-d', $root,
+                         'powershell', '-NoProfile', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', $frontendScript)
+        }
+
         try {
             & $wt.Source @wtArgs
             if ($LASTEXITCODE -eq 0) { return }
@@ -419,11 +443,15 @@ function Open-DevWindows {
         }
     }
 
-    Start-Process -FilePath 'powershell.exe' `
-        -ArgumentList @('-NoProfile', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', $backendScript) `
-        -WorkingDirectory $root | Out-Null
-    Start-Process -FilePath 'powershell.exe' `
-        -ArgumentList @('-NoProfile', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', $frontendScript) `
-        -WorkingDirectory $root | Out-Null
+    if ($Backend) {
+        Start-Process -FilePath 'powershell.exe' `
+            -ArgumentList @('-NoProfile', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', $backendScript) `
+            -WorkingDirectory $root | Out-Null
+    }
+    if ($Frontend) {
+        Start-Process -FilePath 'powershell.exe' `
+            -ArgumentList @('-NoProfile', '-NoExit', '-ExecutionPolicy', 'Bypass', '-File', $frontendScript) `
+            -WorkingDirectory $root | Out-Null
+    }
 }
 
