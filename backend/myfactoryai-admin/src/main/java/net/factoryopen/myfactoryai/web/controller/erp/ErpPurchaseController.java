@@ -67,7 +67,21 @@ public class ErpPurchaseController {
 
     @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:confirm')")
     @PostMapping("/confirm/{id}")
-    public AjaxResult confirm(@PathVariable Long id) { service.confirm(id); return AjaxResult.success(); }
+    public AjaxResult confirm(@PathVariable Long id) { return AjaxResult.success(service.confirm(id)); }
+
+    @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:approve')")
+    @PostMapping("/approve/{id}")
+    public AjaxResult approve(@PathVariable Long id, @RequestBody Map<String,String> body) {
+        service.approve(id, body == null ? null : body.get("comment"));
+        return AjaxResult.success();
+    }
+
+    @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:reject')")
+    @PostMapping("/reject/{id}")
+    public AjaxResult reject(@PathVariable Long id, @RequestBody Map<String,String> body) {
+        service.reject(id, body == null ? null : body.get("comment"));
+        return AjaxResult.success();
+    }
 
     @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:receive')")
     @PostMapping("/receive")

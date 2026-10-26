@@ -18,6 +18,12 @@ public interface ErpWorkOrderMapper {
     @Select("SELECT status FROM sd_order WHERE order_id=#{id} AND del_flag='0' FOR UPDATE")
     Integer lockOrder(@Param("id") Long id);
 
+    @Select("SELECT delivery_date AS deliveryDate FROM sd_order WHERE order_id=#{id} AND del_flag='0'")
+    java.time.LocalDate orderDelivery(@Param("id") Long id);
+
+    @Select("SELECT DISTINCT style_id AS styleId FROM sd_order_item WHERE order_id=#{orderId}")
+    List<Long> orderStyles(@Param("orderId") Long orderId);
+
     @Select("""
         SELECT sku.sku_id AS skuId,SUM(oi.qty) AS qty
         FROM sd_order_item oi JOIN md_sku sku ON sku.style_id=oi.style_id
@@ -43,8 +49,8 @@ public interface ErpWorkOrderMapper {
     List<Map<String,Object>> processes(@Param("styleId") Long styleId);
 
     @Insert("""
-        INSERT INTO pr_work_order(wo_no,order_id,style_id,qty,status,create_by,create_time)
-        VALUES(#{woNo},#{orderId},#{styleId},#{qty},0,#{createdBy},NOW())
+        INSERT INTO pr_work_order(wo_no,order_id,style_id,qty,plan_start_date,plan_end_date,status,create_by,create_time)
+        VALUES(#{woNo},#{orderId},#{styleId},#{qty},#{planStartDate},#{planEndDate},0,#{createdBy},NOW())
         """)
     @Options(useGeneratedKeys=true,keyProperty="woId")
     int insert(WorkOrderHeader header);
@@ -99,7 +105,7 @@ public interface ErpWorkOrderMapper {
     @Select("""
         SELECT CAST(w.id AS CHAR) AS id,CAST(w.material_id AS CHAR) AS materialId,
                m.material_code AS materialCode,m.material_name AS materialName,
-               w.unit,w.plan_qty AS planQty,w.issued_qty AS issuedQty
+               w.unit,w.plan_qty AS planQty,w.issued_qty AS issuedQty,w.returned_qty AS returnedQty
         FROM pr_work_order_material w JOIN md_material m ON m.material_id=w.material_id
         WHERE w.wo_id=#{id} ORDER BY w.material_id
         """)
@@ -114,8 +120,52 @@ public interface ErpWorkOrderMapper {
         """)
     List<Map<String,Object>> detailProcesses(@Param("id") Long id);
 
-    @Select("SELECT id AS id,material_id AS materialId,plan_qty AS planQty,issued_qty AS issuedQty FROM pr_work_order_material WHERE wo_id=#{woId} ORDER BY material_id")
+    @Select("SELECT id AS id,material_id AS materialId,plan_qty AS planQty,issued_qty AS issuedQty,returned_qty AS returnedQty FROM pr_work_order_material WHERE wo_id=#{woId} ORDER BY material_id")
     List<Map<String,Object>> materials(@Param("woId") Long woId);
+
+    @Insert("""
+        INSERT INTO st_reservation(item_type,item_id,source_type,source_id,reserved_qty,status,create_by,create_time)
+        VALUES(1,#{materialId},'pr_wo',#{woId},#{qty},0,#{username},NOW())
+        ON DUPLICATE KEY UPDATE reserved_qty=VALUES(reserved_qty),status=0,update_time=NOW()
+        """)
+    int insertReservation(@Param("woId") Long woId,@Param("materialId") Long materialId,
+                          @Param("qty") BigDecimal qty,@Param("username") String username);
+
+    @Select("""
+        SELECT GREATEST(COALESCE((SELECT SUM(qty) FROM st_inventory
+                    WHERE item_type=1 AND item_id=#{materialId} AND warehouse_id=1),0)
+               - COALESCE((SELECT SUM(reserved_qty) FROM st_reservation
+                    WHERE item_type=1 AND item_id=#{materialId} AND status=0),0),0)
+        """)
+    BigDecimal availableToReserve(@Param("materialId") Long materialId);
+
+    @Select("""
+        SELECT GREATEST(COALESCE((SELECT SUM(qty) FROM st_inventory
+                    WHERE item_type=1 AND item_id=#{materialId} AND warehouse_id=1),0)
+               - COALESCE((SELECT SUM(reserved_qty) FROM st_reservation
+                    WHERE item_type=1 AND item_id=#{materialId} AND status=0
+                      AND NOT(source_type='pr_wo' AND source_id=#{woId})),0),0)
+        """)
+    BigDecimal availableForIssue(@Param("materialId") Long materialId,@Param("woId") Long woId);
+
+    @Update("""
+        UPDATE st_reservation SET reserved_qty=GREATEST(reserved_qty-#{qty},0),update_time=NOW()
+        WHERE source_type='pr_wo' AND source_id=#{woId} AND item_type=1 AND item_id=#{materialId} AND status=0
+        """)
+    int reduceReservation(@Param("woId") Long woId,@Param("materialId") Long materialId,
+                          @Param("qty") BigDecimal qty);
+
+    @Update("""
+        UPDATE st_reservation SET status=1,reserved_qty=0,update_time=NOW()
+        WHERE source_type='pr_wo' AND source_id=#{woId} AND status=0
+        """)
+    int releaseReservations(@Param("woId") Long woId);
+
+    @Update("""
+        UPDATE pr_work_order_material SET issued_qty=issued_qty-#{qty},returned_qty=returned_qty+#{qty}
+        WHERE id=#{id} AND issued_qty-returned_qty>=#{qty}
+        """)
+    int returnMaterial(@Param("id") Long id,@Param("qty") BigDecimal qty);
 
     @Select("SELECT inv_id AS invId,batch_no AS batchNo,qty FROM st_inventory WHERE item_type=1 AND item_id=#{materialId} AND warehouse_id=1 AND qty>0 ORDER BY inv_id FOR UPDATE")
     List<Map<String,Object>> stockBatches(@Param("materialId") Long materialId);

@@ -1,6 +1,7 @@
 package net.factoryopen.myfactoryai.web.controller.erp;
 
 import com.ruoyi.common.core.domain.AjaxResult;
+import net.factoryopen.myfactoryai.erp.domain.QuotationDraftRequest;
 import net.factoryopen.myfactoryai.erp.domain.QuotationRequest;
 import net.factoryopen.myfactoryai.erp.service.ErpQuotationService;
 import net.factoryopen.myfactoryai.erp.service.ErpDocService;
@@ -24,6 +25,10 @@ public class ErpQuotationController {
     @PreAuthorize("@ss.hasPermi('sd:quotation:query')")
     @GetMapping("/{id}")
     public AjaxResult detail(@PathVariable Long id) { return AjaxResult.success(service.detail(id)); }
+
+    @PreAuthorize("@ss.hasPermi('sd:quotation:add')")
+    @PostMapping
+    public AjaxResult create(@RequestBody QuotationDraftRequest request) { return AjaxResult.success(service.create(request)); }
 
     @PreAuthorize("@ss.hasPermi('sd:quotation:fromSettlement')")
     @PostMapping("/fromSettlement")

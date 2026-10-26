@@ -32,6 +32,16 @@ public class ErpWorkOrderController {
     @PostMapping
     public AjaxResult create(@RequestBody WorkOrderRequest.Create request) { return AjaxResult.success(service.create(request)); }
 
+    @PreAuthorize("@ss.hasPermi('pr:workOrder:generate')")
+    @PostMapping("/generate/{orderId}")
+    public AjaxResult generate(@PathVariable Long orderId) { return AjaxResult.success(service.generate(orderId)); }
+
+    @PreAuthorize("@ss.hasPermi('pr:workOrder:return')")
+    @PostMapping("/return")
+    public AjaxResult returnMaterial(@RequestBody WorkOrderRequest.Return request) {
+        service.returnMaterial(request); return AjaxResult.success();
+    }
+
     @PreAuthorize("@ss.hasPermi('pr:workOrder:issue')")
     @PostMapping("/issue/{id}")
     public AjaxResult issue(@PathVariable Long id,@RequestBody WorkOrderRequest.Action request) {

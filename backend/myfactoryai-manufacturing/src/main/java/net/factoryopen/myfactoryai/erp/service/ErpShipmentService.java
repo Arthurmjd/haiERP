@@ -23,9 +23,13 @@ public class ErpShipmentService {
     private final ErpShipmentMapper mapper;
     private final ErpStockMapper stockMapper;
     private final ErpStockService stock;
+    private final ErpFinanceService finance;
+    private final ErpWorkflowService workflow;
 
-    public ErpShipmentService(ErpShipmentMapper mapper, ErpStockMapper stockMapper, ErpStockService stock) {
+    public ErpShipmentService(ErpShipmentMapper mapper, ErpStockMapper stockMapper, ErpStockService stock,
+                              ErpFinanceService finance, ErpWorkflowService workflow) {
         this.mapper = mapper; this.stockMapper = stockMapper; this.stock = stock;
+        this.finance = finance; this.workflow = workflow;
     }
 
     public Map<String,Object> shipment(Long id) {
@@ -73,6 +77,7 @@ public class ErpShipmentService {
     @Transactional
     public void ship(Long id,ShipmentRequest.Action request) {
         if (id == null || request == null) throw new ServiceException("出货单或请求键缺失",1001);
+        workflow.assertOpen(LocalDate.now());
         if (stock.begin(request.requestKey(),"shipment_ship","sh_shipment",id,Map.of("shipmentId",id))) return;
         Map<String,Object> snapshot = mapper.shipmentDetail(id);
         if (snapshot == null) throw new ServiceException("出货单不存在",1001);
@@ -102,6 +107,10 @@ public class ErpShipmentService {
         }
         if (full) mapper.markOrderShipped(orderId,SecurityUtils.getUsername());
         stock.complete(request.requestKey(),id);
+        Long customerId = number(shipment,"customerId");
+        finance.createShipmentReceivable(orderId,id,customerId,"ship:" + request.requestKey());
+        workflow.complete("ship","sh_shipment",id);
+        if (full) workflow.complete("produce","sd_order",orderId);
     }
 
     @Transactional
@@ -113,6 +122,7 @@ public class ErpShipmentService {
         Map<String,Object> shipment = mapper.lockShipment(id);
         if (shipment == null || number(shipment,"status").intValue() != 1 || mapper.sign(id,SecurityUtils.getUsername()) != 1) throw new ServiceException("出货单状态不允许签收",2001);
         if (mapper.unsignedShipments(orderId) == 0) mapper.completeOrder(orderId,SecurityUtils.getUsername());
+        workflow.complete("sign","sh_shipment",id);
     }
 
     @Transactional
@@ -144,6 +154,7 @@ public class ErpShipmentService {
     @Transactional
     public void handleReturn(Long id,ShipmentRequest.Action request) {
         if (id == null || request == null) throw new ServiceException("退货单或请求键缺失",1001);
+        workflow.assertOpen(LocalDate.now());
         if (stock.begin(request.requestKey(),"return_handle","sh_return",id,Map.of("returnId",id))) return;
         Map<String,Object> snapshot = mapper.returnDetail(id);
         if (snapshot == null) throw new ServiceException("退货单不存在",1001);
@@ -165,6 +176,16 @@ public class ErpShipmentService {
         }
         if (mapper.handleReturn(id,SecurityUtils.getUsername()) != 1) throw new ServiceException("退货单状态已变化",2001);
         stock.complete(request.requestKey(),id);
+        Long orderId = Long.valueOf((String) snapshot.get("orderId"));
+        BigDecimal refundAmount = snapshot.get("refundAmount") == null
+                ? BigDecimal.ZERO : new BigDecimal(snapshot.get("refundAmount").toString());
+        if (refundAmount.signum() > 0) {
+            BigDecimal remaining = finance.reduceReceivable(orderId,refundAmount,"return:" + request.requestKey());
+            if (remaining.signum() > 0) {
+                workflow.todo("pay","sh_return",id,"finance","退货退款待处理","/finance/payments",null);
+            }
+            workflow.complete("return","sh_return",id);
+        }
     }
 
     private void validateReturnLines(Long shipmentId,List<ShipmentRequest.Line> lines) {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router'
-import { ChatDotRound, Coin, DataAnalysis, Document, Goods, Menu, Operation, ShoppingCart, SwitchButton, TrendCharts, Van, User } from '@element-plus/icons-vue'
+import { Bell, ChatDotRound, Coin, DataAnalysis, Document, DocumentChecked, Goods, Menu, Operation, ShoppingCart, SwitchButton, TrendCharts, User, Van, Wallet } from '@element-plus/icons-vue'
 import { catalogs } from './api/catalog'
 import { roleProfiles, type RoleKey } from './roles'
 import { useUserStore } from './stores/user'
@@ -13,6 +13,9 @@ const menuOpen = ref(false)
 const isLogin = computed(() => route.name === 'login')
 const links = [
   { path: '/', text: '工作台', icon: DataAnalysis, permission: 'dashboard:overview:list' },
+  { path: '/todos', text: '待办中心', icon: Bell, permission: 'workflow:todo:list' },
+  { path: '/approvals', text: '审批中心', icon: DocumentChecked, permission: 'workflow:approval:list' },
+  { path: '/finance', text: '会计资金', icon: Wallet, permission: 'fn:account:list' },
   { path: '/orders', text: '销售订单', icon: Document, permission: 'sd:order:list' },
   { path: '/purchases', text: '采购订单', icon: ShoppingCart, permission: 'pu:purchaseOrder:list' },
   { path: '/mrp', text: '缺料建议', icon: TrendCharts, permission: 'pu:suggestion:list' },
@@ -50,6 +53,7 @@ const currentTitle = computed(() => {
   if (route.name === 'quotation-detail') return '报价详情'
   if (route.name === 'style-plan') return '款式工艺'
   if (route.name === 'catalog') return catalogs[String(route.params.group)]?.[String(route.params.key)]?.title || '业务数据'
+  if (route.path.startsWith('/finance')) return '会计资金'
   return links.find(link => link.path === route.path)?.text || '工作台'
 })
 
@@ -74,7 +78,7 @@ function switchRole(role: string) {
       </RouterLink>
       <div class="nav-caption">{{ user.profile.label }} · 业务导航</div>
       <nav class="side-nav" aria-label="主导航">
-        <RouterLink v-for="link in primaryLinks" :key="link.path" :to="link.path" class="nav-link" :class="{ active: route.path === link.path || (link.path === '/orders' || link.path === '/purchases') && route.path.startsWith(link.path + '/') }">
+        <RouterLink v-for="link in primaryLinks" :key="link.path" :to="link.path" class="nav-link" :class="{ active: route.path === link.path || (link.path === '/orders' || link.path === '/purchases' || link.path === '/finance') && route.path.startsWith(link.path + '/') }">
           <el-icon :size="18"><component :is="link.icon" /></el-icon><span>{{ link.text }}</span>
         </RouterLink>
       </nav>

@@ -16,3 +16,4 @@ SOURCE sql/ai-erp-08-cost-module.sql;
 SOURCE sql/ai-erp-10-v2-schema-and-seed.sql;
 SOURCE sql/ai-erp-09-summary-views.sql;
 SOURCE sql/ai-erp-11-v2-views.sql;
+SOURCE sql/ai-erp-12-finance-workflow.sql;

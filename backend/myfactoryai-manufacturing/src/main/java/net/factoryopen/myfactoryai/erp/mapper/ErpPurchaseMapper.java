@@ -98,8 +98,20 @@ public interface ErpPurchaseMapper {
     @Select("SELECT status FROM pu_purchase_order WHERE po_id=#{poId} AND del_flag='0' FOR UPDATE")
     Integer lockStatus(@Param("poId") Long poId);
 
+    @Select("SELECT supplier_id AS supplierId,status,total_amount AS totalAmount,approval_status AS approvalStatus FROM pu_purchase_order WHERE po_id=#{id} AND del_flag='0' FOR UPDATE")
+    Map<String,Object> lockHeader(@Param("id") Long id);
+
+    @Update("UPDATE pu_purchase_order SET approval_status=1,update_by=#{user},update_time=NOW() WHERE po_id=#{id} AND status=0 AND approval_status IN (0,3)")
+    int markPendingApproval(@Param("id") Long id,@Param("user") String user);
+
+    @Update("UPDATE pu_purchase_order SET status=1,approval_status=2,approved_by=#{user},approved_time=NOW(),update_by=#{user},update_time=NOW() WHERE po_id=#{id} AND status=0 AND approval_status=1")
+    int approve(@Param("id") Long id,@Param("user") String user);
+
+    @Update("UPDATE pu_purchase_order SET approval_status=3,approval_comment=#{comment},update_by=#{user},update_time=NOW() WHERE po_id=#{id} AND status=0 AND approval_status=1")
+    int reject(@Param("id") Long id,@Param("comment") String comment,@Param("user") String user);
+
     @Select("""
-        SELECT i.item_id AS itemId,i.material_id AS materialId,i.qty,
+        SELECT i.item_id AS itemId,i.material_id AS materialId,i.qty,i.unit_price AS unitPrice,
                COALESCE((SELECT SUM(t.qty) FROM st_stock_txn t WHERE t.source_type='pu_order'
                  AND t.source_line_id=i.item_id AND t.biz_type=1 AND t.txn_type=1),0) AS receivedQty
         FROM pu_purchase_order_item i WHERE i.item_id=#{itemId} AND i.po_id=#{poId}
