@@ -21,6 +21,11 @@ Thumbs.db
 # Local database backups contain demo/business data.
 /backup_*.sql
 
+# Local debugging scratch: verification scripts, DB dumps and backups
+/.workbuddy/backup/
+/.workbuddy/*.mjs
+/.workbuddy/*.txt
+
 *.log
 .env
 .env.*
