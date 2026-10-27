@@ -58,9 +58,13 @@ public interface ErpReadMapper {
                stock_qty AS stockQty, on_way_qty AS onWayQty,
                gap_qty AS gapQty, suggest_qty AS suggestQty,
                est_amount AS estAmount, shortage_flag AS shortageFlag
-        FROM v_mrp_demand ORDER BY shortage_flag DESC, est_amount DESC, material_id
+        FROM v_mrp_demand
+        WHERE (#{keyword} IS NULL OR #{keyword} = ''
+               OR material_code LIKE CONCAT('%', #{keyword}, '%')
+               OR material_name LIKE CONCAT('%', #{keyword}, '%'))
+        ORDER BY shortage_flag DESC, est_amount DESC, material_id
         """)
-    List<Map<String, Object>> mrp();
+    List<Map<String, Object>> mrp(@Param("keyword") String keyword);
 
     @Select("""
         SELECT CAST(i.inv_id AS CHAR) AS inventoryId, i.item_type AS itemType,
@@ -73,9 +77,13 @@ public interface ErpReadMapper {
         LEFT JOIN md_material m ON i.item_type=1 AND m.material_id=i.item_id
         LEFT JOIN md_sku sku ON i.item_type=2 AND sku.sku_id=i.item_id
         LEFT JOIN md_style st ON st.style_id=sku.style_id
+        WHERE (#{keyword} IS NULL OR #{keyword} = ''
+               OR COALESCE(m.material_code, sku.sku_code) LIKE CONCAT('%', #{keyword}, '%')
+               OR COALESCE(m.material_name, st.style_name) LIKE CONCAT('%', #{keyword}, '%')
+               OR i.batch_no LIKE CONCAT('%', #{keyword}, '%'))
         ORDER BY i.item_type,i.item_id,i.batch_no
         """)
-    List<Map<String, Object>> inventory();
+    List<Map<String, Object>> inventory(@Param("keyword") String keyword);
 
     @Select("""
         SELECT CONCAT('mrp:',material_id) AS id,'shortage' AS alertType,

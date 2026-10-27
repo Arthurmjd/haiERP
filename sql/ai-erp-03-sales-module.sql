@@ -53,6 +53,7 @@ CREATE TABLE sd_order (
   delivery_date DATE          DEFAULT NULL            COMMENT '要求交期',
   status        TINYINT       NOT NULL DEFAULT 0      COMMENT '状态：0待确认 1已确认 2生产中 3已完工 4已出货 5已完成 9已取消',
   total_amount  DECIMAL(12,2) NOT NULL DEFAULT 0.00   COMMENT '订单总额',
+  quote_id      BIGINT        DEFAULT NULL            COMMENT '来源报价ID（sd_quotation.quote_id，成交转订单）',
   sales_user_id BIGINT        DEFAULT NULL            COMMENT '销售员（关联登录账号）',
   create_by     VARCHAR(64)   DEFAULT ''              COMMENT '创建者',
   create_time   DATETIME      DEFAULT NULL            COMMENT '创建时间',
@@ -63,6 +64,7 @@ CREATE TABLE sd_order (
   PRIMARY KEY (order_id),
   UNIQUE KEY uk_order_no (order_no),
   KEY idx_customer (customer_id),
+  KEY idx_quote (quote_id),
   KEY idx_status (status),
   KEY idx_delivery (delivery_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='销售订单主表';
@@ -95,7 +97,7 @@ CREATE TABLE sd_quotation (
   quote_no      VARCHAR(30)   NOT NULL                COMMENT '报价单号',
   customer_id   BIGINT        NOT NULL                COMMENT '客户ID',
   quote_date    DATE          DEFAULT NULL            COMMENT '报价日期',
-  status        TINYINT       NOT NULL DEFAULT 0      COMMENT '状态：0待确认 1已接受 2已失效',
+  status        TINYINT       NOT NULL DEFAULT 0      COMMENT '状态：0待确认 1已接受 2已失效 3已转单',
   total_amount  DECIMAL(12,2) NOT NULL DEFAULT 0.00   COMMENT '报价总额',
   sales_user_id BIGINT        DEFAULT NULL            COMMENT '销售员',
   create_by     VARCHAR(64)   DEFAULT ''              COMMENT '创建者',

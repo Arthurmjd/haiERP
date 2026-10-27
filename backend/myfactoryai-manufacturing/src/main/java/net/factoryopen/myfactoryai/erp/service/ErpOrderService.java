@@ -1,5 +1,7 @@
 package net.factoryopen.myfactoryai.erp.service;
 
+import net.factoryopen.myfactoryai.erp.support.ErpErrorCode;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,9 +37,9 @@ public class ErpOrderService {
     }
 
     public Map<String, Object> detail(Long orderId) {
-        if (orderId == null || orderId <= 0) throw new ServiceException("订单编号不合法", 1001);
+        if (orderId == null || orderId <= 0) throw new ServiceException("订单编号不合法", ErpErrorCode.INVALID_PARAM.code());
         Map<String, Object> header = mapper.detail(orderId);
-        if (header == null) throw new ServiceException("订单不存在", 1001);
+        if (header == null) throw new ServiceException("订单不存在", ErpErrorCode.INVALID_PARAM.code());
         Map<String, Object> result = new HashMap<>(header);
         result.put("items", mapper.lines(orderId));
         return result;
@@ -50,7 +52,11 @@ public class ErpOrderService {
             Map<String, Object> quote = mapper.quoteForOrder(request.quoteId());
             if (quote == null || ((Number) quote.get("status")).intValue() != 1
                     || ((Number) quote.get("customerId")).longValue() != request.customerId()) {
-                throw new ServiceException("报价未接受或客户不一致", 2001);
+                throw new ServiceException("报价未接受或客户不一致", ErpErrorCode.INVALID_STATE.code());
+            }
+            // 一张报价只能转一张有效订单，避免重复下单造成重复生产/重复应收
+            if (mapper.countOrdersByQuote(request.quoteId()) > 0) {
+                throw new ServiceException("该报价已生成订单，不能重复下单", ErpErrorCode.CONFLICT.code());
             }
         }
         OrderHeader header = new OrderHeader();
@@ -63,34 +69,32 @@ public class ErpOrderService {
         mapper.insert(header);
         String orderNo = DocNos.formal("SO", header.getOrderId());
         mapper.setOrderNo(header.getOrderId(), orderNo);
-        for (ValidatedLine validated : draft.lines()) {
-            OrderDraftRequest.Line line = validated.line();
-            mapper.insertLine(header.getOrderId(), line.styleId(), line.colorId(), line.sizeId(),
-                    line.qty(), line.unitPrice(), validated.amount(), header.getCreatedBy());
+        mapper.insertLines(header.getOrderId(), toLineParams(draft), header.getCreatedBy());
+        // 报价转订单：把报价从「已接受(1)」置为「已转单(3)」。条件更新保证并发下只有一次成功，
+        // 失败则抛异常回滚整张订单，避免同一报价被重复转单。
+        if (request.quoteId() != null
+                && mapper.markQuoteConverted(request.quoteId(), header.getCreatedBy()) != 1) {
+            throw new ServiceException("该报价已转订单，不能重复下单", ErpErrorCode.CONFLICT.code());
         }
         return Map.of("orderId", header.getOrderId().toString(), "orderNo", orderNo);
     }
 
     @Transactional
     public Map<String, String> update(Long orderId, OrderDraftRequest request) {
-        if (orderId == null || orderId <= 0) throw new ServiceException("订单编号不合法", 1001);
+        if (orderId == null || orderId <= 0) throw new ServiceException("订单编号不合法", ErpErrorCode.INVALID_PARAM.code());
         Map<String, Object> locked = mapper.lockDraft(orderId);
-        if (locked == null) throw new ServiceException("订单不存在", 1001);
+        if (locked == null) throw new ServiceException("订单不存在", ErpErrorCode.INVALID_PARAM.code());
         if (((Number) locked.get("status")).intValue() != 0) {
-            throw new ServiceException("仅草稿订单可编辑", 2001);
+            throw new ServiceException("仅草稿订单可编辑", ErpErrorCode.INVALID_STATE.code());
         }
         ValidatedDraft draft = validate(request);
         String username = SecurityUtils.getUsername();
         if (mapper.update(orderId, request.customerId(), request.deliveryDate(),
                 draft.total(), username) != 1) {
-            throw new ServiceException("订单状态已变化，请刷新后重试", 2001);
+            throw new ServiceException("订单状态已变化，请刷新后重试", ErpErrorCode.INVALID_STATE.code());
         }
         mapper.deleteLines(orderId);
-        for (ValidatedLine validated : draft.lines()) {
-            OrderDraftRequest.Line line = validated.line();
-            mapper.insertLine(orderId, line.styleId(), line.colorId(), line.sizeId(),
-                    line.qty(), line.unitPrice(), validated.amount(), username);
-        }
+        mapper.insertLines(orderId, toLineParams(draft), username);
         return Map.of("orderId", orderId.toString(),
                 "orderNo", String.valueOf(locked.get("orderNo")));
     }
@@ -99,10 +103,10 @@ public class ErpOrderService {
         if (request == null || request.customerId() == null || request.deliveryDate() == null
                 || request.items() == null || request.items().isEmpty()
                 || request.items().size() > 100 || request.deliveryDate().isBefore(LocalDate.now())) {
-            throw new ServiceException("请填写客户、有效交期和 1 至 100 条色码明细", 1001);
+            throw new ServiceException("请填写客户、有效交期和 1 至 100 条色码明细", ErpErrorCode.INVALID_PARAM.code());
         }
         if (mapper.activeCustomer(request.customerId()) != 1) {
-            throw new ServiceException("客户不存在或已停用", 1001);
+            throw new ServiceException("客户不存在或已停用", ErpErrorCode.INVALID_PARAM.code());
         }
         Set<String> seen = new HashSet<>();
         BigDecimal total = BigDecimal.ZERO;
@@ -112,28 +116,28 @@ public class ErpOrderService {
                     || line.sizeId() == null || line.qty() == null || line.qty() <= 0
                     || line.unitPrice() == null || line.unitPrice().signum() <= 0
                     || line.unitPrice().scale() > 2) {
-                throw new ServiceException("色码、数量或单价不合法", 1001);
+                throw new ServiceException("色码、数量或单价不合法", ErpErrorCode.INVALID_PARAM.code());
             }
             String key = line.styleId() + ":" + line.colorId() + ":" + line.sizeId();
-            if (!seen.add(key)) throw new ServiceException("订单色码明细重复", 1002);
+            if (!seen.add(key)) throw new ServiceException("订单色码明细重复", ErpErrorCode.DUPLICATE.code());
             if (mapper.activeSku(line.styleId(), line.colorId(), line.sizeId()) == null) {
-                throw new ServiceException("色码 SKU 不存在或已停用", 1001);
+                throw new ServiceException("色码 SKU 不存在或已停用", ErpErrorCode.INVALID_PARAM.code());
             }
             BigDecimal amount = line.unitPrice().multiply(BigDecimal.valueOf(line.qty()));
             total = total.add(amount);
             lines.add(new ValidatedLine(line, amount));
         }
         if (total.compareTo(new BigDecimal("9999999999.99")) > 0) {
-            throw new ServiceException("订单金额超出上限", 1001);
+            throw new ServiceException("订单金额超出上限", ErpErrorCode.INVALID_PARAM.code());
         }
         return new ValidatedDraft(lines, total);
     }
 
     @Transactional
     public void confirm(Long orderId) {
-        if (orderId == null || orderId <= 0) throw new ServiceException("订单编号不合法", 1001);
+        if (orderId == null || orderId <= 0) throw new ServiceException("订单编号不合法", ErpErrorCode.INVALID_PARAM.code());
         if (mapper.confirm(orderId, SecurityUtils.getUsername()) != 1) {
-            throw new ServiceException("订单已确认、无明细或状态不允许确认", 2001);
+            throw new ServiceException("订单已确认、无明细或状态不允许确认", ErpErrorCode.INVALID_STATE.code());
         }
         if (workflow != null) {
             Map<String, Object> detail = mapper.detail(orderId);
@@ -150,6 +154,16 @@ public class ErpOrderService {
             return date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
         }
         return null;
+    }
+
+    private static List<ErpOrderMapper.OrderLineInsert> toLineParams(ValidatedDraft draft) {
+        return draft.lines().stream()
+                .map(validated -> {
+                    OrderDraftRequest.Line line = validated.line();
+                    return new ErpOrderMapper.OrderLineInsert(line.styleId(), line.colorId(),
+                            line.sizeId(), line.qty(), line.unitPrice(), validated.amount());
+                })
+                .toList();
     }
 
     private record ValidatedLine(OrderDraftRequest.Line line, BigDecimal amount) {}

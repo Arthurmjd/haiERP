@@ -116,11 +116,21 @@ WHERE r.role_key = 'supervisor'
    OR (r.role_key = 'production' AND m.menu_id IN (90000,90001,90002,90003,90007,90013,90014,90015,90018,90026,90027,90028,90029,90030,90031,90032,90070,90071))
    OR (r.role_key = 'wh' AND m.menu_id IN (90000,90001,90007,90008,90009,90012,90026,90027,90029,90031,90032,90033,90034,90038,90039,90040,90041,90042,90043,90044,90070,90071,90072))
    OR (r.role_key = 'finance' AND m.menu_id IN (90000,90001,90002,90003,90025,90033,90034,90035,90036,90037,90038,90042,90045,90046,90047,90050,90051,90070,90071))
-   OR (r.role_key = 'boss' AND m.menu_id IN (90000,90001,90002,90003,90006,90007,90008,90009,90013,90014,90015,90016,90017,90025,90026,90027,90032,90033,90034,90035,90036,90037,90038,90042,90045,90050,90070,90071,90078));
+   OR (r.role_key = 'boss' AND m.menu_id IN (90000,90001,90002,90003,90006,90007,90008,90009,90013,90014,90015,90016,90017,90018,90019,90020,90021,90025,90026,90027,90032,90033,90034,90035,90036,90037,90038,90042,90045,90050,90070,90071,90078));
 
 -- Remove legacy salary grants if this seed was already applied before role workspaces.
 DELETE rm FROM sys_role_menu rm JOIN sys_role r ON r.role_id = rm.role_id
 WHERE r.role_key = 'boss' AND rm.menu_id IN (90022,90023,90024);
+
+-- boss（厂长）补充授权：审批中心 / 待办中心 / 采购审批 / 财务只读。
+-- 这些菜单由 ai-erp-12-finance-workflow.sql 创建（90110~90135 段），
+-- 上面的 boss 白名单只覆盖 90000~90078，导致厂长点审批中心、财务页会 403。
+-- 工资明细（90024 / 90123）仍不对厂长开放（薪资保密，仅 hr / finance）。
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id)
+SELECT r.role_id, m.menu_id
+FROM sys_role r JOIN sys_menu m ON m.menu_id BETWEEN 90110 AND 90135
+WHERE r.role_key = 'boss'
+  AND m.menu_id IN (90110,90111,90112,90113,90114,90115,90116,90121,90122,90126,90127,90134);
 
 -- 90079 起：删除（remove）与作废（cancel）。此前全系统没有任何删除权限，
 -- 导致主数据、单据只能增改不能删。作废只给状态机里有 9（已取消）的单据。
@@ -170,3 +180,18 @@ WHERE (r.role_key IN ('sales','salesAssistant') AND m.menu_id IN (90081,90082,90
    OR (r.role_key = 'boss' AND m.menu_id IN (90103))
    OR (r.role_key = 'finance' AND m.menu_id IN (90100))
    OR (r.role_key = 'mc' AND m.menu_id IN (90079,90085,90086,90093,90094,90095,90096,90097,90098));
+
+-- 90136 起：工序「配置员工」按钮。报工时如果该工序配置了员工，就只允许这些员工报工，
+-- 所以这个权限属于生产口径，给生产主管与生产文员(mc)。
+INSERT INTO sys_menu
+  (menu_id, menu_name, parent_id, order_num, path, component, is_frame, is_cache,
+   menu_type, visible, status, perms, icon, create_by, create_time, remark)
+VALUES
+  (90136, '工序配置员工', 90018, 4, '#', NULL, 1, 0, 'F', '0', '0', 'md:process:assign', '#', 'admin', NOW(), '工序可报工员工')
+ON DUPLICATE KEY UPDATE menu_name=VALUES(menu_name), parent_id=VALUES(parent_id),
+  order_num=VALUES(order_num), perms=VALUES(perms);
+
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id)
+SELECT r.role_id, m.menu_id
+FROM sys_role r JOIN sys_menu m ON m.menu_id = 90136
+WHERE r.role_key IN ('production','mc');

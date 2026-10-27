@@ -1,5 +1,7 @@
 package net.factoryopen.myfactoryai.erp.service;
 
+import net.factoryopen.myfactoryai.erp.support.ErpErrorCode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +38,7 @@ public class ErpDocService {
         ErpDocSql.DocSpec spec = spec(doc);
         int status = ((Number) row.get("status")).intValue();
         if (!spec.deletable().contains(status)) {
-            throw new ServiceException("只有草稿可以删除，当前状态不允许；如需终止业务请使用作废", 2001);
+            throw new ServiceException("只有草稿可以删除，当前状态不允许；如需终止业务请使用作废", ErpErrorCode.INVALID_STATE.code());
         }
         ensureNoRefs(doc, id, "删除");
         if ("pr:workOrder".equals(doc)) workOrderMapper.releaseReservations(id);
@@ -50,18 +52,18 @@ public class ErpDocService {
         Map<String, Object> args = new HashMap<>();
         args.put("doc", doc);
         args.put("id", id);
-        if (mapper.deleteHeader(args) != 1) throw new ServiceException("单据已变化，请刷新后重试", 2006);
+        if (mapper.deleteHeader(args) != 1) throw new ServiceException("单据已变化，请刷新后重试", ErpErrorCode.CONFLICT.code());
     }
 
     @Transactional
     public void cancel(String doc, Long id) {
         Map<String, Object> row = load(doc, id);
         ErpDocSql.DocSpec spec = spec(doc);
-        if (spec.cancelable().isEmpty()) throw new ServiceException("该单据不支持作废", 2001);
+        if (spec.cancelable().isEmpty()) throw new ServiceException("该单据不支持作废", ErpErrorCode.INVALID_STATE.code());
         int status = ((Number) row.get("status")).intValue();
-        if (status == 9) throw new ServiceException("单据已作废", 2001);
+        if (status == 9) throw new ServiceException("单据已作废", ErpErrorCode.INVALID_STATE.code());
         if (!spec.cancelable().contains(status)) {
-            throw new ServiceException("当前状态不允许作废", 2001);
+            throw new ServiceException("当前状态不允许作废", ErpErrorCode.INVALID_STATE.code());
         }
         ensureNoRefs(doc, id, "作废");
         if ("pr:workOrder".equals(doc)) workOrderMapper.releaseReservations(id);
@@ -69,17 +71,17 @@ public class ErpDocService {
         args.put("doc", doc);
         args.put("id", id);
         args.put("username", SecurityUtils.getUsername());
-        if (mapper.cancel(args) != 1) throw new ServiceException("单据已变化，请刷新后重试", 2006);
+        if (mapper.cancel(args) != 1) throw new ServiceException("单据已变化，请刷新后重试", ErpErrorCode.CONFLICT.code());
     }
 
     private Map<String, Object> load(String doc, Long id) {
         spec(doc);
-        if (id == null || id <= 0) throw new ServiceException("单据 ID 不合法", 1001);
+        if (id == null || id <= 0) throw new ServiceException("单据 ID 不合法", ErpErrorCode.INVALID_PARAM.code());
         Map<String, Object> args = new HashMap<>();
         args.put("doc", doc);
         args.put("id", id);
         Map<String, Object> row = mapper.selectStatus(args);
-        if (row == null) throw new ServiceException("单据不存在", 1001);
+        if (row == null) throw new ServiceException("单据不存在", ErpErrorCode.INVALID_PARAM.code());
         return row;
     }
 
@@ -100,7 +102,7 @@ public class ErpDocService {
 
     private ErpDocSql.DocSpec spec(String doc) {
         ErpDocSql.DocSpec spec = ErpDocSql.spec(doc);
-        if (spec == null) throw new ServiceException("未知单据类型", 1001);
+        if (spec == null) throw new ServiceException("未知单据类型", ErpErrorCode.INVALID_PARAM.code());
         return spec;
     }
 }

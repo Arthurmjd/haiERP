@@ -226,9 +226,9 @@ onMounted(() => {
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="scope">
             <div class="table-actions">
-              <el-button link type="primary" @click="openDeptEdit(scope.row)">编辑</el-button>
+              <el-button link type="primary" @click="openDeptEdit(scope.row as SysDept)">编辑</el-button>
               <el-button link type="primary" @click="openDeptCreate(scope.row.deptId)">新增下级</el-button>
-              <el-button link type="danger" @click="removeDept(scope.row)">删除</el-button>
+              <el-button link type="danger" @click="removeDept(scope.row as SysDept)">删除</el-button>
             </div>
           </template>
         </el-table-column>
@@ -250,8 +250,8 @@ onMounted(() => {
         <el-table-column label="操作" width="130" fixed="right">
           <template #default="scope">
             <div class="table-actions">
-              <el-button link type="primary" @click="openPostEdit(scope.row)">编辑</el-button>
-              <el-button link type="danger" @click="removePost(scope.row)">删除</el-button>
+              <el-button link type="primary" @click="openPostEdit(scope.row as SysPost)">编辑</el-button>
+              <el-button link type="danger" @click="removePost(scope.row as SysPost)">删除</el-button>
             </div>
           </template>
         </el-table-column>

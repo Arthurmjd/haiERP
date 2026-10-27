@@ -2,14 +2,19 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { systemApi, type RoleForm, type SysMenu, type SysRole } from '../../api/system'
-
-const rows = ref<SysRole[]>([])
-const total = ref(0)
-const page = ref(1)
-const pageSize = 10
-const loading = ref(false)
+import { usePagedList } from '../../composables/usePagedList'
+import ListPagination from '../../components/ListPagination.vue'
 
 const query = reactive({ roleName: '', roleKey: '', status: '' })
+
+const { rows, total, page, loading, load, search, changePage } =
+  usePagedList<SysRole>((pageNum, pageSize) => systemApi.roles({
+    pageNum,
+    pageSize,
+    roleName: query.roleName.trim() || undefined,
+    roleKey: query.roleKey.trim() || undefined,
+    status: query.status || undefined,
+  }))
 
 /** RuoYi 数据范围 */
 const dataScopes = [
@@ -159,41 +164,11 @@ const treeProps = { children: 'children', label: 'menuName' }
 
 const menuTreeData = computed(() => menuTree.value)
 
-async function load() {
-  loading.value = true
-  try {
-    const result = await systemApi.roles({
-      pageNum: page.value,
-      pageSize,
-      roleName: query.roleName.trim() || undefined,
-      roleKey: query.roleKey.trim() || undefined,
-      status: query.status || undefined,
-    })
-    rows.value = result.rows
-    total.value = result.total
-  } catch (e) {
-    ElMessage.error((e as Error).message)
-  } finally {
-    loading.value = false
-  }
-}
-
-function search() {
-  page.value = 1
-  load()
-}
-
 function reset() {
   query.roleName = ''
   query.roleKey = ''
   query.status = ''
-  page.value = 1
-  load()
-}
-
-function changePage(next: number) {
-  page.value = next
-  load()
+  search()
 }
 
 onMounted(load)
@@ -245,18 +220,16 @@ onMounted(load)
         <el-table-column label="操作" width="240" fixed="right">
           <template #default="scope">
             <div class="table-actions">
-              <el-button link type="primary" @click="openEdit(scope.row)">编辑</el-button>
-              <el-button link type="primary" @click="openGrant(scope.row)">分配菜单</el-button>
-              <el-button link type="primary" @click="toggleStatus(scope.row)">{{ scope.row.status === '1' ? '启用' : '停用' }}</el-button>
-              <el-button link type="danger" @click="removeRow(scope.row)">删除</el-button>
+              <el-button link type="primary" @click="openEdit(scope.row as SysRole)">编辑</el-button>
+              <el-button link type="primary" @click="openGrant(scope.row as SysRole)">分配菜单</el-button>
+              <el-button link type="primary" @click="toggleStatus(scope.row as SysRole)">{{ scope.row.status === '1' ? '启用' : '停用' }}</el-button>
+              <el-button link type="danger" @click="removeRow(scope.row as SysRole)">删除</el-button>
             </div>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <div class="pagination">
-      <el-pagination v-model:current-page="page" background layout="prev, pager, next, total" :total="total" :page-size="pageSize" @current-change="changePage" />
-    </div>
+    <ListPagination :total="total" :page="page" @change="changePage" />
   </section>
 
   <el-dialog v-model="dialogVisible" :title="dialogTitle" width="580px" destroy-on-close>

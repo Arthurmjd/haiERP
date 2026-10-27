@@ -77,6 +77,14 @@ public class ErpFinanceController {
     @GetMapping("/overview")
     public AjaxResult overview() { return AjaxResult.success(service.overview()); }
 
+    @PreAuthorize("@ss.hasPermi('fn:receivable:list')")
+    @GetMapping("/aging-summary")
+    public AjaxResult agingSummary() { return AjaxResult.success(service.agingSummary()); }
+
+    @PreAuthorize("@ss.hasPermi('fn:cashTxn:list')")
+    @GetMapping("/cash-flow-monthly")
+    public AjaxResult cashFlowMonthly() { return AjaxResult.success(service.cashFlowMonthly()); }
+
     @PreAuthorize("@ss.hasPermi('fn:period:list')")
     @GetMapping("/periods")
     public AjaxResult periods() { return AjaxResult.success(workflow.periods()); }

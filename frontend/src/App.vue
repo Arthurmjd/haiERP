@@ -98,7 +98,7 @@ function switchRole(role: string) {
       <template v-if="visibleSystemLinks.length"><div class="nav-caption nav-caption-secondary">系统管理</div><nav class="side-nav" aria-label="系统管理导航">
         <RouterLink v-for="link in visibleSystemLinks" :key="link.path" :to="link.path" class="nav-link" :class="{ active: route.path === link.path }"><el-icon :size="18"><component :is="link.icon" /></el-icon><span>{{ link.text }}</span></RouterLink>
       </nav></template>
-      <div class="sidebar-foot"><span class="status-dot"></span> {{ user.demo ? '演示预览' : '业务系统' }}</div>
+      <div class="sidebar-foot"><span class="status-dot"></span> 业务系统</div>
     </aside>
 
     <div class="main-area">
@@ -108,12 +108,11 @@ function switchRole(role: string) {
           <span class="topbar-title">{{ currentTitle }}</span>
         </div>
         <div class="topbar-actions">
-          <el-tag v-if="user.demo" type="warning" effect="plain" size="small">演示数据</el-tag>
           <el-select v-if="user.availableRoles.length > 1" :model-value="user.activeRole" class="role-select" aria-label="切换工作台" size="small" @change="switchRole">
             <el-option v-for="role in user.availableRoles" :key="role" :label="roleProfiles[role].label" :value="role" />
           </el-select>
           <span class="session-name">{{ user.name }}</span>
-          <el-button text :icon="SwitchButton" :aria-label="user.demo ? '退出预览' : '退出登录'" :title="user.demo ? '退出预览' : '退出登录'" @click="signOut" />
+          <el-button text :icon="SwitchButton" aria-label="退出登录" title="退出登录" @click="signOut" />
         </div>
       </header>
       <main class="workspace"><RouterView /></main>

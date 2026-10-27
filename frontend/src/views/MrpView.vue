@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { erpApi, type MrpRow, type PurchaseOption } from '../api/erp'
@@ -17,8 +17,10 @@ const saving = ref(false)
 const suppliers = ref<PurchaseOption[]>([])
 const supplierId = ref('')
 const expectDate = ref('')
-const filtered = computed(() => rows.value.filter(row => (!onlyShortage.value || Number(row.shortageFlag) === 1) && (!keyword.value || `${row.materialCode}${row.materialName}`.toLowerCase().includes(keyword.value.toLowerCase()))))
-async function load() { loading.value = true; error.value = ''; try { rows.value = await erpApi.mrp() } catch (e) { error.value = (e as Error).message; ElMessage.error(error.value) } finally { loading.value = false } }
+const filtered = computed(() => rows.value.filter(row => !onlyShortage.value || Number(row.shortageFlag) === 1))
+async function load() { loading.value = true; error.value = ''; try { rows.value = await erpApi.mrp(keyword.value.trim()) } catch (e) { error.value = (e as Error).message; ElMessage.error(error.value) } finally { loading.value = false } }
+let debounceTimer: ReturnType<typeof setTimeout> | undefined
+watch(keyword, () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(load, 300) })
 async function openGenerate() {
   if (!selected.value.length) return ElMessage.warning('选择缺料物料')
   try { suppliers.value = (await erpApi.purchaseOptions()).suppliers; generating.value = true }

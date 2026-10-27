@@ -5,7 +5,6 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { http } from '../api/client'
 import { erpApi, type Option, type WorkOrder } from '../api/erp'
 import { enumLabel, enumTagType } from '../api/labels'
-import { isDemoMode } from '../api/demo'
 import { useUserStore } from '../stores/user'
 
 type MaterialRow = WorkOrder['materials'][number] & { returnedQty?: number | null }
@@ -60,7 +59,6 @@ async function issue() {
   finally { saving.value = false }
 }
 function demoBlocked() {
-  if (isDemoMode()) { ElMessage.warning('演示模式不支持'); return true }
   return false
 }
 function openReturn() {

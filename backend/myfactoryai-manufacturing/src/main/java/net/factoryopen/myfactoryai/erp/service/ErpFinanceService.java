@@ -1,5 +1,7 @@
 package net.factoryopen.myfactoryai.erp.service;
 
+import net.factoryopen.myfactoryai.erp.support.ErpErrorCode;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -36,10 +38,16 @@ public class ErpFinanceService {
     public List<Map<String,Object>> payments() { return mapper.payments(); }
     public Map<String,Object> overview() { return mapper.summary(); }
 
+    /** 账龄汇总（应收 / 应付 × 30/60/90 分段）。 */
+    public List<Map<String,Object>> agingSummary() { return mapper.agingSummary(); }
+
+    /** 月度现金流（流入 / 流出 / 净流量）。 */
+    public List<Map<String,Object>> cashFlowMonthly() { return mapper.cashFlowMonthly(); }
+
     public Map<String,Object> payment(Long id) {
         Map<String,Object> header = mapper.payments().stream()
                 .filter(row -> String.valueOf(row.get("id")).equals(String.valueOf(id))).findFirst()
-                .orElseThrow(() -> new ServiceException("收付款单不存在", 1001));
+                .orElseThrow(() -> new ServiceException("收付款单不存在", ErpErrorCode.INVALID_PARAM.code()));
         Map<String,Object> result = new HashMap<>(header);
         result.put("lines", mapper.paymentLines(id));
         return result;
@@ -49,7 +57,7 @@ public class ErpFinanceService {
     public Map<String,String> saveAccount(FinanceRequest.Account request) {
         if (request == null || request.accountName() == null || request.accountName().isBlank()
                 || request.accountType() == null || request.accountNo() == null || request.accountNo().isBlank()) {
-            throw new ServiceException("账户编码、名称和类型必填", 1001);
+            throw new ServiceException("账户编码、名称和类型必填", ErpErrorCode.INVALID_PARAM.code());
         }
         Map<String,Object> row = new HashMap<>();
         row.put("accountNo", request.accountNo().trim());
@@ -64,7 +72,7 @@ public class ErpFinanceService {
             return Map.of("accountId", String.valueOf(row.get("accountId")));
         }
         row.put("accountId", request.accountId());
-        if (mapper.updateAccount(row) != 1) throw new ServiceException("账户不存在", 1001);
+        if (mapper.updateAccount(row) != 1) throw new ServiceException("账户不存在", ErpErrorCode.INVALID_PARAM.code());
         return Map.of("accountId", String.valueOf(request.accountId()));
     }
 
@@ -73,17 +81,17 @@ public class ErpFinanceService {
         if (request == null || request.accountId() == null || request.direction() == null
                 || !List.of(1,2).contains(request.direction()) || request.amount() == null
                 || request.amount().signum() <= 0 || request.payDate() == null) {
-            throw new ServiceException("账户、方向、金额和日期必填", 1001);
+            throw new ServiceException("账户、方向、金额和日期必填", ErpErrorCode.INVALID_PARAM.code());
         }
         if (request.direction() == 1 && request.lines() != null
                 && request.lines().stream().anyMatch(line -> line.targetType() == null || line.targetType() != 1)) {
-            throw new ServiceException("收款只能核销应收", 1001);
+            throw new ServiceException("收款只能核销应收", ErpErrorCode.INVALID_PARAM.code());
         }
         if (request.direction() == 2 && request.lines() != null
                 && request.lines().stream().anyMatch(line -> line.targetType() == null || line.targetType() != 2)) {
-            throw new ServiceException("付款只能核销应付", 1001);
+            throw new ServiceException("付款只能核销应付", ErpErrorCode.INVALID_PARAM.code());
         }
-        if (mapper.lockAccount(request.accountId()) == null) throw new ServiceException("资金账户不存在", 1001);
+        if (mapper.lockAccount(request.accountId()) == null) throw new ServiceException("资金账户不存在", ErpErrorCode.INVALID_PARAM.code());
         workflow.assertOpen(request.payDate());
         Map<String,Object> row = new HashMap<>();
         row.put("paymentNo", DocNos.temp("PM"));
@@ -103,7 +111,7 @@ public class ErpFinanceService {
         if (request.lines() != null) {
             for (FinanceRequest.Line line : request.lines()) {
                 if (line == null || line.targetId() == null || line.amount() == null || line.amount().signum() <= 0) {
-                    throw new ServiceException("核销明细不合法", 1001);
+                    throw new ServiceException("核销明细不合法", ErpErrorCode.INVALID_PARAM.code());
                 }
                 mapper.insertPaymentLine(id, line.targetType(), line.targetId(), money(line.amount()));
             }
@@ -113,10 +121,10 @@ public class ErpFinanceService {
 
     @Transactional
     public void confirmPayment(Long id, String requestKey) {
-        if (id == null || requestKey == null || requestKey.isBlank()) throw new ServiceException("收付款单和请求键必填", 1001);
+        if (id == null || requestKey == null || requestKey.isBlank()) throw new ServiceException("收付款单和请求键必填", ErpErrorCode.INVALID_PARAM.code());
         if (stock.begin(requestKey, "payment_confirm", "fn_payment", id, Map.of("paymentId", id))) return;
         Map<String,Object> payment = mapper.lockPayment(id);
-        if (payment == null || number(payment, "status") != 0) throw new ServiceException("收付款单状态不允许确认", 2001);
+        if (payment == null || number(payment, "status") != 0) throw new ServiceException("收付款单状态不允许确认", ErpErrorCode.INVALID_STATE.code());
         workflow.assertOpen(toLocalDate(payment.get("payDate")));
         int direction = number(payment, "direction");
         for (Map<String,Object> line : mapper.paymentLines(id)) {
@@ -125,21 +133,21 @@ public class ErpFinanceService {
             BigDecimal amount = money(decimal(line, "amount"));
             if (targetType == 1) {
                 if (mapper.lockReceivable(targetId) == null || mapper.settleReceivable(targetId, amount) != 1) {
-                    throw new ServiceException("应收余额不足或已结清", 2003);
+                    throw new ServiceException("应收余额不足或已结清", ErpErrorCode.INSUFFICIENT.code());
                 }
                 workflow.complete("collect", "fn_receivable", targetId);
             } else {
                 if (mapper.lockPayable(targetId) == null || mapper.settlePayable(targetId, amount) != 1) {
-                    throw new ServiceException("应付余额不足或已结清", 2003);
+                    throw new ServiceException("应付余额不足或已结清", ErpErrorCode.INSUFFICIENT.code());
                 }
                 workflow.complete("pay", "fn_payable", targetId);
             }
         }
         BigDecimal amount = decimal(payment, "amount");
         if (direction == 1) {
-            if (mapper.addBalance(longNum(payment, "accountId"), amount) != 1) throw new ServiceException("资金账户不存在", 1001);
+            if (mapper.addBalance(longNum(payment, "accountId"), amount) != 1) throw new ServiceException("资金账户不存在", ErpErrorCode.INVALID_PARAM.code());
         } else if (mapper.subtractBalance(longNum(payment, "accountId"), amount) != 1) {
-            throw new ServiceException("资金账户余额不足", 2003);
+            throw new ServiceException("资金账户余额不足", ErpErrorCode.INSUFFICIENT.code());
         }
         Map<String,Object> txn = new HashMap<>();
         txn.put("txnNo", "CT" + UUID.randomUUID().toString().replace("-", "").substring(0, 24).toUpperCase());
@@ -156,7 +164,7 @@ public class ErpFinanceService {
         txn.put("remark", payment.get("remark"));
         txn.put("username", SecurityUtils.getUsername());
         mapper.insertCashTxn(txn);
-        if (mapper.confirmPayment(id, SecurityUtils.getUsername()) != 1) throw new ServiceException("收付款单状态已变化", 2001);
+        if (mapper.confirmPayment(id, SecurityUtils.getUsername()) != 1) throw new ServiceException("收付款单状态已变化", ErpErrorCode.INVALID_STATE.code());
         stock.complete(requestKey, id);
     }
 
@@ -217,10 +225,16 @@ public class ErpFinanceService {
     public Map<String,String> payPurchase(Long poId, Long supplierId, BigDecimal amount, String requestKey) {
         if (poId == null || supplierId == null || amount == null || amount.signum() <= 0
                 || requestKey == null || requestKey.isBlank()) {
-            throw new ServiceException("采购单、供应商、金额和请求键必填", 1001);
+            throw new ServiceException("采购单、供应商、金额和请求键必填", ErpErrorCode.INVALID_PARAM.code());
         }
-        Long accountId = mapper.defaultPaymentAccount();
-        if (accountId == null) throw new ServiceException("未找到可用资金账户，请先在财务页面创建并启用账户", 2001);
+        Long accountId = mapper.paymentAccountFor(amount);
+        if (accountId == null) {
+            BigDecimal available = mapper.availableCashBalance();
+            throw new ServiceException(String.format(
+                    "可用资金不足：本次需支付 %.2f 元，当前所有启用账户可用余额合计 %.2f 元，请先补足资金或新增/启用账户",
+                    amount.doubleValue(), available == null ? 0d : available.doubleValue()),
+                    ErpErrorCode.INSUFFICIENT.code());
+        }
         LocalDate payDate = LocalDate.now();
         workflow.assertOpen(payDate);
         // 1. 先建应付（同时给会计发待付款待办，便于在会计页面看到这笔采购）
@@ -254,9 +268,9 @@ public class ErpFinanceService {
     @Transactional
     public Map<String,String> payPayroll(Long slipId, Long accountId, LocalDate payDate, String requestKey) {
         Map<String,Object> slip = salaryMapper.lockForPay(slipId);
-        if (slip == null || number(slip, "status") != 1) throw new ServiceException("工资单未确认或已发放", 2001);
+        if (slip == null || number(slip, "status") != 1) throw new ServiceException("工资单未确认或已发放", ErpErrorCode.INVALID_STATE.code());
         if (accountId == null || payDate == null || requestKey == null || requestKey.isBlank()) {
-            throw new ServiceException("账户、发放日期和请求键必填", 1001);
+            throw new ServiceException("账户、发放日期和请求键必填", ErpErrorCode.INVALID_PARAM.code());
         }
         workflow.assertOpen(payDate);
         Map<String,Object> row = new HashMap<>();
@@ -273,7 +287,7 @@ public class ErpFinanceService {
         Long paymentId = ((Number) row.get("paymentId")).longValue();
         mapper.setPaymentNo(paymentId, DocNos.formal("PM", paymentId));
         confirmPayment(paymentId, requestKey + "-confirm");
-        if (salaryMapper.markPaid(slipId, SecurityUtils.getUsername()) != 1) throw new ServiceException("工资单状态已变化", 2001);
+        if (salaryMapper.markPaid(slipId, SecurityUtils.getUsername()) != 1) throw new ServiceException("工资单状态已变化", ErpErrorCode.INVALID_STATE.code());
         salaryMapper.markWagesPaid(longNum(slip, "empId"), String.valueOf(slip.get("wagePeriod")));
         workflow.complete("payroll", "hr_salary_slip", slipId);
         return Map.of("paymentId", paymentId.toString());

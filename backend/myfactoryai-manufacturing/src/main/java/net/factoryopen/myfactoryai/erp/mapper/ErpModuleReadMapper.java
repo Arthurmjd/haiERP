@@ -40,20 +40,50 @@ public interface ErpModuleReadMapper {
     @Select("SELECT CAST(emp_id AS CHAR) AS id,emp_no AS code,name,position,emp_type AS empType,hire_date AS hireDate,base_salary AS baseSalary,si_base AS siBase,status FROM hr_employee ORDER BY emp_id DESC")
     List<Map<String,Object>> employees();
 
-    @Select("SELECT CAST(w.id AS CHAR) AS id,CAST(w.emp_id AS CHAR) AS empId,e.name AS employeeName,w.wage_period AS wagePeriod,CAST(w.work_order_id AS CHAR) AS workOrderId,w.qty,w.unit_price AS unitPrice,w.amount,w.status FROM hr_piece_wage w JOIN hr_employee e ON e.emp_id=w.emp_id ORDER BY w.id DESC")
-    List<Map<String,Object>> pieceWages();
+    @Select("""
+        <script>
+        SELECT CAST(w.id AS CHAR) AS id,CAST(w.emp_id AS CHAR) AS empId,e.name AS employeeName,w.wage_period AS wagePeriod,CAST(w.work_order_id AS CHAR) AS workOrderId,w.qty,w.unit_price AS unitPrice,w.amount,w.status
+        FROM hr_piece_wage w JOIN hr_employee e ON e.emp_id=w.emp_id
+        <where><if test="month != null and month != ''">w.wage_period = #{month}</if></where>
+        ORDER BY w.id DESC
+        </script>
+        """)
+    List<Map<String,Object>> pieceWages(@Param("month") String month);
 
-    @Select("SELECT CAST(s.id AS CHAR) AS id,CAST(s.emp_id AS CHAR) AS empId,e.name AS employeeName,s.wage_period AS wagePeriod,s.base_salary AS baseSalary,s.piece_amount AS pieceAmount,s.si_personal AS siPersonal,s.fund_personal AS fundPersonal,s.tax,s.gross_pay AS grossPay,s.net_pay AS netPay,s.company_cost AS companyCost,s.status FROM hr_salary_slip s JOIN hr_employee e ON e.emp_id=s.emp_id ORDER BY s.wage_period DESC,s.id DESC")
-    List<Map<String,Object>> salarySlips();
+    @Select("""
+        <script>
+        SELECT CAST(s.id AS CHAR) AS id,CAST(s.emp_id AS CHAR) AS empId,e.name AS employeeName,s.wage_period AS wagePeriod,s.base_salary AS baseSalary,s.piece_amount AS pieceAmount,s.si_personal AS siPersonal,s.fund_personal AS fundPersonal,s.tax,s.gross_pay AS grossPay,s.net_pay AS netPay,s.company_cost AS companyCost,s.status
+        FROM hr_salary_slip s JOIN hr_employee e ON e.emp_id=s.emp_id
+        <where><if test="month != null and month != ''">s.wage_period = #{month}</if></where>
+        ORDER BY s.wage_period DESC,s.id DESC
+        </script>
+        """)
+    List<Map<String,Object>> salarySlips(@Param("month") String month);
 
     @Select("SELECT CAST(q.quote_id AS CHAR) AS id,q.quote_no AS code,c.customer_name AS customerName,q.quote_date AS quoteDate,q.total_amount AS totalAmount,q.status FROM sd_quotation q JOIN md_customer c ON c.customer_id=q.customer_id WHERE q.del_flag='0' ORDER BY q.quote_id DESC")
     List<Map<String,Object>> quotations();
 
-    @Select("SELECT CAST(w.wo_id AS CHAR) AS id,w.wo_no AS code,CAST(w.order_id AS CHAR) AS orderId,s.style_name AS styleName,w.qty,w.plan_start_date AS planStartDate,w.plan_end_date AS planEndDate,w.actual_end_date AS actualEndDate,w.status FROM pr_work_order w JOIN md_style s ON s.style_id=w.style_id WHERE w.del_flag='0' ORDER BY w.wo_id DESC")
-    List<Map<String,Object>> workOrders();
+    @Select("""
+        <script>
+        SELECT CAST(w.wo_id AS CHAR) AS id,w.wo_no AS code,CAST(w.order_id AS CHAR) AS orderId,s.style_name AS styleName,w.qty,w.plan_start_date AS planStartDate,w.plan_end_date AS planEndDate,w.actual_end_date AS actualEndDate,w.status
+        FROM pr_work_order w JOIN md_style s ON s.style_id=w.style_id
+        WHERE w.del_flag='0'
+        <if test="month != null and month != ''">AND DATE_FORMAT(w.plan_end_date,'%Y-%m') = #{month}</if>
+        ORDER BY w.wo_id DESC
+        </script>
+        """)
+    List<Map<String,Object>> workOrders(@Param("month") String month);
 
-    @Select("SELECT CAST(s.shipment_id AS CHAR) AS id,s.shipment_no AS code,CAST(s.order_id AS CHAR) AS orderId,c.customer_name AS customerName,s.ship_date AS shipDate,s.logistics_company AS logisticsCompany,s.logistics_no AS logisticsNo,s.status FROM sh_shipment s JOIN md_customer c ON c.customer_id=s.customer_id WHERE s.del_flag='0' ORDER BY s.shipment_id DESC")
-    List<Map<String,Object>> shipments();
+    @Select("""
+        <script>
+        SELECT CAST(s.shipment_id AS CHAR) AS id,s.shipment_no AS code,CAST(s.order_id AS CHAR) AS orderId,c.customer_name AS customerName,s.ship_date AS shipDate,s.logistics_company AS logisticsCompany,s.logistics_no AS logisticsNo,s.status
+        FROM sh_shipment s JOIN md_customer c ON c.customer_id=s.customer_id
+        WHERE s.del_flag='0'
+        <if test="month != null and month != ''">AND DATE_FORMAT(s.ship_date,'%Y-%m') = #{month}</if>
+        ORDER BY s.shipment_id DESC
+        </script>
+        """)
+    List<Map<String,Object>> shipments(@Param("month") String month);
 
     @Select("SELECT CAST(r.return_id AS CHAR) AS id,r.return_no AS code,CAST(r.shipment_id AS CHAR) AS shipmentId,c.customer_name AS customerName,r.return_date AS returnDate,r.reason,r.refund_amount AS refundAmount,r.is_restock AS isRestock,r.status FROM sh_return r JOIN md_customer c ON c.customer_id=r.customer_id WHERE r.del_flag='0' ORDER BY r.return_id DESC")
     List<Map<String,Object>> returns();

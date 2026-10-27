@@ -1,8 +1,10 @@
 package com.ruoyi.framework.config;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
@@ -50,14 +52,20 @@ public class ResourcesConfig implements WebMvcConfigurer {
     }
 
     /**
+     * 允许跨域的来源，逗号分隔。默认仅允许本地前端开发端口，生产环境用环境变量 CORS_ALLOWED_ORIGINS 覆盖。
+     */
+    @Value("#{'${cors.allowed-origins:http://localhost:5173,http://127.0.0.1:5173}'.split(',')}")
+    private List<String> allowedOrigins;
+
+    /**
      * 跨域配置
      */
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        // 设置访问源地址
-        config.addAllowedOriginPattern("*");
+        // 设置访问源地址（白名单，禁止与 allowCredentials 同时放开全部）
+        allowedOrigins.forEach(config::addAllowedOriginPattern);
         // 设置访问源请求头
         config.addAllowedHeader("*");
         // 设置访问源请求方法

@@ -1,5 +1,7 @@
 package net.factoryopen.myfactoryai.web.controller.erp;
 
+import net.factoryopen.myfactoryai.erp.support.ErpErrorCode;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +35,9 @@ public class ErpAlertController {
     @PostMapping("/ai/alerts/explain")
     public AjaxResult explain(@RequestBody Map<String,String> input) {
         String id = input == null ? null : input.get("alertId");
-        if (id == null || id.length() > 80) throw new ServiceException("预警 ID 不合法",1001);
+        if (id == null || id.length() > 80) throw new ServiceException("预警 ID 不合法", ErpErrorCode.INVALID_PARAM.code());
         Map<String,Object> alert = mapper.alerts().stream().filter(item -> id.equals(item.get("id"))).findFirst()
-                .orElseThrow(() -> new ServiceException("预警不存在或已解除",1001));
+                .orElseThrow(() -> new ServiceException("预警不存在或已解除", ErpErrorCode.INVALID_PARAM.code()));
         String fallback = "shortage".equals(alert.get("alertType"))
                 ? "物料 " + alert.get("subject") + " 当前净缺口 " + alert.get("triggerValue") + alert.get("unit") + "。请核对在途采购和生产计划。"
                 : "订单 " + alert.get("subject") + " 已逾期 " + alert.get("triggerValue") + " 天且尚未发齐。请核对工单与成品库存。";

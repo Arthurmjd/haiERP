@@ -1,5 +1,7 @@
 package net.factoryopen.myfactoryai.web.controller.erp;
 
+import net.factoryopen.myfactoryai.erp.support.ErpErrorCode;
+
 import java.util.List;
 import java.util.Map;
 import java.time.LocalDate;
@@ -60,17 +62,22 @@ public class ErpModuleReadController {
     @PreAuthorize("@ss.hasPermi('hr:employee:list')") @GetMapping("/hr/employee/list")
     public TableDataInfo employees(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize) { return page(pageNum,pageSize,mapper::employees); }
     @PreAuthorize("@ss.hasPermi('hr:pieceWage:list')") @GetMapping("/hr/pieceWage/list")
-    public TableDataInfo wages(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize) { return page(pageNum,pageSize,mapper::pieceWages); }
+    public TableDataInfo wages(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize,
+                               @RequestParam(required=false) String month) { return page(pageNum,pageSize,() -> mapper.pieceWages(month)); }
     @PreAuthorize("@ss.hasPermi('hr:salarySlip:list')") @GetMapping("/hr/salarySlip/list")
-    public TableDataInfo salary(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize) { return page(pageNum,pageSize,mapper::salarySlips); }
+    public TableDataInfo salary(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize,
+                                @RequestParam(required=false) String month) { return page(pageNum,pageSize,() -> mapper.salarySlips(month)); }
     @PreAuthorize("@ss.hasPermi('sd:quotation:list')") @GetMapping("/sd/quotation/list")
     public TableDataInfo quotations(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize) { return page(pageNum,pageSize,mapper::quotations); }
     @PreAuthorize("@ss.hasPermi('pr:workOrder:list')") @GetMapping("/pr/workOrder/list")
-    public TableDataInfo workOrders(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize) { return page(pageNum,pageSize,mapper::workOrders); }
+    public TableDataInfo workOrders(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize,
+                                    @RequestParam(required=false) String month) { return page(pageNum,pageSize,() -> mapper.workOrders(month)); }
     @PreAuthorize("@ss.hasPermi('st:txn:list')") @GetMapping("/st/txn/list")
-    public TableDataInfo txns(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize) { return page(pageNum,pageSize,stock::txns); }
+    public TableDataInfo txns(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize,
+                              @RequestParam(required=false) String month) { return page(pageNum,pageSize,() -> stock.txns(month)); }
     @PreAuthorize("@ss.hasPermi('sh:shipment:list')") @GetMapping("/sh/shipment/list")
-    public TableDataInfo shipments(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize) { return page(pageNum,pageSize,mapper::shipments); }
+    public TableDataInfo shipments(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize,
+                                   @RequestParam(required=false) String month) { return page(pageNum,pageSize,() -> mapper.shipments(month)); }
     @PreAuthorize("@ss.hasPermi('sh:return:list')") @GetMapping("/sh/return/list")
     public TableDataInfo returns(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize) { return page(pageNum,pageSize,mapper::returns); }
     @PreAuthorize("@ss.hasPermi('fn:settlement:list')") @GetMapping("/fn/settlement/list")
@@ -79,7 +86,7 @@ public class ErpModuleReadController {
     public TableDataInfo ontime(@RequestParam(defaultValue="1") int pageNum,@RequestParam(defaultValue="10") int pageSize,
                                 @RequestParam(required=false) LocalDate asOfDate) {
         LocalDate date = asOfDate == null ? LocalDate.now() : asOfDate;
-        if (date.isAfter(LocalDate.now())) throw new ServiceException("截至日期不能晚于今天",1001);
+        if (date.isAfter(LocalDate.now())) throw new ServiceException("截至日期不能晚于今天", ErpErrorCode.INVALID_PARAM.code());
         return page(pageNum,pageSize,() -> mapper.ontimeAt(date));
     }
     @PreAuthorize("@ss.hasPermi('dashboard:styleCost:list')") @GetMapping("/dashboard/styleCost")

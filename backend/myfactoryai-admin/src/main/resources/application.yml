@@ -59,7 +59,8 @@ myfactoryai:
   name: myfactoryai
   version: 1.0.0
   copyrightYear: 2023
-  profile: D:/factoryopen/myfactoryai/resource
+  # 文件上传根路径，生产环境用环境变量 PROFILE_DIR 覆盖（勿写 Windows 绝对路径）
+  profile: ${PROFILE_DIR:./resource}
   addressEnabled: false
   captchaType: math
   scheduled: false
@@ -85,7 +86,8 @@ pagehelper:
   params: count=countSql
 
 swagger:
-  enabled: true
+  # 生产环境通过 SWAGGER_ENABLED=false 关闭 API 文档暴露
+  enabled: ${SWAGGER_ENABLED:true}
   pathMapping: /dev-api
 
 xss:

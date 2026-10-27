@@ -254,7 +254,7 @@ function New-HaiErpEnvFile {
 
     $dbHost = '127.0.0.1'
     $dbPort = '3306'
-    $dbName = 'hai_erp_demo'
+    $dbName = 'hai_erp'
     $dbUser = 'root'
     $dbPassword = ''
     $redisHost = '127.0.0.1'
@@ -354,7 +354,7 @@ function Import-HaiErpEnv {
 
     if (-not $env:DB_HOST)    { $env:DB_HOST = '127.0.0.1' }
     if (-not $env:DB_PORT)    { $env:DB_PORT = '3306' }
-    if (-not $env:DB_NAME)    { $env:DB_NAME = 'hai_erp_demo' }
+    if (-not $env:DB_NAME)    { $env:DB_NAME = 'hai_erp' }
     if (-not $env:DB_USER)    { $env:DB_USER = 'root' }
     if (-not $env:REDIS_HOST) { $env:REDIS_HOST = '127.0.0.1' }
     if (-not $env:REDIS_PORT) { $env:REDIS_PORT = '6379' }

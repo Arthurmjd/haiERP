@@ -88,6 +88,23 @@ public interface ErpPurchaseMapper {
                    @Param("qty") BigDecimal qty,@Param("unitPrice") BigDecimal unitPrice,
                    @Param("amount") BigDecimal amount,@Param("createdBy") String createdBy);
 
+    /** 明细行批量插入参数。 */
+    record PurchaseLineInsert(Long materialId, BigDecimal qty, BigDecimal unitPrice, BigDecimal amount) {
+    }
+
+    /** 批量插入采购明细，一次数据库往返完成全部行。 */
+    @Insert("""
+        <script>
+        INSERT INTO pu_purchase_order_item(po_id,material_id,qty,unit_price,amount,create_by,create_time)
+        VALUES
+        <foreach collection="lines" item="l" separator=",">
+          (#{poId},#{l.materialId},#{l.qty},#{l.unitPrice},#{l.amount},#{createdBy},NOW())
+        </foreach>
+        </script>
+        """)
+    int insertLines(@Param("poId") Long poId, @Param("lines") List<PurchaseLineInsert> lines,
+                    @Param("createdBy") String createdBy);
+
     @Update("""
         UPDATE pu_purchase_order SET status=1,update_by=#{username},update_time=NOW()
         WHERE po_id=#{poId} AND status=0 AND del_flag='0'

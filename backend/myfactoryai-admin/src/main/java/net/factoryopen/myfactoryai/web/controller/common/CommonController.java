@@ -19,9 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -144,23 +142,4 @@ public class CommonController {
         }
     }
 
-    @GetMapping("/stream")
-    public void stream(HttpServletResponse response) throws IOException {
-        String ffmpegCommand = "ffmpeg -i rtsp://admin:lopo0277@your_rtsp_url_here -f mjpeg -";
-        Process process = Runtime.getRuntime().exec(ffmpegCommand);
-
-        response.setContentType("multipart/x-mixed-replace; boundary=myboundary");
-        InputStream inputStream = process.getInputStream();
-        OutputStream outputStream = response.getOutputStream();
-
-        byte[] buffer = new byte[4096];
-        int bytesRead;
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, bytesRead);
-        }
-
-        outputStream.close();
-        inputStream.close();
-        process.destroy();
-    }
 }

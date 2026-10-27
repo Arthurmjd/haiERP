@@ -2,16 +2,25 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { systemApi, type SysDept, type SysRole, type SysUser, type UserForm } from '../../api/system'
+import { usePagedList } from '../../composables/usePagedList'
+import ListPagination from '../../components/ListPagination.vue'
+import ResetPasswordDialog from '../../components/ResetPasswordDialog.vue'
 
-const rows = ref<SysUser[]>([])
-const total = ref(0)
-const page = ref(1)
-const pageSize = 10
-const loading = ref(false)
 const departments = ref<SysDept[]>([])
 const roles = ref<SysRole[]>([])
 
 const query = reactive({ userName: '', nickName: '', phoneNumber: '', status: '', deptId: '' })
+
+const { rows, total, page, loading, load, search, changePage } =
+  usePagedList<SysUser>((pageNum, pageSize) => systemApi.users({
+    pageNum,
+    pageSize,
+    userName: query.userName.trim() || undefined,
+    nickName: query.nickName.trim() || undefined,
+    phoneNumber: query.phoneNumber.trim() || undefined,
+    status: query.status || undefined,
+    deptId: query.deptId || undefined,
+  }))
 
 const statusLabel = (value?: string) => (value === '1' ? '停用' : '正常')
 const sexLabel = (value?: string) => (value === '1' ? '女' : value === '2' ? '未知' : '男')
@@ -102,28 +111,10 @@ async function submit() {
 // ---------------------------------------------------------------
 const resetVisible = ref(false)
 const resetTarget = ref<SysUser | null>(null)
-const resetPasswordValue = ref('')
-const resetSubmitting = ref(false)
 
 function openReset(row: SysUser) {
   resetTarget.value = row
-  resetPasswordValue.value = ''
   resetVisible.value = true
-}
-
-async function submitReset() {
-  if (!resetTarget.value) return
-  if (resetPasswordValue.value.length < 5) return ElMessage.warning('密码长度不能少于 5 位')
-  resetSubmitting.value = true
-  try {
-    await systemApi.resetPassword(resetTarget.value.userId, resetPasswordValue.value)
-    ElMessage.success('密码已重置')
-    resetVisible.value = false
-  } catch (e) {
-    ElMessage.error((e as Error).message)
-  } finally {
-    resetSubmitting.value = false
-  }
 }
 
 async function toggleStatus(row: SysUser) {
@@ -202,45 +193,13 @@ const deptOptions = computed(() => {
   return flat
 })
 
-async function load() {
-  loading.value = true
-  try {
-    const result = await systemApi.users({
-      pageNum: page.value,
-      pageSize,
-      userName: query.userName.trim() || undefined,
-      nickName: query.nickName.trim() || undefined,
-      phoneNumber: query.phoneNumber.trim() || undefined,
-      status: query.status || undefined,
-      deptId: query.deptId || undefined,
-    })
-    rows.value = result.rows
-    total.value = result.total
-  } catch (e) {
-    ElMessage.error((e as Error).message)
-  } finally {
-    loading.value = false
-  }
-}
-
-function search() {
-  page.value = 1
-  load()
-}
-
 function reset() {
   query.userName = ''
   query.nickName = ''
   query.phoneNumber = ''
   query.status = ''
   query.deptId = ''
-  page.value = 1
-  load()
-}
-
-function changePage(next: number) {
-  page.value = next
-  load()
+  search()
 }
 
 onMounted(async () => {
@@ -317,19 +276,17 @@ onMounted(async () => {
         <el-table-column label="操作" width="260" fixed="right">
           <template #default="scope">
             <div class="table-actions">
-              <el-button link type="primary" @click="openEdit(scope.row)">编辑</el-button>
-              <el-button link type="primary" @click="openGrant(scope.row)">授权</el-button>
-              <el-button link type="primary" @click="openReset(scope.row)">重置密码</el-button>
-              <el-button link type="primary" @click="toggleStatus(scope.row)">{{ scope.row.status === '1' ? '启用' : '停用' }}</el-button>
-              <el-button link type="danger" @click="removeRow(scope.row)">删除</el-button>
+              <el-button link type="primary" @click="openEdit(scope.row as SysUser)">编辑</el-button>
+              <el-button link type="primary" @click="openGrant(scope.row as SysUser)">授权</el-button>
+              <el-button link type="primary" @click="openReset(scope.row as SysUser)">重置密码</el-button>
+              <el-button link type="primary" @click="toggleStatus(scope.row as SysUser)">{{ scope.row.status === '1' ? '启用' : '停用' }}</el-button>
+              <el-button link type="danger" @click="removeRow(scope.row as SysUser)">删除</el-button>
             </div>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <div class="pagination">
-      <el-pagination v-model:current-page="page" background layout="prev, pager, next, total" :total="total" :page-size="pageSize" @current-change="changePage" />
-    </div>
+    <ListPagination :total="total" :page="page" @change="changePage" />
   </section>
 
   <el-dialog v-model="dialogVisible" :title="dialogTitle" width="620px" destroy-on-close>
@@ -382,14 +339,7 @@ onMounted(async () => {
     </template>
   </el-dialog>
 
-  <el-dialog v-model="resetVisible" title="重置密码" width="420px">
-    <p class="muted" style="margin-top: 0">将为「{{ resetTarget?.nickName }}（{{ resetTarget?.userName }}）」设置新密码。</p>
-    <el-input v-model="resetPasswordValue" type="password" show-password placeholder="输入新密码，不少于 5 位" />
-    <template #footer>
-      <el-button @click="resetVisible = false">取消</el-button>
-      <el-button type="primary" :loading="resetSubmitting" @click="submitReset">确认重置</el-button>
-    </template>
-  </el-dialog>
+  <ResetPasswordDialog v-model="resetVisible" :target="resetTarget" />
 
   <el-dialog v-model="grantVisible" title="分配角色" width="460px">
     <p class="muted" style="margin-top: 0">为「{{ grantTarget?.nickName }}」勾选可访问的角色。</p>

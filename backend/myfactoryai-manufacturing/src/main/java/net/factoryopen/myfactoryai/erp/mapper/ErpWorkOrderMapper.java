@@ -61,6 +61,23 @@ public interface ErpWorkOrderMapper {
     @Insert("INSERT INTO pr_work_order_sku(wo_id,sku_id,plan_qty,create_by,create_time) VALUES(#{woId},#{skuId},#{qty},#{username},NOW())")
     int insertSku(@Param("woId") Long woId,@Param("skuId") Long skuId,@Param("qty") Integer qty,@Param("username") String username);
 
+    /** 工单 SKU 批量插入参数。 */
+    record SkuInsert(Long skuId, Integer qty) {
+    }
+
+    /** 批量插入工单 SKU，一次数据库往返完成全部行。 */
+    @Insert("""
+        <script>
+        INSERT INTO pr_work_order_sku(wo_id,sku_id,plan_qty,create_by,create_time)
+        VALUES
+        <foreach collection="lines" item="l" separator=",">
+          (#{woId},#{l.skuId},#{l.qty},#{username},NOW())
+        </foreach>
+        </script>
+        """)
+    int insertSkus(@Param("woId") Long woId, @Param("lines") List<SkuInsert> lines,
+                   @Param("username") String username);
+
     @Insert("""
         INSERT INTO pr_work_order_material(wo_id,material_id,unit,unit_qty,loss_rate,plan_qty,create_by,create_time)
         VALUES(#{woId},#{materialId},#{unit},#{unitQty},#{lossRate},#{planQty},#{username},NOW())
@@ -70,6 +87,23 @@ public interface ErpWorkOrderMapper {
                        @Param("lossRate") BigDecimal lossRate,@Param("planQty") BigDecimal planQty,
                        @Param("username") String username);
 
+    /** 工单用料批量插入参数。 */
+    record MaterialInsert(Long materialId, String unit, BigDecimal unitQty, BigDecimal lossRate, BigDecimal planQty) {
+    }
+
+    /** 批量插入工单用料，一次数据库往返完成全部行。 */
+    @Insert("""
+        <script>
+        INSERT INTO pr_work_order_material(wo_id,material_id,unit,unit_qty,loss_rate,plan_qty,create_by,create_time)
+        VALUES
+        <foreach collection="lines" item="l" separator=",">
+          (#{woId},#{l.materialId},#{l.unit},#{l.unitQty},#{l.lossRate},#{l.planQty},#{username},NOW())
+        </foreach>
+        </script>
+        """)
+    int insertMaterials(@Param("woId") Long woId, @Param("lines") List<MaterialInsert> lines,
+                        @Param("username") String username);
+
     @Insert("""
         INSERT INTO pr_work_order_process(wo_id,process_id,seq,plan_qty,unit_price,create_by,create_time)
         VALUES(#{woId},#{processId},#{seq},#{qty},#{unitPrice},#{username},NOW())
@@ -77,6 +111,23 @@ public interface ErpWorkOrderMapper {
     int insertProcess(@Param("woId") Long woId,@Param("processId") Long processId,
                       @Param("seq") Integer seq,@Param("qty") Integer qty,
                       @Param("unitPrice") BigDecimal unitPrice,@Param("username") String username);
+
+    /** 工单工序批量插入参数。 */
+    record ProcessInsert(Long processId, Integer seq, Integer qty, BigDecimal unitPrice) {
+    }
+
+    /** 批量插入工单工序，一次数据库往返完成全部行。 */
+    @Insert("""
+        <script>
+        INSERT INTO pr_work_order_process(wo_id,process_id,seq,plan_qty,unit_price,create_by,create_time)
+        VALUES
+        <foreach collection="lines" item="l" separator=",">
+          (#{woId},#{l.processId},#{l.seq},#{l.qty},#{l.unitPrice},#{username},NOW())
+        </foreach>
+        </script>
+        """)
+    int insertProcesses(@Param("woId") Long woId, @Param("lines") List<ProcessInsert> lines,
+                        @Param("username") String username);
 
     @Select("SELECT status FROM pr_work_order WHERE wo_id=#{id} AND del_flag='0' FOR UPDATE")
     Integer lockStatus(@Param("id") Long id);

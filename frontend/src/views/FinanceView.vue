@@ -2,7 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { financeApi, type CashTxn, type FinanceAccount, type FinanceAccountDraft, type FinanceOverview, type FinancePayment, type FinancePeriod, type Payable, type PaymentDraft, type Receivable } from '../api/finance'
+import { financeApi, type AgingSummaryRow, type CashFlowMonth, type CashTxn, type FinanceAccount, type FinanceAccountDraft, type FinanceOverview, type FinancePayment, type FinancePeriod, type Payable, type PaymentDraft, type Receivable } from '../api/finance'
 import { enumLabel, enumTagType } from '../api/labels'
 import { useUserStore } from '../stores/user'
 
@@ -16,8 +16,10 @@ const tabs = [
   { key: 'overview', label: '总览', permission: 'fn:account:list' },
   { key: 'accounts', label: '账户', permission: 'fn:account:list' },
   { key: 'cash', label: '资金流水', permission: 'fn:cashTxn:list' },
+  { key: 'cashflow', label: '月度现金流', permission: 'fn:cashTxn:list' },
   { key: 'receivables', label: '应收', permission: 'fn:receivable:list' },
   { key: 'payables', label: '应付', permission: 'fn:payable:list' },
+  { key: 'aging', label: '账龄汇总', permission: 'fn:receivable:list' },
   { key: 'payments', label: '收付款', permission: 'fn:payment:list' },
 ] as const
 type TabKey = typeof tabs[number]['key']
@@ -30,6 +32,8 @@ const receivables = ref<Receivable[]>([])
 const payables = ref<Payable[]>([])
 const payments = ref<FinancePayment[]>([])
 const periods = ref<FinancePeriod[]>([])
+const agingRows = ref<AgingSummaryRow[]>([])
+const cashFlow = ref<CashFlowMonth[]>([])
 const enabledAccounts = computed(() => accounts.value.filter(account => Number(account.status) === 1))
 const loading = ref(false)
 const error = ref('')
@@ -68,11 +72,17 @@ async function loadTab(tab: TabKey = activeTab.value) {
       case 'cash':
         cashTxns.value = await financeApi.cashTxns()
         break
+      case 'cashflow':
+        cashFlow.value = await financeApi.cashFlowMonthly()
+        break
       case 'receivables':
         receivables.value = await financeApi.receivables()
         break
       case 'payables':
         payables.value = await financeApi.payables()
+        break
+      case 'aging':
+        agingRows.value = await financeApi.agingSummary()
         break
       case 'payments':
         await loadPaymentSources()
@@ -97,7 +107,6 @@ const accountSaving = ref(false)
 const editingAccount = ref<FinanceAccount | null>(null)
 const accountForm = reactive<FinanceAccountDraft>({ accountNo: '', accountName: '', accountType: 1, openingBalance: 0, status: 1, remark: '' })
 function openAccount(row?: FinanceAccount) {
-  if (user.demo) { ElMessage.warning('演示模式不支持资金操作，请连接后端'); return }
   editingAccount.value = row || null
   accountForm.accountNo = row?.code || ''
   accountForm.accountName = row?.name || ''
@@ -108,7 +117,6 @@ function openAccount(row?: FinanceAccount) {
   accountOpen.value = true
 }
 async function saveAccount() {
-  if (user.demo) { ElMessage.warning('演示模式不支持资金操作，请连接后端'); return }
   if (!accountForm.accountNo.trim() || !accountForm.accountName.trim()) { ElMessage.warning('账户编码和名称必填'); return }
   accountSaving.value = true
   try {
@@ -147,7 +155,6 @@ watch(paymentTargets, targets => {
 }, { deep: true })
 
 async function openPayment(direction: 1 | 2) {
-  if (user.demo) { ElMessage.warning('演示模式不支持资金操作，请连接后端'); return }
   try {
     if (user.can('fn:account:list') && !accounts.value.length) accounts.value = await financeApi.accounts()
     if (direction === 1 && user.can('fn:receivable:list') && !receivables.value.length) receivables.value = await financeApi.receivables()
@@ -173,7 +180,6 @@ async function openPayment(direction: 1 | 2) {
   paymentOpen.value = true
 }
 async function savePayment() {
-  if (user.demo) { ElMessage.warning('演示模式不支持资金操作，请连接后端'); return }
   if (!paymentForm.accountId) { ElMessage.warning('请选择资金账户'); return }
   if (!paymentForm.payDate) { ElMessage.warning('请选择日期'); return }
   if (Number(paymentForm.amount) <= 0) { ElMessage.warning('金额必须大于 0'); return }
@@ -201,7 +207,6 @@ async function savePayment() {
   finally { paymentSaving.value = false }
 }
 async function confirmPayment(row: FinancePayment) {
-  if (user.demo) { ElMessage.warning('演示模式不支持资金操作，请连接后端'); return }
   try {
     await ElMessageBox.confirm(`确认收付款单 ${row.code}？确认后将立即过账，更新资金账户余额并核销应收/应付。`, '确认过账', { type: 'warning', confirmButtonText: '确认过账', cancelButtonText: '取消' })
   } catch { return }
@@ -217,7 +222,6 @@ async function confirmPayment(row: FinancePayment) {
 // 会计期间
 const periodSaving = ref(false)
 async function closePeriod(period?: string) {
-  if (user.demo) { ElMessage.warning('演示模式不支持资金操作，请连接后端'); return }
   let target = period
   if (!target) {
     try {
@@ -244,7 +248,6 @@ async function closePeriod(period?: string) {
   finally { periodSaving.value = false }
 }
 async function reopenPeriod(period: string) {
-  if (user.demo) { ElMessage.warning('演示模式不支持资金操作，请连接后端'); return }
   try {
     await ElMessageBox.confirm(`确认反结账会计期间 ${period}？反结账后允许继续补录与过账。`, '反结账', { type: 'warning', confirmButtonText: '确认反结账', cancelButtonText: '取消' })
   } catch { return }
@@ -259,7 +262,6 @@ async function reopenPeriod(period: string) {
 </script>
 <template>
   <div class="page-head"><div><h1>会计资金</h1><p>账户、资金流水、应收应付、收付款与期间结账</p></div><el-button @click="loadTab()">刷新</el-button></div>
-  <el-alert v-if="user.demo" type="warning" :closable="false" show-icon title="演示模式仅展示页面结构，资金数据为空；新增、结账、登记与过账等写操作需连接后端。" class="demo-tip" />
   <div v-if="error" class="error-state">{{ error }} <el-button text type="primary" @click="loadTab()">重试</el-button></div>
   <section class="panel" v-loading="loading">
     <el-tabs v-model="activeTab">
@@ -276,24 +278,28 @@ async function reopenPeriod(period: string) {
         </template>
         <div v-else class="empty-state">暂无资金总览数据</div>
         <div v-if="user.can('fn:period:list')" class="period-block">
-          <div class="line-toolbar"><h2>会计期间</h2><el-button v-if="user.can('fn:period:close')" type="primary" :disabled="user.demo" :loading="periodSaving" @click="closePeriod()">结账</el-button></div>
+          <div class="line-toolbar"><h2>会计期间</h2><el-button v-if="user.can('fn:period:close')" type="primary" :loading="periodSaving" @click="closePeriod()">结账</el-button></div>
           <div class="table-wrap"><el-table :data="periods" stripe empty-text="尚无结账记录，可点击「结账」登记当前期间">
             <el-table-column prop="period" label="期间" width="110" />
             <el-table-column label="状态" width="100"><template #default="scope"><el-tag :type="enumTagType('periodStatus', scope.row.status)" size="small">{{ enumLabel('periodStatus', scope.row.status) }}</el-tag></template></el-table-column>
             <el-table-column label="结账人" min-width="110"><template #default="scope">{{ scope.row.closedBy || '—' }}</template></el-table-column>
             <el-table-column label="结账时间" min-width="170"><template #default="scope">{{ scope.row.closedTime || '—' }}</template></el-table-column>
-            <el-table-column v-if="user.can('fn:period:close') || user.can('fn:period:reopen')" label="操作" width="130"><template #default="scope"><el-button v-if="scope.row.status !== 1 && user.can('fn:period:close')" text type="primary" :disabled="user.demo" :loading="periodSaving" @click="closePeriod(scope.row.period)">结账</el-button><el-button v-if="scope.row.status === 1 && user.can('fn:period:reopen')" text type="warning" :disabled="user.demo" :loading="periodSaving" @click="reopenPeriod(scope.row.period)">反结账</el-button></template></el-table-column>
+            <el-table-column v-if="user.can('fn:period:close') || user.can('fn:period:reopen')" label="操作" width="130"><template #default="scope"><el-button v-if="scope.row.status !== 1 && user.can('fn:period:close')" text type="primary" :loading="periodSaving" @click="closePeriod(scope.row.period)">结账</el-button><el-button v-if="scope.row.status === 1 && user.can('fn:period:reopen')" text type="warning" :loading="periodSaving" @click="reopenPeriod(scope.row.period)">反结账</el-button></template></el-table-column>
           </el-table></div>
         </div>
       </el-tab-pane>
 
       <el-tab-pane v-if="user.can('fn:account:list')" label="账户" name="accounts">
-        <div class="line-toolbar"><h2>资金账户</h2><el-button v-if="user.can('fn:account:add')" type="primary" :disabled="user.demo" @click="openAccount()">新增账户</el-button></div>
-        <div class="table-wrap"><el-table :data="accounts" stripe empty-text="暂无资金账户"><el-table-column prop="code" label="账户编码" min-width="130" /><el-table-column prop="name" label="账户名称" min-width="150" /><el-table-column label="类型" width="90"><template #default="scope">{{ enumLabel('accountType', scope.row.accountType) }}</template></el-table-column><el-table-column label="期初余额" min-width="120"><template #default="scope">{{ currency(scope.row.openingBalance) }}</template></el-table-column><el-table-column label="当前余额" min-width="120"><template #default="scope"><span class="money">{{ currency(scope.row.currentBalance) }}</span></template></el-table-column><el-table-column label="状态" width="90"><template #default="scope"><el-tag :type="enumTagType('masterStatus', scope.row.status)" size="small">{{ enumLabel('masterStatus', scope.row.status) }}</el-tag></template></el-table-column><el-table-column prop="remark" label="备注" min-width="160" /><el-table-column v-if="user.can('fn:account:edit')" label="操作" width="80"><template #default="scope"><el-button text type="primary" :disabled="user.demo" @click="openAccount(scope.row)">编辑</el-button></template></el-table-column></el-table></div>
+        <div class="line-toolbar"><h2>资金账户</h2><el-button v-if="user.can('fn:account:add')" type="primary" @click="openAccount()">新增账户</el-button></div>
+        <div class="table-wrap"><el-table :data="accounts" stripe empty-text="暂无资金账户"><el-table-column prop="code" label="账户编码" min-width="130" /><el-table-column prop="name" label="账户名称" min-width="150" /><el-table-column label="类型" width="90"><template #default="scope">{{ enumLabel('accountType', scope.row.accountType) }}</template></el-table-column><el-table-column label="期初余额" min-width="120"><template #default="scope">{{ currency(scope.row.openingBalance) }}</template></el-table-column><el-table-column label="当前余额" min-width="120"><template #default="scope"><span class="money">{{ currency(scope.row.currentBalance) }}</span></template></el-table-column><el-table-column label="状态" width="90"><template #default="scope"><el-tag :type="enumTagType('masterStatus', scope.row.status)" size="small">{{ enumLabel('masterStatus', scope.row.status) }}</el-tag></template></el-table-column><el-table-column prop="remark" label="备注" min-width="160" /><el-table-column v-if="user.can('fn:account:edit')" label="操作" width="80"><template #default="scope"><el-button text type="primary" @click="openAccount(scope.row as FinanceAccount)">编辑</el-button></template></el-table-column></el-table></div>
       </el-tab-pane>
 
       <el-tab-pane v-if="user.can('fn:cashTxn:list')" label="资金流水" name="cash">
         <div class="table-wrap"><el-table :data="cashTxns" stripe empty-text="暂无资金流水"><el-table-column prop="txnNo" label="流水号" min-width="190" /><el-table-column prop="accountName" label="账户" min-width="130" /><el-table-column label="方向" width="80"><template #default="scope"><el-tag :type="enumTagType('financeDirection', scope.row.direction)" size="small">{{ enumLabel('financeDirection', scope.row.direction) }}</el-tag></template></el-table-column><el-table-column label="金额" min-width="120"><template #default="scope"><span class="money">{{ currency(scope.row.amount) }}</span></template></el-table-column><el-table-column label="业务类型" min-width="110"><template #default="scope">{{ enumLabel('financeBizType', scope.row.bizType) }}</template></el-table-column><el-table-column prop="txnDate" label="发生日期" min-width="115" /><el-table-column prop="remark" label="备注" min-width="180" /></el-table></div>
+      </el-tab-pane>
+
+      <el-tab-pane v-if="user.can('fn:cashTxn:list')" label="月度现金流" name="cashflow">
+        <div class="table-wrap"><el-table :data="cashFlow" stripe empty-text="暂无资金流水"><el-table-column prop="period" label="月份" min-width="110" /><el-table-column label="流入" min-width="130"><template #default="scope"><span class="money">{{ currency(scope.row.inflow) }}</span></template></el-table-column><el-table-column label="流出" min-width="130"><template #default="scope"><span class="money">{{ currency(scope.row.outflow) }}</span></template></el-table-column><el-table-column label="净流量" min-width="130"><template #default="scope"><span class="money" :class="{ 'kpi-warning': Number(scope.row.netFlow) < 0 }">{{ currency(scope.row.netFlow) }}</span></template></el-table-column></el-table></div>
       </el-tab-pane>
 
       <el-tab-pane v-if="user.can('fn:receivable:list')" label="应收" name="receivables">
@@ -304,9 +310,22 @@ async function reopenPeriod(period: string) {
         <div class="table-wrap"><el-table :data="payables" stripe empty-text="暂无应付账款"><el-table-column prop="code" label="应付单号" min-width="150" /><el-table-column prop="supplierName" label="供应商" min-width="140" /><el-table-column label="采购单" min-width="90"><template #default="scope">#{{ scope.row.poId || '—' }}</template></el-table-column><el-table-column label="应付金额" min-width="120"><template #default="scope">{{ currency(scope.row.amount) }}</template></el-table-column><el-table-column label="已付" min-width="110"><template #default="scope">{{ currency(scope.row.paidAmount) }}</template></el-table-column><el-table-column label="未付余额" min-width="120"><template #default="scope"><span class="money">{{ currency(scope.row.balance) }}</span></template></el-table-column><el-table-column prop="dueDate" label="到期日" min-width="115" /><el-table-column prop="agingBucket" label="账龄" min-width="90" /><el-table-column label="逾期天数" width="100"><template #default="scope"><span :class="{ 'kpi-warning': Number(scope.row.overdueDays) > 0 }">{{ scope.row.overdueDays ?? 0 }}</span></template></el-table-column><el-table-column label="状态" width="95"><template #default="scope"><el-tag :type="enumTagType('arApStatus', scope.row.status)" size="small">{{ enumLabel('arApStatus', scope.row.status) }}</el-tag></template></el-table-column></el-table></div>
       </el-tab-pane>
 
+      <el-tab-pane v-if="user.can('fn:receivable:list')" label="账龄汇总" name="aging">
+        <p class="muted">按到期日计算未结清余额的账龄分段：未到期 / 1-30 天 / 31-60 天 / 61-90 天 / 90 天以上。</p>
+        <div class="table-wrap"><el-table :data="agingRows" stripe empty-text="暂无应收应付数据">
+          <el-table-column prop="categoryName" label="类别" min-width="90" />
+          <el-table-column label="未到期" min-width="130"><template #default="scope"><span class="money">{{ currency(scope.row.notDue) }}</span></template></el-table-column>
+          <el-table-column label="1-30 天" min-width="130"><template #default="scope"><span class="money">{{ currency(scope.row.days1to30) }}</span></template></el-table-column>
+          <el-table-column label="31-60 天" min-width="130"><template #default="scope"><span class="money">{{ currency(scope.row.days31to60) }}</span></template></el-table-column>
+          <el-table-column label="61-90 天" min-width="130"><template #default="scope"><span class="money">{{ currency(scope.row.days61to90) }}</span></template></el-table-column>
+          <el-table-column label="90 天以上" min-width="140"><template #default="scope"><span class="money" :class="{ 'kpi-warning': Number(scope.row.over90) > 0 }">{{ currency(scope.row.over90) }}</span></template></el-table-column>
+          <el-table-column label="合计" min-width="140"><template #default="scope"><span class="money">{{ currency(scope.row.total) }}</span></template></el-table-column>
+        </el-table></div>
+      </el-tab-pane>
+
       <el-tab-pane v-if="user.can('fn:payment:list')" label="收付款" name="payments">
-        <div class="line-toolbar"><h2>收付款单</h2><div class="head-actions"><el-button v-if="user.can('fn:payment:add')" type="primary" :disabled="user.demo" @click="openPayment(1)">登记收款</el-button><el-button v-if="user.can('fn:payment:add')" type="primary" plain :disabled="user.demo" @click="openPayment(2)">登记付款</el-button></div></div>
-        <div class="table-wrap"><el-table :data="payments" stripe empty-text="暂无收付款单"><el-table-column prop="code" label="单号" min-width="160" /><el-table-column label="方向" width="80"><template #default="scope"><el-tag :type="enumTagType('financeDirection', scope.row.direction)" size="small">{{ enumLabel('financeDirection', scope.row.direction) }}</el-tag></template></el-table-column><el-table-column label="业务类型" min-width="110"><template #default="scope">{{ enumLabel('financeBizType', scope.row.bizType) }}</template></el-table-column><el-table-column prop="accountName" label="账户" min-width="130" /><el-table-column label="金额" min-width="120"><template #default="scope"><span class="money">{{ currency(scope.row.amount) }}</span></template></el-table-column><el-table-column prop="payDate" label="日期" min-width="115" /><el-table-column label="状态" width="95"><template #default="scope"><el-tag :type="enumTagType('paymentStatus', scope.row.status)" size="small">{{ enumLabel('paymentStatus', scope.row.status) }}</el-tag></template></el-table-column><el-table-column prop="remark" label="备注" min-width="150" /><el-table-column v-if="user.can('fn:payment:confirm')" label="操作" width="90"><template #default="scope"><el-button v-if="scope.row.status === 0" text type="primary" :disabled="user.demo" :loading="confirmingId === scope.row.id" @click="confirmPayment(scope.row)">确认</el-button></template></el-table-column></el-table></div>
+        <div class="line-toolbar"><h2>收付款单</h2><div class="head-actions"><el-button v-if="user.can('fn:payment:add')" type="primary" @click="openPayment(1)">登记收款</el-button><el-button v-if="user.can('fn:payment:add')" type="primary" plain @click="openPayment(2)">登记付款</el-button></div></div>
+        <div class="table-wrap"><el-table :data="payments" stripe empty-text="暂无收付款单"><el-table-column prop="code" label="单号" min-width="160" /><el-table-column label="方向" width="80"><template #default="scope"><el-tag :type="enumTagType('financeDirection', scope.row.direction)" size="small">{{ enumLabel('financeDirection', scope.row.direction) }}</el-tag></template></el-table-column><el-table-column label="业务类型" min-width="110"><template #default="scope">{{ enumLabel('financeBizType', scope.row.bizType) }}</template></el-table-column><el-table-column prop="accountName" label="账户" min-width="130" /><el-table-column label="金额" min-width="120"><template #default="scope"><span class="money">{{ currency(scope.row.amount) }}</span></template></el-table-column><el-table-column prop="payDate" label="日期" min-width="115" /><el-table-column label="状态" width="95"><template #default="scope"><el-tag :type="enumTagType('paymentStatus', scope.row.status)" size="small">{{ enumLabel('paymentStatus', scope.row.status) }}</el-tag></template></el-table-column><el-table-column prop="remark" label="备注" min-width="150" /><el-table-column v-if="user.can('fn:payment:confirm')" label="操作" width="90"><template #default="scope"><el-button v-if="scope.row.status === 0" text type="primary" :loading="confirmingId === scope.row.id" @click="confirmPayment(scope.row as FinancePayment)">确认</el-button></template></el-table-column></el-table></div>
       </el-tab-pane>
     </el-tabs>
   </section>
@@ -320,7 +339,7 @@ async function reopenPeriod(period: string) {
       <el-form-item v-if="editingAccount" label="状态"><el-radio-group v-model="accountForm.status"><el-radio :value="1">启用</el-radio><el-radio :value="0">停用</el-radio></el-radio-group></el-form-item>
       <el-form-item label="备注"><el-input v-model="accountForm.remark" type="textarea" :rows="2" maxlength="255" /></el-form-item>
     </el-form>
-    <template #footer><el-button @click="accountOpen=false">取消</el-button><el-button type="primary" :loading="accountSaving" :disabled="user.demo" @click="saveAccount">保存</el-button></template>
+    <template #footer><el-button @click="accountOpen=false">取消</el-button><el-button type="primary" :loading="accountSaving" @click="saveAccount">保存</el-button></template>
   </el-dialog>
 
   <el-dialog v-model="paymentOpen" :title="paymentForm.direction === 1 ? '登记收款' : '登记付款'" width="min(760px, 96vw)">
@@ -334,11 +353,10 @@ async function reopenPeriod(period: string) {
     <h3 class="sub-title">{{ paymentForm.direction === 1 ? '选择待核销应收' : '选择待核销应付' }}</h3>
     <div class="table-wrap"><el-table :data="paymentTargets" size="small" max-height="260" empty-text="暂无未结清单据"><el-table-column width="52"><template #default="scope"><el-checkbox v-model="scope.row.selected" /></template></el-table-column><el-table-column prop="label" label="单据" min-width="240" /><el-table-column label="未结清" width="130"><template #default="scope">{{ currency(scope.row.balance) }}</template></el-table-column><el-table-column label="本次核销" width="160"><template #default="scope"><el-input-number v-model="scope.row.amount" :min="0" :max="scope.row.balance" :precision="2" :disabled="!scope.row.selected" controls-position="right" size="small" style="width:100%" /></template></el-table-column></el-table></div>
     <p class="muted">核销合计 {{ currency(selectedTotal) }}；不勾选核销对象时可按金额登记其他收付款。</p>
-    <template #footer><el-button @click="paymentOpen=false">取消</el-button><el-button type="primary" :loading="paymentSaving" :disabled="user.demo" @click="savePayment">登记</el-button></template>
+    <template #footer><el-button @click="paymentOpen=false">取消</el-button><el-button type="primary" :loading="paymentSaving" @click="savePayment">登记</el-button></template>
   </el-dialog>
 </template>
 <style scoped>
-.demo-tip { margin-bottom: 16px; }
 .finance-kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .period-block { margin-top: 20px; border-top: 1px solid #e0e8f2; padding-top: 16px; }
 .period-block .line-toolbar h2 { font-size: 15px; margin: 0; }

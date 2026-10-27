@@ -1,5 +1,7 @@
 package net.factoryopen.myfactoryai.erp.service;
 
+import net.factoryopen.myfactoryai.erp.support.ErpErrorCode;
+
 import java.math.BigDecimal;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -26,21 +28,21 @@ public class ErpStockService {
     }
 
     public boolean begin(String key, String action, String targetType, Long targetId, Object payload) {
-        if (key == null || key.isBlank() || key.length() > 80) throw new ServiceException("requestKey 不合法",1001);
+        if (key == null || key.isBlank() || key.length() > 80) throw new ServiceException("requestKey 不合法", ErpErrorCode.INVALID_PARAM.code());
         String hash = hash(payload);
         mapper.reserveAction(key,action,targetType,targetId,hash,SecurityUtils.getUsername());
         Map<String,Object> prior = mapper.action(key);
         if (!action.equals(prior.get("actionType")) || !targetType.equals(prior.get("targetType"))
                 || !targetId.equals(((Number) prior.get("targetId")).longValue())
                 || !hash.equals(prior.get("payloadHash"))) {
-            throw new ServiceException("请求键已用于不同操作或参数",2007);
+            throw new ServiceException("请求键已用于不同操作或参数", ErpErrorCode.IDEMPOTENCY_CONFLICT.code());
         }
         return ((Number) prior.get("status")).intValue() == 1;
     }
 
     public void complete(String key, Long targetId) {
         if (mapper.completeAction(key,"{\"targetId\":\"" + targetId + "\"}") != 1) {
-            throw new ServiceException("请求状态异常",2007);
+            throw new ServiceException("请求状态异常", ErpErrorCode.IDEMPOTENCY_CONFLICT.code());
         }
     }
 

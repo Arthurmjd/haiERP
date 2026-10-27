@@ -1,5 +1,13 @@
 本 ERP 项目的全新本地演示库请按 ../开发启动说明.md 导入：
-platform-schema.sql -> init_all.sql -> erp-permissions.sql -> platform-demo-users.sql -> self_check.sql。
+platform-schema.sql -> init_all.sql -> erp-permissions.sql -> ai-erp-13-seed-rich.sql
+-> ai-erp-14-boss-permissions.sql -> platform-demo-users.sql -> self_check.sql。
+已有演示库只需增量执行两个幂等补丁：
+p1-finance-align-boss.sql（补厂长权限 + 账户流水账实对齐）
+p2-demo-data-consistency.sql（单据合计=明细、工单数量=色码计划、库存期初补流水、状态回填）
+
+可选的历史演示数据（不进 init_all，按需单独执行）：
+ai-erp-15-salary-history.sql  2026-01~09 历史工资单（幂等）
+ai-erp-16-delivered-orders.sql 12 张「已交付」订单全链路（一次性，重复执行会撞单号唯一键）
 以下为旧 myFactoryAI 参考系统的说明；不要把 myfactoryai-free.sql 或 clear_all_demo_data.sql
 作为本 ERP 项目的初始化或增量迁移脚本。
 

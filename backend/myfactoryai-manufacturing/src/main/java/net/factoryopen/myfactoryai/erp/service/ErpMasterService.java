@@ -1,5 +1,7 @@
 package net.factoryopen.myfactoryai.erp.service;
 
+import net.factoryopen.myfactoryai.erp.support.ErpErrorCode;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -25,19 +27,19 @@ public class ErpMasterService {
     public Map<String,Object> detail(String resource,Long id) {
         checkSpec(resource);
         Map<String,Object> result = mapper.detail(Map.of("resource",resource,"id",id));
-        if (result == null) throw new ServiceException("档案不存在",1001);
+        if (result == null) throw new ServiceException("档案不存在", ErpErrorCode.INVALID_PARAM.code());
         return result;
     }
 
     @Transactional
     public Map<String,String> create(String resource,Map<String,Object> input) {
-        if ("sku".equals(resource)) throw new ServiceException("SKU 请使用色码生成",1001);
+        if ("sku".equals(resource)) throw new ServiceException("SKU 请使用色码生成", ErpErrorCode.INVALID_PARAM.code());
         ErpMasterSql.Spec spec = checkSpec(resource);
         Map<String,Object> args = new HashMap<>();
         args.put("resource",resource); args.put("row",normalize(spec,input,null));
         args.put("username",SecurityUtils.getUsername());
         try { mapper.insert(args); }
-        catch (DuplicateKeyException e) { throw new ServiceException("编码或名称已存在",2006); }
+        catch (DuplicateKeyException e) { throw new ServiceException("编码或名称已存在", ErpErrorCode.CONFLICT.code()); }
         return Map.of("id",((Number)args.get("id")).toString());
     }
 
@@ -48,8 +50,8 @@ public class ErpMasterService {
         Map<String,Object> args = new HashMap<>();
         args.put("resource",resource); args.put("id",id);
         args.put("row",normalize(spec,input,old)); args.put("username",SecurityUtils.getUsername());
-        try { if (mapper.update(args) != 1) throw new ServiceException("档案已变化",2006); }
-        catch (DuplicateKeyException e) { throw new ServiceException("编码或名称已存在",2006); }
+        try { if (mapper.update(args) != 1) throw new ServiceException("档案已变化", ErpErrorCode.CONFLICT.code()); }
+        catch (DuplicateKeyException e) { throw new ServiceException("编码或名称已存在", ErpErrorCode.CONFLICT.code()); }
     }
 
     /**
@@ -58,10 +60,10 @@ public class ErpMasterService {
      */
     @Transactional
     public void delete(String resource,Long id) {
-        if (id == null || id <= 0) throw new ServiceException("档案 ID 不合法",1001);
+        if (id == null || id <= 0) throw new ServiceException("档案 ID 不合法", ErpErrorCode.INVALID_PARAM.code());
         checkSpec(resource);
         Map<String,Object> current = mapper.detail(Map.of("resource",resource,"id",id));
-        if (current == null) throw new ServiceException("档案不存在或已删除",1001);
+        if (current == null) throw new ServiceException("档案不存在或已删除", ErpErrorCode.INVALID_PARAM.code());
         Map<String,Object> refArgs = new HashMap<>();
         refArgs.put("resource",resource); refArgs.put("id",id);
         List<String> used = new java.util.ArrayList<>();
@@ -75,7 +77,7 @@ public class ErpMasterService {
         }
         Map<String,Object> args = new HashMap<>();
         args.put("resource",resource); args.put("id",id);
-        if (mapper.delete(args) != 1) throw new ServiceException("档案已变化，请刷新后重试",2006);
+        if (mapper.delete(args) != 1) throw new ServiceException("档案已变化，请刷新后重试", ErpErrorCode.CONFLICT.code());
     }
 
     /**
@@ -84,23 +86,23 @@ public class ErpMasterService {
      */
     @Transactional
     public void changeStatus(String resource,Long id,Integer status) {
-        if (status == null || (status != 0 && status != 1)) throw new ServiceException("状态只能是 0（停用/离职）或 1（启用/在职）",1001);
+        if (status == null || (status != 0 && status != 1)) throw new ServiceException("状态只能是 0（停用/离职）或 1（启用/在职）", ErpErrorCode.INVALID_PARAM.code());
         Map<String,Object> old = detail(resource,id);
         Map<String,Object> input = new HashMap<>();
         input.put("status",status);
         Map<String,Object> args = new HashMap<>();
         args.put("resource",resource); args.put("id",id);
         args.put("row",normalize(checkSpec(resource),input,old)); args.put("username",SecurityUtils.getUsername());
-        if (mapper.update(args) != 1) throw new ServiceException("档案已变化，请刷新后重试",2006);
+        if (mapper.update(args) != 1) throw new ServiceException("档案已变化，请刷新后重试", ErpErrorCode.CONFLICT.code());
     }
 
     @Transactional
     public Map<String,String> generateSku(Long styleId,Long colorId,Long sizeId) {
-        if (styleId == null || colorId == null || sizeId == null) throw new ServiceException("款式、颜色和尺码必填",1001);
+        if (styleId == null || colorId == null || sizeId == null) throw new ServiceException("款式、颜色和尺码必填", ErpErrorCode.INVALID_PARAM.code());
         Long existing = mapper.existingSku(styleId,colorId,sizeId);
         if (existing != null) return Map.of("id",existing.toString());
         String code = mapper.skuCode(styleId,colorId,sizeId);
-        if (code == null || code.length() > 50) throw new ServiceException("色码未启用或 SKU 编码过长",1001);
+        if (code == null || code.length() > 50) throw new ServiceException("色码未启用或 SKU 编码过长", ErpErrorCode.INVALID_PARAM.code());
         Map<String,Object> args = new HashMap<>();
         args.put("code",code); args.put("styleId",styleId); args.put("colorId",colorId);
         args.put("sizeId",sizeId); args.put("username",SecurityUtils.getUsername());
@@ -108,15 +110,15 @@ public class ErpMasterService {
         catch (DuplicateKeyException e) {
             Long raced = mapper.existingSku(styleId,colorId,sizeId);
             if (raced != null) return Map.of("id",raced.toString());
-            throw new ServiceException("SKU 编码与其他色码冲突",2006);
+            throw new ServiceException("SKU 编码与其他色码冲突", ErpErrorCode.CONFLICT.code());
         }
         return Map.of("id",((Number)args.get("id")).toString());
     }
 
     private Map<String,Object> normalize(ErpMasterSql.Spec spec,Map<String,Object> input,Map<String,Object> old) {
-        if (input == null) throw new ServiceException("档案内容必填",1001);
+        if (input == null) throw new ServiceException("档案内容必填", ErpErrorCode.INVALID_PARAM.code());
         for (String key : input.keySet()) {
-            if (spec.fields().stream().noneMatch(field -> field.key().equals(key))) throw new ServiceException("未知档案字段: " + key,1001);
+            if (spec.fields().stream().noneMatch(field -> field.key().equals(key))) throw new ServiceException("未知档案字段: " + key, ErpErrorCode.INVALID_PARAM.code());
         }
         Map<String,Object> row = new HashMap<>();
         for (ErpMasterSql.Field field : spec.fields()) {
@@ -130,7 +132,7 @@ public class ErpMasterService {
                 case DATE -> normalizeDate(raw);
             };
             if ("hr_employee".equals(spec.table()) && "gender".equals(field.key()) && Integer.valueOf(2).equals(value)) {
-                throw new ServiceException("gender 不合法",1001);
+                throw new ServiceException("gender 不合法", ErpErrorCode.INVALID_PARAM.code());
             }
             row.put(field.key(),value);
         }
@@ -162,24 +164,24 @@ public class ErpMasterService {
             BigDecimal value = new BigDecimal(raw.toString()).setScale(2);
             if (value.signum() < 0 || value.precision() > 10) throw new NumberFormatException();
             return value;
-        } catch (RuntimeException e) { throw new ServiceException("金额不合法",1001); }
+        } catch (RuntimeException e) { throw new ServiceException("金额不合法", ErpErrorCode.INVALID_PARAM.code()); }
     }
 
     private Object normalizeId(Object raw) {
         if (raw == null || raw.toString().isBlank()) return null;
         try { long value = Long.parseLong(raw.toString()); if (value <= 0) throw new NumberFormatException(); return value; }
-        catch (NumberFormatException e) { throw new ServiceException("关联 ID 不合法",1001); }
+        catch (NumberFormatException e) { throw new ServiceException("关联 ID 不合法", ErpErrorCode.INVALID_PARAM.code()); }
     }
 
     private Object normalizeDate(Object raw) {
         if (raw == null || raw.toString().isBlank()) return null;
         try { return LocalDate.parse(raw.toString()); }
-        catch (DateTimeParseException e) { throw new ServiceException("日期不合法",1001); }
+        catch (DateTimeParseException e) { throw new ServiceException("日期不合法", ErpErrorCode.INVALID_PARAM.code()); }
     }
 
     private ErpMasterSql.Spec checkSpec(String resource) {
         ErpMasterSql.Spec spec = ErpMasterSql.spec(resource);
-        if (spec == null) throw new ServiceException("未知主数据类型",1001);
+        if (spec == null) throw new ServiceException("未知主数据类型", ErpErrorCode.INVALID_PARAM.code());
         return spec;
     }
 }

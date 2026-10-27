@@ -47,11 +47,12 @@ export const enums = {
     5: { label: '已完成', type: 'success' },
     9: { label: '已取消', type: 'danger' },
   },
-  /** 报价单：0待确认 1已接受 2已失效 */
+  /** 报价单：0待确认 1已接受 2已失效 3已转单 */
   quoteStatus: {
     0: { label: '待确认', type: 'info' },
     1: { label: '已接受', type: 'success' },
     2: { label: '已失效', type: 'danger' },
+    3: { label: '已转单', type: 'warning' },
   },
   /** 采购单：0草稿 1已下单 2部分到货 3已到货 9已取消 */
   purchaseStatus: {

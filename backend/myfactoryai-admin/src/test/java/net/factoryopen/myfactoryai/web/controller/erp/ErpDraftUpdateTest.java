@@ -72,8 +72,8 @@ class ErpDraftUpdateTest {
 
             assertEquals("SO2026000007", result.get("orderNo"));
             verify(mapper).deleteLines(7L);
-            verify(mapper).insertLine(7L, 1L, 2L, 3L, 2, new BigDecimal("10.00"),
-                    new BigDecimal("20.00"), "tester");
+            verify(mapper).insertLines(7L, List.of(new ErpOrderMapper.OrderLineInsert(1L, 2L, 3L, 2,
+                    new BigDecimal("10.00"), new BigDecimal("20.00"))), "tester");
         }
     }
 
@@ -116,8 +116,8 @@ class ErpDraftUpdateTest {
 
             assertEquals("PO2026000003", result.get("poNo"));
             verify(mapper).deleteLines(3L);
-            verify(mapper).insertLine(3L, 9L, new BigDecimal("1.500"), new BigDecimal("4.00"),
-                    new BigDecimal("6.00"), "tester");
+            verify(mapper).insertLines(3L, List.of(new ErpPurchaseMapper.PurchaseLineInsert(9L,
+                    new BigDecimal("1.500"), new BigDecimal("4.00"), new BigDecimal("6.00"))), "tester");
         }
     }
 }

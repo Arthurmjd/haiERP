@@ -3,6 +3,7 @@ package net.factoryopen.myfactoryai.erp.mapper;
 import java.util.Map;
 import java.util.List;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.InsertProvider;
@@ -42,4 +43,36 @@ public interface ErpMasterMapper {
     @Insert("INSERT INTO md_sku(sku_code,style_id,color_id,size_id,status,create_by,create_time) VALUES(#{code},#{styleId},#{colorId},#{sizeId},1,#{username},NOW())")
     @Options(useGeneratedKeys=true,keyProperty="id")
     int insertSku(Map<String,Object> args);
+
+    // ── 工序可报工员工 ────────────────────────────────────────────────
+    @Select("SELECT COUNT(*) FROM md_process WHERE process_id=#{id} AND status=1")
+    int processActive(@Param("id") Long id);
+
+    @Select("SELECT COUNT(*) FROM hr_employee WHERE emp_id=#{id} AND status=1 AND emp_type=1")
+    int workerActive(@Param("id") Long id);
+
+    @Select("""
+        SELECT CAST(e.emp_id AS CHAR) AS id, CONCAT(e.emp_no,' · ',e.name) AS name, e.position
+        FROM md_process_worker w JOIN hr_employee e ON e.emp_id=w.emp_id
+        WHERE w.process_id=#{processId} AND e.status=1 AND e.emp_type=1
+        ORDER BY e.emp_no
+        """)
+    List<Map<String,Object>> processWorkers(@Param("processId") Long processId);
+
+    @Select("""
+        SELECT CAST(e.emp_id AS CHAR) AS id, CONCAT(e.emp_no,' · ',e.name) AS name, e.position
+        FROM hr_employee e
+        WHERE e.status=1 AND e.emp_type=1
+          AND NOT EXISTS (SELECT 1 FROM md_process_worker w
+                          WHERE w.process_id=#{processId} AND w.emp_id=e.emp_id)
+        ORDER BY e.emp_no
+        """)
+    List<Map<String,Object>> processWorkerCandidates(@Param("processId") Long processId);
+
+    @Insert("INSERT IGNORE INTO md_process_worker(process_id,emp_id,create_by,create_time) VALUES(#{processId},#{empId},#{username},NOW())")
+    int insertProcessWorker(@Param("processId") Long processId,@Param("empId") Long empId,
+                            @Param("username") String username);
+
+    @Delete("DELETE FROM md_process_worker WHERE process_id=#{processId} AND emp_id=#{empId}")
+    int deleteProcessWorker(@Param("processId") Long processId,@Param("empId") Long empId);
 }

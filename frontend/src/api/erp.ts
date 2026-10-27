@@ -1,5 +1,4 @@
 import { http, payload, pageTotal, type Envelope, type Page } from './client'
-import { demoApi, isDemoMode } from './demo'
 import { enumLabel } from './labels'
 
 export interface Option { id: string; name: string; code?: string; styleId?: string; colorId?: string; sizeId?: string }
@@ -48,94 +47,86 @@ export const orderStatusLabel = (status: number) => enumLabel('orderStatus', sta
 
 export const erpApi = {
   operLogs: async (query: OperLogQuery) => {
-    if (isDemoMode()) return demoApi.operLogs(query)
     const result = (await http.get<Page<OperLogRow>>('/monitor/operlog/list', { params: query })).data
     return { rows: result.rows, total: pageTotal(result.total) }
   },
-  options: () => isDemoMode() ? demoApi.options() : payload<OrderOptions>(http.get('/erp/md/orderOptions')),
+  options: () => payload<OrderOptions>(http.get('/erp/md/orderOptions')),
   orders: async (pageNum: number, keyword: string) => {
-    if (isDemoMode()) return demoApi.orders(pageNum, keyword)
     const result = (await http.get<Page<Order>>('/erp/sd/order/list', { params: { pageNum, pageSize: 10, keyword } })).data
     return { rows: result.rows, total: pageTotal(result.total) }
   },
-  order: (id: string) => isDemoMode() ? demoApi.order(id) : payload<Order>(http.get(`/erp/sd/order/${encodeURIComponent(id)}`)),
-  createOrder: (draft: OrderDraft) => isDemoMode() ? demoApi.createOrder(draft) : payload<{ orderId: string; orderNo: string }>(http.post('/erp/sd/order', draft)),
-  updateOrder: (id: string, draft: OrderDraft) => isDemoMode() ? demoApi.updateOrder(id, draft) : payload<{ orderId: string; orderNo: string }>(http.put(`/erp/sd/order/${encodeURIComponent(id)}`, draft)),
+  order: (id: string) => payload<Order>(http.get(`/erp/sd/order/${encodeURIComponent(id)}`)),
+  createOrder: (draft: OrderDraft) => payload<{ orderId: string; orderNo: string }>(http.post('/erp/sd/order', draft)),
+  updateOrder: (id: string, draft: OrderDraft) => payload<{ orderId: string; orderNo: string }>(http.put(`/erp/sd/order/${encodeURIComponent(id)}`, draft)),
   confirmOrder: async (id: string) => {
-    if (isDemoMode()) return demoApi.confirmOrder(id)
     await http.post<Envelope>(`/erp/sd/order/confirm/${encodeURIComponent(id)}`)
   },
-  mrp: () => isDemoMode() ? demoApi.mrp() : payload<MrpRow[]>(http.get('/erp/pu/suggestion/list')),
-  inventory: () => isDemoMode() ? demoApi.inventory() : payload<InventoryRow[]>(http.get('/erp/st/inventory/list')),
-  overview: () => isDemoMode() ? demoApi.overview() : payload<Overview>(http.get('/erp/dashboard/overview')),
-  purchaseOptions: () => isDemoMode() ? demoApi.purchaseOptions() : payload<PurchaseOptions>(http.get('/erp/md/purchaseOptions')),
+  mrp: (keyword = '') => payload<MrpRow[]>(http.get('/erp/pu/suggestion/list', { params: { keyword: keyword || undefined } })),
+  inventory: (keyword = '') => payload<InventoryRow[]>(http.get('/erp/st/inventory/list', { params: { keyword: keyword || undefined } })),
+  overview: () => payload<Overview>(http.get('/erp/dashboard/overview')),
+  purchaseOptions: () => payload<PurchaseOptions>(http.get('/erp/md/purchaseOptions')),
   purchases: async (pageNum: number, keyword: string) => {
-    if (isDemoMode()) return demoApi.purchases(pageNum, keyword)
     const result = (await http.get<Page<PurchaseOrder>>('/erp/pu/purchaseOrder/list', { params: { pageNum, pageSize: 10, keyword } })).data
     return { rows: result.rows, total: pageTotal(result.total) }
   },
-  purchase: (id: string) => isDemoMode() ? demoApi.purchase(id) : payload<PurchaseOrder>(http.get(`/erp/pu/purchaseOrder/${encodeURIComponent(id)}`)),
-  createPurchase: (draft: PurchaseDraft) => isDemoMode() ? demoApi.createPurchase(draft) : payload<{ poId: string; poNo: string }>(http.post('/erp/pu/purchaseOrder', draft)),
-  updatePurchase: (id: string, draft: PurchaseDraft) => isDemoMode() ? demoApi.updatePurchase(id, draft) : payload<{ poId: string; poNo: string }>(http.put(`/erp/pu/purchaseOrder/${encodeURIComponent(id)}`, draft)),
+  purchase: (id: string) => payload<PurchaseOrder>(http.get(`/erp/pu/purchaseOrder/${encodeURIComponent(id)}`)),
+  createPurchase: (draft: PurchaseDraft) => payload<{ poId: string; poNo: string }>(http.post('/erp/pu/purchaseOrder', draft)),
+  updatePurchase: (id: string, draft: PurchaseDraft) => payload<{ poId: string; poNo: string }>(http.put(`/erp/pu/purchaseOrder/${encodeURIComponent(id)}`, draft)),
   confirmPurchase: async (id: string) => {
-    if (isDemoMode()) return demoApi.confirmPurchase(id)
     await http.post<Envelope>(`/erp/pu/purchaseOrder/confirm/${encodeURIComponent(id)}`)
   },
-  receivePurchase: (receipt: PurchaseReceipt) => isDemoMode() ? demoApi.receivePurchase(receipt) : payload<{ poId: string }>(http.post('/erp/pu/purchaseOrder/receive', receipt)),
-  workOrder: (id: string) => isDemoMode() ? demoApi.workOrder(id) : payload<WorkOrder>(http.get(`/erp/pr/workOrder/${encodeURIComponent(id)}`)),
-  createWorkOrder: (orderId: string, styleId: string) => isDemoMode() ? demoApi.createWorkOrder(orderId, styleId) : payload<{ woId: string; woNo: string }>(http.post('/erp/pr/workOrder', { orderId, styleId })),
-  issueWorkOrder: async (id: string, requestKey: string) => { if (isDemoMode()) return demoApi.issueWorkOrder(id); await http.post<Envelope>(`/erp/pr/workOrder/issue/${encodeURIComponent(id)}`, { requestKey }) },
-  reportProcess: async (request: { workOrderProcessId: string; skuId: string; empId: string | null; doneQty: number; badQty: number; reportDate: string; requestKey: string }) => { if (isDemoMode()) return demoApi.reportProcess(request); await http.post<Envelope>('/erp/pr/workOrder/process/report', request) },
-  finishWorkOrder: async (id: string, items: { skuId: string; goodQty: number; batchNo: string }[], requestKey: string) => { if (isDemoMode()) return demoApi.finishWorkOrder(id, items); await http.post<Envelope>(`/erp/pr/workOrder/finish/${encodeURIComponent(id)}`, { skuItems: items, requestKey }) },
-  workOrderOptions: (workOrderProcessId?: string) => isDemoMode() ? demoApi.workOrderOptions() : payload<{ workers: Option[] }>(http.get('/erp/md/workOrderOptions', { params: workOrderProcessId ? { workOrderProcessId } : {} })),
-  processWorkers: (processId: string) => isDemoMode() ? Promise.resolve({ assigned: [] as Option[], candidates: [] as Option[] }) : payload<{ assigned: { id: string; name: string; position?: string; empType?: number; status?: number }[]; candidates: { id: string; name: string; position?: string }[] }>(http.get(`/erp/md/process/${encodeURIComponent(processId)}/worker`)),
-  addProcessWorker: async (processId: string, empId: string) => { if (isDemoMode()) throw new Error('演示模式不支持'); await http.post<Envelope>(`/erp/md/process/${encodeURIComponent(processId)}/worker/${encodeURIComponent(empId)}`) },
-  removeProcessWorker: async (processId: string, empId: string) => { if (isDemoMode()) throw new Error('演示模式不支持'); await http.delete<Envelope>(`/erp/md/process/${encodeURIComponent(processId)}/worker/${encodeURIComponent(empId)}`) },
-  shipment: (id: string) => isDemoMode() ? demoApi.shipment(id) : payload<Shipment>(http.get(`/erp/sh/shipment/${encodeURIComponent(id)}`)),
-  createShipment: (orderId: string, logisticsCompany: string, logisticsNo: string, items: StockLine[]) => isDemoMode() ? demoApi.createShipment(orderId, logisticsCompany, logisticsNo, items) : payload<{ shipmentId: string; shipmentNo: string }>(http.post('/erp/sh/shipment', { orderId, logisticsCompany, logisticsNo, items })),
-  ship: async (id: string, requestKey: string) => { if (isDemoMode()) return demoApi.ship(id); await http.post<Envelope>(`/erp/sh/shipment/ship/${encodeURIComponent(id)}`, { requestKey }) },
-  sign: async (id: string) => { if (isDemoMode()) return demoApi.sign(id); await http.post<Envelope>(`/erp/sh/shipment/sign/${encodeURIComponent(id)}`) },
-  returnOrder: (id: string) => isDemoMode() ? demoApi.returnOrder(id) : payload<ReturnOrder>(http.get(`/erp/sh/return/${encodeURIComponent(id)}`)),
-  createReturn: (shipmentId: string, returnType: number, isRestock: number, reason: string, refundAmount: number, items: StockLine[]) => isDemoMode() ? demoApi.createReturn(shipmentId, returnType, isRestock, reason, refundAmount, items) : payload<{ returnId: string; returnNo: string }>(http.post('/erp/sh/return', { shipmentId, returnType, isRestock, reason, refundAmount, items })),
-  handleReturn: async (id: string, requestKey: string) => { if (isDemoMode()) return demoApi.handleReturn(id); await http.post<Envelope>(`/erp/sh/return/handle/${encodeURIComponent(id)}`, { requestKey }) },
-  settlement: (id: string) => isDemoMode() ? demoApi.settlement(id) : payload<Settlement>(http.get(`/erp/fn/settlement/${encodeURIComponent(id)}`)),
-  calculateCost: (orderId: string, styleId: string, requestKey: string) => isDemoMode() ? demoApi.calculateCost(orderId, styleId) : payload<{ settleId: string }>(http.post('/erp/fn/settlement/calc', { orderId, styleId, requestKey })),
-  confirmCost: async (id: string) => { if (isDemoMode()) return demoApi.confirmCost(id); await http.post<Envelope>(`/erp/fn/settlement/confirm/${encodeURIComponent(id)}`) },
+  receivePurchase: (receipt: PurchaseReceipt) => payload<{ poId: string }>(http.post('/erp/pu/purchaseOrder/receive', receipt)),
+  workOrder: (id: string) => payload<WorkOrder>(http.get(`/erp/pr/workOrder/${encodeURIComponent(id)}`)),
+  createWorkOrder: (orderId: string, styleId: string) => payload<{ woId: string; woNo: string }>(http.post('/erp/pr/workOrder', { orderId, styleId })),
+  issueWorkOrder: async (id: string, requestKey: string) => { await http.post<Envelope>(`/erp/pr/workOrder/issue/${encodeURIComponent(id)}`, { requestKey }) },
+  reportProcess: async (request: { workOrderProcessId: string; skuId: string; empId: string | null; doneQty: number; badQty: number; reportDate: string; requestKey: string }) => { await http.post<Envelope>('/erp/pr/workOrder/process/report', request) },
+  finishWorkOrder: async (id: string, items: { skuId: string; goodQty: number; batchNo: string }[], requestKey: string) => { await http.post<Envelope>(`/erp/pr/workOrder/finish/${encodeURIComponent(id)}`, { skuItems: items, requestKey }) },
+  workOrderOptions: (workOrderProcessId?: string) => payload<{ workers: Option[] }>(http.get('/erp/md/workOrderOptions', { params: workOrderProcessId ? { workOrderProcessId } : {} })),
+  processWorkers: (processId: string) => payload<{ assigned: { id: string; name: string; position?: string; empType?: number; status?: number }[]; candidates: { id: string; name: string; position?: string }[] }>(http.get(`/erp/md/process/${encodeURIComponent(processId)}/worker`)),
+  addProcessWorker: async (processId: string, empId: string) => { await http.post<Envelope>(`/erp/md/process/${encodeURIComponent(processId)}/worker/${encodeURIComponent(empId)}`) },
+  removeProcessWorker: async (processId: string, empId: string) => { await http.delete<Envelope>(`/erp/md/process/${encodeURIComponent(processId)}/worker/${encodeURIComponent(empId)}`) },
+  shipment: (id: string) => payload<Shipment>(http.get(`/erp/sh/shipment/${encodeURIComponent(id)}`)),
+  createShipment: (orderId: string, logisticsCompany: string, logisticsNo: string, items: StockLine[]) => payload<{ shipmentId: string; shipmentNo: string }>(http.post('/erp/sh/shipment', { orderId, logisticsCompany, logisticsNo, items })),
+  ship: async (id: string, requestKey: string) => { await http.post<Envelope>(`/erp/sh/shipment/ship/${encodeURIComponent(id)}`, { requestKey }) },
+  sign: async (id: string) => { await http.post<Envelope>(`/erp/sh/shipment/sign/${encodeURIComponent(id)}`) },
+  returnOrder: (id: string) => payload<ReturnOrder>(http.get(`/erp/sh/return/${encodeURIComponent(id)}`)),
+  createReturn: (shipmentId: string, returnType: number, isRestock: number, reason: string, refundAmount: number, items: StockLine[]) => payload<{ returnId: string; returnNo: string }>(http.post('/erp/sh/return', { shipmentId, returnType, isRestock, reason, refundAmount, items })),
+  handleReturn: async (id: string, requestKey: string) => { await http.post<Envelope>(`/erp/sh/return/handle/${encodeURIComponent(id)}`, { requestKey }) },
+  settlement: (id: string) => payload<Settlement>(http.get(`/erp/fn/settlement/${encodeURIComponent(id)}`)),
+  calculateCost: (orderId: string, styleId: string, requestKey: string) => payload<{ settleId: string }>(http.post('/erp/fn/settlement/calc', { orderId, styleId, requestKey })),
+  confirmCost: async (id: string) => { await http.post<Envelope>(`/erp/fn/settlement/confirm/${encodeURIComponent(id)}`) },
   salaryEmployees: async () => {
-    if (isDemoMode()) return demoApi.salaryEmployees()
     const result = (await http.get<Page<{ id: string; code: string; name: string; status: number }>>('/erp/hr/employee/list', { params: { pageNum: 1, pageSize: 500 } })).data
     return result.rows.filter(item => item.status === 1).map(item => ({ id: item.id, name: `${item.code} · ${item.name}` }))
   },
-  employeeDepartments: () => isDemoMode() ? Promise.resolve<Option[]>([{ id: '1', name: '裁剪车间' }, { id: '2', name: '缝制车间' }, { id: '6', name: '财务部' }]) : payload<Option[]>(http.get('/erp/hr/employee/options')),
-  generateSalary: (empId: string, wagePeriod: string) => isDemoMode() ? demoApi.generateSalary(empId, wagePeriod) : payload<{ id: string }>(http.post('/erp/hr/salarySlip/generate', { empId, wagePeriod })),
-  confirmSalary: async (id: string) => { if (isDemoMode()) return demoApi.confirmSalary(id); await http.post<Envelope>(`/erp/hr/salarySlip/confirm/${encodeURIComponent(id)}`) },
-  confirmSalaryBatch: async (wagePeriod: string) => { if (isDemoMode()) throw new Error('演示模式不支持批量确认'); return payload<{ wagePeriod: string; confirmed: number; skipped: { id: string; empId: string; empName: string; reason: string }[] }>(http.post('/erp/hr/salarySlip/confirmBatch', { wagePeriod })) },
-  voidSalary: async (id: string) => { if (isDemoMode()) throw new Error('演示模式不支持作废'); await http.post<Envelope>(`/erp/hr/salarySlip/void/${encodeURIComponent(id)}`) },
-  quotation: (id: string) => isDemoMode() ? demoApi.quotation(id) : payload<Quotation>(http.get(`/erp/sd/quotation/${encodeURIComponent(id)}`)),
-  quotationFromSettlement: (settleIds: string[], requestKey: string) => isDemoMode() ? demoApi.quotationFromSettlement(settleIds) : payload<{ quoteId: string; quoteNo: string }>(http.post('/erp/sd/quotation/fromSettlement', { settleIds, requestKey })),
-  transitionQuotation: async (id: string, action: 'accept' | 'expire') => { if (isDemoMode()) return demoApi.transitionQuotation(id, action); await http.post<Envelope>(`/erp/sd/quotation/${action}/${encodeURIComponent(id)}`) },
+  employeeDepartments: () => payload<Option[]>(http.get('/erp/hr/employee/options')),
+  generateSalary: (empId: string, wagePeriod: string) => payload<{ id: string }>(http.post('/erp/hr/salarySlip/generate', { empId, wagePeriod })),
+  confirmSalary: async (id: string) => { await http.post<Envelope>(`/erp/hr/salarySlip/confirm/${encodeURIComponent(id)}`) },
+  confirmSalaryBatch: async (wagePeriod: string) => { return payload<{ wagePeriod: string; confirmed: number; skipped: { id: string; empId: string; empName: string; reason: string }[] }>(http.post('/erp/hr/salarySlip/confirmBatch', { wagePeriod })) },
+  voidSalary: async (id: string) => { await http.post<Envelope>(`/erp/hr/salarySlip/void/${encodeURIComponent(id)}`) },
+  quotation: (id: string) => payload<Quotation>(http.get(`/erp/sd/quotation/${encodeURIComponent(id)}`)),
+  quotationFromSettlement: (settleIds: string[], requestKey: string) => payload<{ quoteId: string; quoteNo: string }>(http.post('/erp/sd/quotation/fromSettlement', { settleIds, requestKey })),
+  transitionQuotation: async (id: string, action: 'accept' | 'expire') => { await http.post<Envelope>(`/erp/sd/quotation/${action}/${encodeURIComponent(id)}`) },
   masterRecord: (resource: string, id: string) => payload<Record<string, unknown>>(http.get(`${masterPath(resource)}/${encodeURIComponent(id)}`)),
-  createMaster: (resource: string, values: Record<string, unknown>) => isDemoMode() ? demoApi.saveMaster(resource, null, values) : payload<{ id: string }>(http.post(masterPath(resource), values)),
-  updateMaster: async (resource: string, id: string, values: Record<string, unknown>) => { if (isDemoMode()) { await demoApi.saveMaster(resource, id, values); return } await http.put<Envelope>(`${masterPath(resource)}/${encodeURIComponent(id)}`, values) },
-  generateSku: (styleId: string, colorId: string, sizeId: string) => isDemoMode() ? demoApi.generateSku(styleId, colorId, sizeId) : payload<{ id: string }>(http.post('/erp/md/sku/generate', { styleId, colorId, sizeId })),
-  skuOptions: () => isDemoMode() ? demoApi.options() : payload<Pick<OrderOptions, 'styles' | 'colors' | 'sizes'>>(http.get('/erp/md/sku/options')),
-  styleBom: (id: string) => isDemoMode() ? demoApi.styleBom(id) : payload<StyleBomLine[]>(http.get(`/erp/md/style/${encodeURIComponent(id)}/bom`)),
-  styleProcesses: (id: string) => isDemoMode() ? demoApi.styleProcesses(id) : payload<StyleProcessLine[]>(http.get(`/erp/md/style/${encodeURIComponent(id)}/process`)),
-  stylePlanOptions: () => isDemoMode() ? demoApi.stylePlanOptions() : payload<{ materials: PurchaseOption[]; processes: Option[] }>(http.get('/erp/md/style/options')),
-  saveStyleBom: async (id: string, items: { materialId: string; qty: number; lossRate: number }[]) => { if (isDemoMode()) return demoApi.saveStyleBom(id, items); await http.put<Envelope>(`/erp/md/style/${encodeURIComponent(id)}/bom`, { items }) },
-  saveStyleProcesses: async (id: string, items: { processId: string; seq: number; unitPrice: number }[]) => { if (isDemoMode()) return demoApi.saveStyleProcesses(id, items); await http.put<Envelope>(`/erp/md/style/${encodeURIComponent(id)}/process`, { items }) },
-  alerts: () => isDemoMode() ? demoApi.alerts() : payload<Alert[]>(http.get('/erp/dashboard/alerts')),
-  explainAlert: (alertId: string) => isDemoMode() ? demoApi.explainAlert(alertId) : payload<{ alertId: string; explanation: string; modelUsed: boolean }>(http.post('/ai/alerts/explain', { alertId })),
-  askAi: (mode: string, question: string) => isDemoMode() ? demoApi.askAi(mode, question) : payload<AiAnswer>(http.post('/ai/erp/ask', { mode, question })),
-  adjustStock: (itemType: number, itemId: string, batchNo: string, actualQty: number, reason: string, requestKey: string) => isDemoMode() ? demoApi.adjustStock(itemType, itemId, batchNo, actualQty, reason) : payload<{ itemId: string; previousQty: number; actualQty: number; delta: number }>(http.post('/erp/st/txn/adjust', { itemType, itemId, batchNo, actualQty, reason, requestKey })),
-  generatePurchaseFromMrp: (supplierId: string, expectDate: string, materialIds: string[], requestKey: string) => isDemoMode() ? demoApi.generatePurchaseFromMrp(supplierId, expectDate, materialIds) : payload<{ poId: string; poNo: string }>(http.post('/erp/pu/suggestion/generate', { supplierId, expectDate, materialIds, requestKey })),
+  createMaster: (resource: string, values: Record<string, unknown>) => payload<{ id: string }>(http.post(masterPath(resource), values)),
+  updateMaster: async (resource: string, id: string, values: Record<string, unknown>) => { await http.put<Envelope>(`${masterPath(resource)}/${encodeURIComponent(id)}`, values) },
+  generateSku: (styleId: string, colorId: string, sizeId: string) => payload<{ id: string }>(http.post('/erp/md/sku/generate', { styleId, colorId, sizeId })),
+  skuOptions: () => payload<Pick<OrderOptions, 'styles' | 'colors' | 'sizes'>>(http.get('/erp/md/sku/options')),
+  styleBom: (id: string) => payload<StyleBomLine[]>(http.get(`/erp/md/style/${encodeURIComponent(id)}/bom`)),
+  styleProcesses: (id: string) => payload<StyleProcessLine[]>(http.get(`/erp/md/style/${encodeURIComponent(id)}/process`)),
+  stylePlanOptions: () => payload<{ materials: PurchaseOption[]; processes: Option[] }>(http.get('/erp/md/style/options')),
+  saveStyleBom: async (id: string, items: { materialId: string; qty: number; lossRate: number }[]) => { await http.put<Envelope>(`/erp/md/style/${encodeURIComponent(id)}/bom`, { items }) },
+  saveStyleProcesses: async (id: string, items: { processId: string; seq: number; unitPrice: number }[]) => { await http.put<Envelope>(`/erp/md/style/${encodeURIComponent(id)}/process`, { items }) },
+  alerts: () => payload<Alert[]>(http.get('/erp/dashboard/alerts')),
+  explainAlert: (alertId: string) => payload<{ alertId: string; explanation: string; modelUsed: boolean }>(http.post('/ai/alerts/explain', { alertId })),
+  askAi: (mode: string, question: string) => payload<AiAnswer>(http.post('/ai/erp/ask', { mode, question })),
+  adjustStock: (itemType: number, itemId: string, batchNo: string, actualQty: number, reason: string, requestKey: string) => payload<{ itemId: string; previousQty: number; actualQty: number; delta: number }>(http.post('/erp/st/txn/adjust', { itemType, itemId, batchNo, actualQty, reason, requestKey })),
+  generatePurchaseFromMrp: (supplierId: string, expectDate: string, materialIds: string[], requestKey: string) => payload<{ poId: string; poNo: string }>(http.post('/erp/pu/suggestion/generate', { supplierId, expectDate, materialIds, requestKey })),
 
   removeMaster: async (resource: string, id: string) => {
-    if (isDemoMode()) throw new Error('演示模式不支持删除，请连真实后端后再试')
     await http.delete<Envelope>(`${masterPath(resource)}/${encodeURIComponent(id)}`)
   },
   changeEmployeeStatus: async (id: string, status: 0 | 1) => {
-    if (isDemoMode()) throw new Error('演示模式不支持离职/复职操作')
     await http.post<Envelope>(`/erp/hr/employee/${encodeURIComponent(id)}/status`, { status })
   },
   deleteOrder: (id: string) => docDelete('/erp/sd/order', id),
@@ -153,12 +144,10 @@ export const erpApi = {
 }
 
 async function docDelete(path: string, id: string) {
-  if (isDemoMode()) throw new Error('演示模式不支持删除，请连真实后端后再试')
   await http.delete<Envelope>(`${path}/${encodeURIComponent(id)}`)
 }
 
 async function docCancel(path: string, id: string) {
-  if (isDemoMode()) throw new Error('演示模式不支持作废，请连真实后端后再试')
   await http.post<Envelope>(`${path}/cancel/${encodeURIComponent(id)}`)
 }
 

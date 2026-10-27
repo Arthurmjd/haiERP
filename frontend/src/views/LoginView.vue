@@ -15,7 +15,6 @@ const captchaImage = ref('')
 const captchaEnabled = ref(false)
 const busy = ref(false)
 const loginError = ref('')
-const previewAvailable = import.meta.env.DEV
 
 async function refreshCaptcha() {
   try {
@@ -45,9 +44,6 @@ async function submit() {
 }
 onMounted(refreshCaptcha)
 
-function openPreview() {
-  router.push('/preview')
-}
 </script>
 
 <template>
@@ -64,8 +60,6 @@ function openPreview() {
       <el-input v-model="password" placeholder="密码" type="password" show-password autocomplete="current-password" size="large" aria-label="密码" />
       <div v-if="captchaEnabled" class="captcha-row"><el-input v-model="code" placeholder="验证码" size="large" aria-label="验证码" /><img v-if="captchaImage" class="captcha-image" :src="captchaImage" alt="点击刷新验证码" @click="refreshCaptcha" /></div>
       <el-button class="login-submit" type="primary" size="large" native-type="submit" :loading="busy">登录</el-button>
-      <el-button v-if="previewAvailable" class="preview-submit" size="large" native-type="button" @click="openPreview">进入演示预览</el-button>
-      <p v-if="previewAvailable" class="preview-note">预览数据仅保存在当前浏览器会话</p>
     </form></main>
   </div>
 </template>

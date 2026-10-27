@@ -1,5 +1,7 @@
 package net.factoryopen.myfactoryai.erp.service;
 
+import net.factoryopen.myfactoryai.erp.support.ErpErrorCode;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ public class ErpShipmentService {
 
     public Map<String,Object> shipment(Long id) {
         Map<String,Object> header = mapper.shipmentDetail(id);
-        if (header == null) throw new ServiceException("出货单不存在",1001);
+        if (header == null) throw new ServiceException("出货单不存在", ErpErrorCode.INVALID_PARAM.code());
         Map<String,Object> result = new HashMap<>(header);
         result.put("items",mapper.shipmentDetailLines(id));
         return result;
@@ -42,7 +44,7 @@ public class ErpShipmentService {
 
     public Map<String,Object> returned(Long id) {
         Map<String,Object> header = mapper.returnDetail(id);
-        if (header == null) throw new ServiceException("退货单不存在",1001);
+        if (header == null) throw new ServiceException("退货单不存在", ErpErrorCode.INVALID_PARAM.code());
         Map<String,Object> result = new HashMap<>(header);
         result.put("items",mapper.returnDetailLines(id));
         return result;
@@ -50,16 +52,16 @@ public class ErpShipmentService {
 
     @Transactional
     public Map<String,String> create(ShipmentRequest.Create request) {
-        if (request == null || request.orderId() == null) throw new ServiceException("销售订单必填",1001);
+        if (request == null || request.orderId() == null) throw new ServiceException("销售订单必填", ErpErrorCode.INVALID_PARAM.code());
         List<ShipmentRequest.Line> lines = validLines(request.items());
         Map<String,Object> order = mapper.lockOrder(request.orderId());
-        if (order == null || !List.of(2,3).contains(number(order,"status").intValue())) throw new ServiceException("订单状态不允许出货",2001);
+        if (order == null || !List.of(2,3).contains(number(order,"status").intValue())) throw new ServiceException("订单状态不允许出货", ErpErrorCode.INVALID_STATE.code());
         Map<Long,Integer> ordered = quantities(mapper.ordered(request.orderId()));
         Map<Long,Integer> requested = new HashMap<>();
         for (ShipmentRequest.Line line : lines) requested.merge(line.skuId(),line.qty(),Integer::sum);
         for (Map.Entry<Long,Integer> entry : requested.entrySet()) {
             int remaining = ordered.getOrDefault(entry.getKey(),0) - mapper.shipped(request.orderId(),entry.getKey());
-            if (remaining < entry.getValue()) throw new ServiceException("出货超过订单未发数量",2006);
+            if (remaining < entry.getValue()) throw new ServiceException("出货超过订单未发数量", ErpErrorCode.CONFLICT.code());
         }
         Map<String,Object> header = new HashMap<>();
         header.put("shipmentNo",DocNos.temp("SH"));
@@ -70,37 +72,39 @@ public class ErpShipmentService {
         Long id = number(header,"shipmentId");
         String no = DocNos.formal("SH",id);
         mapper.setShipmentNo(id,no);
-        for (ShipmentRequest.Line line : lines) mapper.insertShipmentLine(id,line.skuId(),line.batchNo().trim(),line.qty(),SecurityUtils.getUsername());
+        mapper.insertShipmentLines(id,
+                lines.stream().map(line -> new ErpShipmentMapper.ShipmentLineInsert(line.skuId(), line.batchNo().trim(), line.qty())).toList(),
+                SecurityUtils.getUsername());
         return Map.of("shipmentId",id.toString(),"shipmentNo",no);
     }
 
     @Transactional
     public void ship(Long id,ShipmentRequest.Action request) {
-        if (id == null || request == null) throw new ServiceException("出货单或请求键缺失",1001);
+        if (id == null || request == null) throw new ServiceException("出货单或请求键缺失", ErpErrorCode.INVALID_PARAM.code());
         workflow.assertOpen(LocalDate.now());
         if (stock.begin(request.requestKey(),"shipment_ship","sh_shipment",id,Map.of("shipmentId",id))) return;
         Map<String,Object> snapshot = mapper.shipmentDetail(id);
-        if (snapshot == null) throw new ServiceException("出货单不存在",1001);
+        if (snapshot == null) throw new ServiceException("出货单不存在", ErpErrorCode.INVALID_PARAM.code());
         Long orderId = Long.valueOf((String) snapshot.get("orderId"));
         Map<String,Object> order = mapper.lockOrder(orderId);
         Map<String,Object> shipment = mapper.lockShipment(id);
-        if (order == null || shipment == null || number(shipment,"status").intValue() != 0 || !List.of(2,3).contains(number(order,"status").intValue())) throw new ServiceException("状态不允许出货",2001);
+        if (order == null || shipment == null || number(shipment,"status").intValue() != 0 || !List.of(2,3).contains(number(order,"status").intValue())) throw new ServiceException("状态不允许出货", ErpErrorCode.INVALID_STATE.code());
         List<Map<String,Object>> lines = mapper.shipmentLines(id);
-        if (lines.isEmpty()) throw new ServiceException("出货单无明细",1001);
+        if (lines.isEmpty()) throw new ServiceException("出货单无明细", ErpErrorCode.INVALID_PARAM.code());
         Map<Long,Integer> ordered = quantities(mapper.ordered(orderId));
         Map<Long,Integer> requested = new HashMap<>();
         for (Map<String,Object> line : lines) requested.merge(number(line,"skuId"),number(line,"qty").intValue(),Integer::sum);
         for (Map.Entry<Long,Integer> entry : requested.entrySet()) {
-            if (mapper.shipped(orderId,entry.getKey()) + entry.getValue() > ordered.getOrDefault(entry.getKey(),0)) throw new ServiceException("出货超过订单未发数量",2006);
+            if (mapper.shipped(orderId,entry.getKey()) + entry.getValue() > ordered.getOrDefault(entry.getKey(),0)) throw new ServiceException("出货超过订单未发数量", ErpErrorCode.CONFLICT.code());
         }
         for (Map<String,Object> line : lines) {
             Long skuId = number(line,"skuId");
             String batch = (String) line.get("batchNo");
             BigDecimal qty = BigDecimal.valueOf(number(line,"qty"));
-            if (stockMapper.subtractStock(2,skuId,batch,qty) != 1) throw new ServiceException("成品库存不足",2003);
+            if (stockMapper.subtractStock(2,skuId,batch,qty) != 1) throw new ServiceException("成品库存不足", ErpErrorCode.INSUFFICIENT.code());
             stock.txn(2,4,2,skuId,batch,qty,"sh_shipment",id,number(line,"itemId"),request.requestKey(),LocalDate.now());
         }
-        if (mapper.ship(id,SecurityUtils.getUsername()) != 1) throw new ServiceException("出货状态已变化",2001);
+        if (mapper.ship(id,SecurityUtils.getUsername()) != 1) throw new ServiceException("出货状态已变化", ErpErrorCode.INVALID_STATE.code());
         boolean full = true;
         for (Map.Entry<Long,Integer> entry : ordered.entrySet()) {
             if (mapper.shipped(orderId,entry.getKey()) < entry.getValue()) { full = false; break; }
@@ -116,11 +120,11 @@ public class ErpShipmentService {
     @Transactional
     public void sign(Long id) {
         Map<String,Object> snapshot = mapper.shipmentDetail(id);
-        if (snapshot == null) throw new ServiceException("出货单不存在",1001);
+        if (snapshot == null) throw new ServiceException("出货单不存在", ErpErrorCode.INVALID_PARAM.code());
         Long orderId = Long.valueOf((String) snapshot.get("orderId"));
         mapper.lockOrder(orderId);
         Map<String,Object> shipment = mapper.lockShipment(id);
-        if (shipment == null || number(shipment,"status").intValue() != 1 || mapper.sign(id,SecurityUtils.getUsername()) != 1) throw new ServiceException("出货单状态不允许签收",2001);
+        if (shipment == null || number(shipment,"status").intValue() != 1 || mapper.sign(id,SecurityUtils.getUsername()) != 1) throw new ServiceException("出货单状态不允许签收", ErpErrorCode.INVALID_STATE.code());
         if (mapper.unsignedShipments(orderId) == 0) mapper.completeOrder(orderId,SecurityUtils.getUsername());
         workflow.complete("sign","sh_shipment",id);
     }
@@ -132,10 +136,10 @@ public class ErpShipmentService {
                 || (request.returnType() == 3 && request.isRestock() != 0)
                 || (request.returnType() != 3 && request.isRestock() != 1)
                 || request.refundAmount() == null || request.refundAmount().signum() < 0
-                || (request.returnType() == 2 && request.refundAmount().signum() != 0)) throw new ServiceException("退货类型、回库或退款金额不合法",1001);
+                || (request.returnType() == 2 && request.refundAmount().signum() != 0)) throw new ServiceException("退货类型、回库或退款金额不合法", ErpErrorCode.INVALID_PARAM.code());
         List<ShipmentRequest.Line> lines = validLines(request.items());
         Map<String,Object> shipment = mapper.lockShipment(request.shipmentId());
-        if (shipment == null || !List.of(1,2).contains(number(shipment,"status").intValue())) throw new ServiceException("原出货单尚未出库",2001);
+        if (shipment == null || !List.of(1,2).contains(number(shipment,"status").intValue())) throw new ServiceException("原出货单尚未出库", ErpErrorCode.INVALID_STATE.code());
         validateReturnLines(request.shipmentId(),lines);
         Map<String,Object> header = new HashMap<>();
         header.put("returnNo",DocNos.temp("RT"));
@@ -147,21 +151,23 @@ public class ErpShipmentService {
         Long id = number(header,"returnId");
         String no = DocNos.formal("RT",id);
         mapper.setReturnNo(id,no);
-        for (ShipmentRequest.Line line : lines) mapper.insertReturnLine(id,line.skuId(),line.batchNo().trim(),line.qty(),SecurityUtils.getUsername());
+        mapper.insertReturnLines(id,
+                lines.stream().map(line -> new ErpShipmentMapper.ReturnLineInsert(line.skuId(), line.batchNo().trim(), line.qty())).toList(),
+                SecurityUtils.getUsername());
         return Map.of("returnId",id.toString(),"returnNo",no);
     }
 
     @Transactional
     public void handleReturn(Long id,ShipmentRequest.Action request) {
-        if (id == null || request == null) throw new ServiceException("退货单或请求键缺失",1001);
+        if (id == null || request == null) throw new ServiceException("退货单或请求键缺失", ErpErrorCode.INVALID_PARAM.code());
         workflow.assertOpen(LocalDate.now());
         if (stock.begin(request.requestKey(),"return_handle","sh_return",id,Map.of("returnId",id))) return;
         Map<String,Object> snapshot = mapper.returnDetail(id);
-        if (snapshot == null) throw new ServiceException("退货单不存在",1001);
+        if (snapshot == null) throw new ServiceException("退货单不存在", ErpErrorCode.INVALID_PARAM.code());
         Long shipmentId = Long.valueOf((String) snapshot.get("shipmentId"));
         mapper.lockShipment(shipmentId);
         Map<String,Object> returned = mapper.lockReturn(id);
-        if (returned == null || number(returned,"status").intValue() != 0) throw new ServiceException("退货单状态不允许处理",2001);
+        if (returned == null || number(returned,"status").intValue() != 0) throw new ServiceException("退货单状态不允许处理", ErpErrorCode.INVALID_STATE.code());
         List<Map<String,Object>> lines = mapper.returnLines(id);
         List<ShipmentRequest.Line> checked = new ArrayList<>();
         for (Map<String,Object> line : lines) checked.add(new ShipmentRequest.Line(number(line,"skuId"),(String) line.get("batchNo"),number(line,"qty").intValue()));
@@ -174,7 +180,7 @@ public class ErpShipmentService {
                 stock.txn(1,7,2,skuId,batch,qty,"sh_return",id,number(line,"itemId"),request.requestKey(),LocalDate.now());
             }
         }
-        if (mapper.handleReturn(id,SecurityUtils.getUsername()) != 1) throw new ServiceException("退货单状态已变化",2001);
+        if (mapper.handleReturn(id,SecurityUtils.getUsername()) != 1) throw new ServiceException("退货单状态已变化", ErpErrorCode.INVALID_STATE.code());
         stock.complete(request.requestKey(),id);
         Long orderId = Long.valueOf((String) snapshot.get("orderId"));
         BigDecimal refundAmount = snapshot.get("refundAmount") == null
@@ -194,17 +200,17 @@ public class ErpShipmentService {
         for (ShipmentRequest.Line line : lines) {
             String key = line.skuId() + "|" + line.batchNo().trim();
             int remaining = shipped.getOrDefault(key,0) - mapper.returned(shipmentId,line.skuId(),line.batchNo().trim());
-            if (line.qty() > remaining) throw new ServiceException("退货超过原出货未退数量",2006);
+            if (line.qty() > remaining) throw new ServiceException("退货超过原出货未退数量", ErpErrorCode.CONFLICT.code());
         }
     }
 
     private static List<ShipmentRequest.Line> validLines(List<ShipmentRequest.Line> lines) {
-        if (lines == null || lines.isEmpty()) throw new ServiceException("至少填写一条 SKU",1001);
+        if (lines == null || lines.isEmpty()) throw new ServiceException("至少填写一条 SKU", ErpErrorCode.INVALID_PARAM.code());
         Set<String> seen = new HashSet<>();
         for (ShipmentRequest.Line line : lines) {
             if (line == null || line.skuId() == null || line.qty() == null || line.qty() <= 0
                     || line.batchNo() == null || line.batchNo().isBlank() || line.batchNo().length() > 30
-                    || !seen.add(line.skuId() + "|" + line.batchNo().trim())) throw new ServiceException("SKU、批次或数量不合法",1001);
+                    || !seen.add(line.skuId() + "|" + line.batchNo().trim())) throw new ServiceException("SKU、批次或数量不合法", ErpErrorCode.INVALID_PARAM.code());
         }
         return lines;
     }

@@ -31,6 +31,23 @@ public interface ErpShipmentMapper {
     @Insert("INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time) VALUES(#{shipmentId},#{skuId},#{batch},#{qty},#{username},NOW())")
     int insertShipmentLine(@Param("shipmentId") Long shipmentId,@Param("skuId") Long skuId,@Param("batch") String batch,@Param("qty") Integer qty,@Param("username") String username);
 
+    /** 出货明细批量插入参数。 */
+    record ShipmentLineInsert(Long skuId, String batch, Integer qty) {
+    }
+
+    /** 批量插入出货明细，一次数据库往返完成全部行。 */
+    @Insert("""
+        <script>
+        INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
+        VALUES
+        <foreach collection="lines" item="l" separator=",">
+          (#{shipmentId},#{l.skuId},#{l.batch},#{l.qty},#{username},NOW())
+        </foreach>
+        </script>
+        """)
+    int insertShipmentLines(@Param("shipmentId") Long shipmentId, @Param("lines") List<ShipmentLineInsert> lines,
+                            @Param("username") String username);
+
     @Select("SELECT shipment_id AS shipmentId,order_id AS orderId,customer_id AS customerId,status FROM sh_shipment WHERE shipment_id=#{id} AND del_flag='0' FOR UPDATE")
     Map<String,Object> lockShipment(@Param("id") Long id);
 
@@ -74,6 +91,23 @@ public interface ErpShipmentMapper {
 
     @Insert("INSERT INTO sh_return_item(return_id,sku_id,batch_no,qty,create_by,create_time) VALUES(#{returnId},#{skuId},#{batch},#{qty},#{username},NOW())")
     int insertReturnLine(@Param("returnId") Long returnId,@Param("skuId") Long skuId,@Param("batch") String batch,@Param("qty") Integer qty,@Param("username") String username);
+
+    /** 退货明细批量插入参数。 */
+    record ReturnLineInsert(Long skuId, String batch, Integer qty) {
+    }
+
+    /** 批量插入退货明细，一次数据库往返完成全部行。 */
+    @Insert("""
+        <script>
+        INSERT INTO sh_return_item(return_id,sku_id,batch_no,qty,create_by,create_time)
+        VALUES
+        <foreach collection="lines" item="l" separator=",">
+          (#{returnId},#{l.skuId},#{l.batch},#{l.qty},#{username},NOW())
+        </foreach>
+        </script>
+        """)
+    int insertReturnLines(@Param("returnId") Long returnId, @Param("lines") List<ReturnLineInsert> lines,
+                          @Param("username") String username);
 
     @Select("SELECT return_id AS returnId,shipment_id AS shipmentId,order_id AS orderId,is_restock AS isRestock,status FROM sh_return WHERE return_id=#{id} AND del_flag='0' FOR UPDATE")
     Map<String,Object> lockReturn(@Param("id") Long id);

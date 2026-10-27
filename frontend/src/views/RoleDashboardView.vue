@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import { Refresh } from '@element-plus/icons-vue'
 import { catalogPage, catalogs, type CatalogSpec } from '../api/catalog'
 import { erpApi } from '../api/erp'
+import { financeApi } from '../api/finance'
 import { enumLabel, enumTagType, type EnumKey } from '../api/labels'
 import { useUserStore } from '../stores/user'
 import type { RoleKey } from '../roles'
@@ -27,7 +28,7 @@ function catalogMetric(label: string, path: string, spec: CatalogSpec): Metric {
   return { label, path, permission: spec.permission, columns: spec.columns.slice(0, 4), load: () => catalogPage(spec, 1) }
 }
 
-const allMetrics: Record<Exclude<RoleKey, 'admin' | 'boss'>, Metric[]> = {
+const allMetrics: Record<Exclude<RoleKey, 'admin'>, Metric[]> = {
   sales: [
     { label: '销售订单', path: '/orders', permission: 'sd:order:list', columns: [{ prop: 'orderNo', label: '订单号' }, { prop: 'customerName', label: '客户' }, { prop: 'deliveryDate', label: '交期' }, { prop: 'totalAmount', label: '金额' }], load: async () => erpApi.orders(1, '') },
     catalogMetric('报价单', '/sales/quotations', catalogs.sales.quotations),
@@ -57,6 +58,15 @@ const allMetrics: Record<Exclude<RoleKey, 'admin' | 'boss'>, Metric[]> = {
     catalogMetric('员工档案', '/hr/employees', catalogs.hr.employees),
     catalogMetric('计件明细', '/hr/wages', catalogs.hr.wages),
     catalogMetric('工资单', '/hr/salary', catalogs.hr.salary),
+  ],
+  // 厂长（经营工作台）：审批 / 待办 / 资金 / 交付，老板最关心的几张牌
+  boss: [
+    { label: '待办事项', path: '/todos', permission: 'workflow:todo:list', columns: [{ prop: 'title', label: '待办' }, { prop: 'todoType', label: '类型' }, { prop: 'dueDate', label: '截止日期' }], load: async () => { const rows = await financeApi.todos(); return { total: rows.length, rows } } },
+    { label: '待审批', path: '/approvals', permission: 'workflow:approval:list', columns: [{ prop: 'docType', label: '单据类型' }, { prop: 'amount', label: '金额' }, { prop: 'applicant', label: '申请人' }], load: async () => { const rows = await financeApi.approvals(); return { total: rows.length, rows } } },
+    { label: '资金余额（元）', path: '/finance', permission: 'fn:account:list', columns: [], load: async () => { const rows = await financeApi.accounts(); const total = rows.filter(row => Number(row.status) === 1).reduce((sum, row) => sum + Number(row.currentBalance || 0), 0); return { total: Math.round(total), rows: [] } } },
+    { label: '应收余额（元）', path: '/finance/receivables', permission: 'fn:receivable:list', columns: [], load: async () => { const rows = await financeApi.receivables(); const total = rows.filter(row => Number(row.status) !== 9).reduce((sum, row) => sum + Number(row.balance || 0), 0); return { total: Math.round(total), rows: [] } } },
+    { label: '销售订单', path: '/orders', permission: 'sd:order:list', columns: [{ prop: 'orderNo', label: '订单号' }, { prop: 'customerName', label: '客户' }, { prop: 'deliveryDate', label: '交期' }, { prop: 'totalAmount', label: '金额' }], load: async () => erpApi.orders(1, '') },
+    { label: '生产工单', path: '/production/workOrders', permission: 'pr:workOrder:list', columns: [], load: async () => catalogPage(catalogs.production.workOrders, 1) },
   ],
 }
 

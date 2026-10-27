@@ -218,9 +218,9 @@ onMounted(load)
         <el-table-column label="操作" width="230" fixed="right">
           <template #default="scope">
             <div class="table-actions">
-              <el-button link type="primary" @click="openEdit(scope.row)">编辑</el-button>
+              <el-button link type="primary" @click="openEdit(scope.row as SysMenu)">编辑</el-button>
               <el-button v-if="scope.row.menuType !== 'F'" link type="primary" @click="openCreate(scope.row.menuId, scope.row.menuType === 'M' ? 'C' : 'F')">新增下级</el-button>
-              <el-button link type="danger" @click="removeRow(scope.row)">删除</el-button>
+              <el-button link type="danger" @click="removeRow(scope.row as SysMenu)">删除</el-button>
             </div>
           </template>
         </el-table-column>

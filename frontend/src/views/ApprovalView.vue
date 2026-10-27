@@ -19,7 +19,6 @@ async function load() {
   finally { loading.value = false }
 }
 async function decide(row: PendingApproval, action: 'approve' | 'reject') {
-  if (user.demo) return ElMessage.warning('演示模式不支持审批操作，请连接后端')
   let comment = ''
   try {
     const result = await ElMessageBox.prompt(
@@ -52,7 +51,6 @@ onMounted(load)
 </script>
 <template>
   <div class="page-head"><div><h1>审批中心</h1><p>待审批采购单，通过后进入收货流程</p></div><el-button @click="load">刷新</el-button></div>
-  <el-alert v-if="user.demo" type="info" :closable="false" show-icon title="演示模式暂不提供审批数据，审批按钮已禁用。" class="demo-tip" />
   <section class="panel">
     <div v-if="error" class="error-state">{{ error }} <el-button text type="primary" @click="load">重试</el-button></div>
     <div class="table-wrap">
@@ -63,11 +61,10 @@ onMounted(load)
         <el-table-column label="金额" min-width="130"><template #default="scope"><span class="money">{{ currency(scope.row.amount) }}</span></template></el-table-column>
         <el-table-column prop="applicant" label="申请人" min-width="120" />
         <el-table-column prop="createTime" label="申请时间" min-width="170" />
-        <el-table-column v-if="user.can('pu:purchaseOrder:approve')" label="操作" width="150" fixed="right"><template #default="scope"><el-button text type="primary" :disabled="user.demo" :loading="acting === scope.row.approvalId" @click="decide(scope.row, 'approve')">通过</el-button><el-button text type="danger" :disabled="user.demo" :loading="acting === scope.row.approvalId" @click="decide(scope.row, 'reject')">驳回</el-button></template></el-table-column>
+        <el-table-column v-if="user.can('pu:purchaseOrder:approve')" label="操作" width="150" fixed="right"><template #default="scope"><el-button text type="primary" :loading="acting === scope.row.approvalId" @click="decide(scope.row as PendingApproval, 'approve')">通过</el-button><el-button text type="danger" :loading="acting === scope.row.approvalId" @click="decide(scope.row as PendingApproval, 'reject')">驳回</el-button></template></el-table-column>
       </el-table>
     </div>
   </section>
 </template>
 <style scoped>
-.demo-tip { margin-bottom: 16px; }
 </style>

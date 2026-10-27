@@ -1,5 +1,4 @@
 import { http, payload, type Envelope } from './client'
-import { isDemoMode } from './demo'
 
 export interface WorkflowTodo {
   todoId: string
@@ -130,61 +129,72 @@ export interface FinancePeriod {
   closedTime: string | null
 }
 
-const demoError = () => new Error('演示模式不支持资金操作，请连接后端')
-const emptyOverview = (): FinanceOverview => ({
-  cashBalance: 0, monthIn: 0, monthOut: 0,
-  receivableBalance: 0, payableBalance: 0, receivableOverdue: 0, payableOverdue: 0,
-})
+/** 账龄汇总（应收 / 应付 × 30/60/90 分段） */
+export interface AgingSummaryRow {
+  category: string
+  categoryName: string
+  notDue: number
+  days1to30: number
+  days31to60: number
+  days61to90: number
+  over90: number
+  total: number
+}
+
+/** 月度现金流 */
+export interface CashFlowMonth {
+  period: string
+  inflow: number
+  outflow: number
+  netFlow: number
+}
+
 
 export const financeApi = {
   // 待办 / 审批
-  todos: () => isDemoMode() ? Promise.resolve<WorkflowTodo[]>([]) : payload<WorkflowTodo[]>(http.get('/erp/workflow/todos')),
-  approvals: () => isDemoMode() ? Promise.resolve<PendingApproval[]>([]) : payload<PendingApproval[]>(http.get('/erp/workflow/approvals')),
+  todos: () => payload<WorkflowTodo[]>(http.get('/erp/workflow/todos')),
+  approvals: () => payload<PendingApproval[]>(http.get('/erp/workflow/approvals')),
   approvePurchase: async (docId: string, comment: string) => {
-    if (isDemoMode()) throw demoError()
     await http.post<Envelope>(`/erp/pu/purchaseOrder/approve/${encodeURIComponent(docId)}`, { comment })
   },
   rejectPurchase: async (docId: string, comment: string) => {
-    if (isDemoMode()) throw demoError()
     await http.post<Envelope>(`/erp/pu/purchaseOrder/reject/${encodeURIComponent(docId)}`, { comment })
   },
 
   // 资金总览 / 账户
-  overview: () => isDemoMode() ? Promise.resolve(emptyOverview()) : payload<FinanceOverview>(http.get('/erp/finance/overview')),
-  accounts: () => isDemoMode() ? Promise.resolve<FinanceAccount[]>([]) : payload<FinanceAccount[]>(http.get('/erp/finance/accounts')),
+  overview: () => payload<FinanceOverview>(http.get('/erp/finance/overview')),
+  accounts: () => payload<FinanceAccount[]>(http.get('/erp/finance/accounts')),
   createAccount: async (draft: FinanceAccountDraft) => {
-    if (isDemoMode()) throw demoError()
     return payload<{ accountId: string }>(http.post('/erp/finance/accounts', draft))
   },
   updateAccount: async (id: string, draft: FinanceAccountDraft) => {
-    if (isDemoMode()) throw demoError()
     return payload<{ accountId: string }>(http.put(`/erp/finance/accounts/${encodeURIComponent(id)}`, draft))
   },
 
   // 流水 / 应收应付
-  cashTxns: () => isDemoMode() ? Promise.resolve<CashTxn[]>([]) : payload<CashTxn[]>(http.get('/erp/finance/cash')),
-  receivables: () => isDemoMode() ? Promise.resolve<Receivable[]>([]) : payload<Receivable[]>(http.get('/erp/finance/receivables')),
-  payables: () => isDemoMode() ? Promise.resolve<Payable[]>([]) : payload<Payable[]>(http.get('/erp/finance/payables')),
+  cashTxns: () => payload<CashTxn[]>(http.get('/erp/finance/cash')),
+  receivables: () => payload<Receivable[]>(http.get('/erp/finance/receivables')),
+  payables: () => payload<Payable[]>(http.get('/erp/finance/payables')),
+
+  // 账龄汇总 / 月度现金流
+  agingSummary: () => payload<AgingSummaryRow[]>(http.get('/erp/finance/aging-summary')),
+  cashFlowMonthly: () => payload<CashFlowMonth[]>(http.get('/erp/finance/cash-flow-monthly')),
 
   // 收付款
-  payments: () => isDemoMode() ? Promise.resolve<FinancePayment[]>([]) : payload<FinancePayment[]>(http.get('/erp/finance/payments')),
+  payments: () => payload<FinancePayment[]>(http.get('/erp/finance/payments')),
   createPayment: async (draft: PaymentDraft) => {
-    if (isDemoMode()) throw demoError()
     return payload<{ paymentId: string }>(http.post('/erp/finance/payments', draft))
   },
   confirmPayment: async (id: string, requestKey: string) => {
-    if (isDemoMode()) throw demoError()
     await http.post<Envelope>(`/erp/finance/payments/confirm/${encodeURIComponent(id)}`, { requestKey })
   },
 
   // 会计期间
-  periods: () => isDemoMode() ? Promise.resolve<FinancePeriod[]>([]) : payload<FinancePeriod[]>(http.get('/erp/finance/periods')),
+  periods: () => payload<FinancePeriod[]>(http.get('/erp/finance/periods')),
   closePeriod: async (period: string) => {
-    if (isDemoMode()) throw demoError()
     await http.post<Envelope>('/erp/finance/period/close', { period })
   },
   reopenPeriod: async (period: string) => {
-    if (isDemoMode()) throw demoError()
     await http.post<Envelope>('/erp/finance/period/reopen', { period })
   },
 }

@@ -1,5 +1,7 @@
 package net.factoryopen.myfactoryai.erp.service;
 
+import net.factoryopen.myfactoryai.erp.support.ErpErrorCode;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -45,7 +47,7 @@ public class ErpWorkflowService {
 
     public void decide(String docType, Long docId, boolean approved, String comment) {
         Map<String,Object> pending = mapper.lockApproval(docType, docId);
-        if (pending == null) throw new ServiceException("没有待审批记录", 2001);
+        if (pending == null) throw new ServiceException("没有待审批记录", ErpErrorCode.INVALID_STATE.code());
         mapper.decideApproval(((Number) pending.get("approvalId")).longValue(), approved ? 1 : 2,
                 SecurityUtils.getUsername(), comment == null ? "" : comment);
     }
@@ -62,18 +64,18 @@ public class ErpWorkflowService {
 
     public void assertOpenPeriod(String period) {
         if (period != null && Integer.valueOf(1).equals(mapper.periodStatus(period))) {
-            throw new ServiceException("会计期间 " + period + " 已结账，不能补录或过账", 2001);
+            throw new ServiceException("会计期间 " + period + " 已结账，不能补录或过账", ErpErrorCode.INVALID_STATE.code());
         }
     }
 
     public void closePeriod(String period) {
-        if (period == null || !period.matches("\\d{4}-\\d{2}")) throw new ServiceException("期间格式应为 yyyy-MM", 1001);
+        if (period == null || !period.matches("\\d{4}-\\d{2}")) throw new ServiceException("期间格式应为 yyyy-MM", ErpErrorCode.INVALID_PARAM.code());
         mapper.closePeriod(period, SecurityUtils.getUsername());
     }
 
     public void reopenPeriod(String period) {
-        if (period == null || !period.matches("\\d{4}-\\d{2}")) throw new ServiceException("期间格式应为 yyyy-MM", 1001);
-        if (mapper.reopenPeriod(period, SecurityUtils.getUsername()) != 1) throw new ServiceException("期间未关闭或不存在", 2001);
+        if (period == null || !period.matches("\\d{4}-\\d{2}")) throw new ServiceException("期间格式应为 yyyy-MM", ErpErrorCode.INVALID_PARAM.code());
+        if (mapper.reopenPeriod(period, SecurityUtils.getUsername()) != 1) throw new ServiceException("期间未关闭或不存在", ErpErrorCode.INVALID_STATE.code());
     }
 
     public List<Map<String,Object>> periods() { return mapper.periods(); }

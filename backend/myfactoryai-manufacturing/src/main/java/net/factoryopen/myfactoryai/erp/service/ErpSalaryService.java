@@ -1,5 +1,7 @@
 package net.factoryopen.myfactoryai.erp.service;
 
+import net.factoryopen.myfactoryai.erp.support.ErpErrorCode;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.YearMonth;
@@ -43,10 +45,10 @@ public class ErpSalaryService {
 
     @Transactional
     public Map<String,String> generate(SalaryRequest request) {
-        if (request == null || request.empId() == null) throw new ServiceException("员工与工资期必填",1001);
+        if (request == null || request.empId() == null) throw new ServiceException("员工与工资期必填", ErpErrorCode.INVALID_PARAM.code());
         validatePeriod(request.wagePeriod());
         Map<String,Object> employee = payroll.employeeForPay(request.empId());
-        if (employee == null) throw new ServiceException("员工不存在",1001);
+        if (employee == null) throw new ServiceException("员工不存在", ErpErrorCode.INVALID_PARAM.code());
         BigDecimal base = decimal(employee,"baseSalary");
         BigDecimal siBase = decimal(employee,"siBase");
         if (siBase.signum() <= 0) siBase = base;
@@ -55,8 +57,8 @@ public class ErpSalaryService {
         Map<String,Object> previous = mapper.existing(request.empId(),request.wagePeriod());
         if (previous != null) {
             int previousStatus = number(previous,"status").intValue();
-            if (previousStatus == 1) throw new ServiceException("工资单已确认，不能重新生成",2001);
-            if (previousStatus == 2) throw new ServiceException("工资单已发放，不能重新生成",2001);
+            if (previousStatus == 1) throw new ServiceException("工资单已确认，不能重新生成", ErpErrorCode.INVALID_STATE.code());
+            if (previousStatus == 2) throw new ServiceException("工资单已发放，不能重新生成", ErpErrorCode.INVALID_STATE.code());
         }
 
         BigDecimal allowance = value(previous,"allowance");
@@ -73,7 +75,7 @@ public class ErpSalaryService {
         BigDecimal tax = percent(money(taxable),config.get("tax_rate"));
         BigDecimal net = money(gross.subtract(siPersonal).subtract(fundPersonal)
                 .subtract(tax).subtract(otherDeduction));
-        if (net.signum() < 0) throw new ServiceException("实发工资不能为负",2006);
+        if (net.signum() < 0) throw new ServiceException("实发工资不能为负", ErpErrorCode.CONFLICT.code());
         BigDecimal companyCost = money(gross.add(siCompany).add(fundCompany));
 
         Map<String,Object> row = new HashMap<>();
@@ -89,7 +91,7 @@ public class ErpSalaryService {
             payroll.insertFull(row);
         } else {
             row.put("id",number(previous,"id"));
-            if (payroll.refreshFull(row) != 1) throw new ServiceException("工资单状态已变化",2001);
+            if (payroll.refreshFull(row) != 1) throw new ServiceException("工资单状态已变化", ErpErrorCode.INVALID_STATE.code());
         }
         return Map.of("id",number(row,"id").toString());
     }
@@ -108,16 +110,16 @@ public class ErpSalaryService {
     @Transactional
     public void confirm(Long id) {
         Long empId = mapper.slipEmployee(id);
-        if (empId == null) throw new ServiceException("工资单不存在",1001);
+        if (empId == null) throw new ServiceException("工资单不存在", ErpErrorCode.INVALID_PARAM.code());
         mapper.employee(empId);
         Map<String,Object> row = mapper.lockSlip(id);
         String period = (String)row.get("wagePeriod");
-        if (number(row,"status").intValue() != 0) throw new ServiceException("工资单状态不允许确认",2001);
+        if (number(row,"status").intValue() != 0) throw new ServiceException("工资单状态不允许确认", ErpErrorCode.INVALID_STATE.code());
         if (mapper.pieceTotal(empId,period).compareTo(decimal(row,"pieceAmount")) != 0) {
-            throw new ServiceException("计件明细已变化，请重新生成工资单",2006);
+            throw new ServiceException("计件明细已变化，请重新生成工资单", ErpErrorCode.CONFLICT.code());
         }
         workflow.assertOpenPeriod(period);
-        if (mapper.confirm(id) != 1) throw new ServiceException("工资单状态已变化",2001);
+        if (mapper.confirm(id) != 1) throw new ServiceException("工资单状态已变化", ErpErrorCode.INVALID_STATE.code());
         workflow.todo("payroll","hr_salary_slip",id,"finance","工资单已确认，待发放","/hr/salary",null);
     }
 
@@ -156,18 +158,18 @@ public class ErpSalaryService {
     @Transactional
     public void voidSlip(Long id) {
         Long empId = mapper.slipEmployee(id);
-        if (empId == null) throw new ServiceException("工资单不存在",1001);
+        if (empId == null) throw new ServiceException("工资单不存在", ErpErrorCode.INVALID_PARAM.code());
         Map<String,Object> row = mapper.lockSlip(id);
         int status = number(row,"status").intValue();
-        if (status == 0) throw new ServiceException("工资单已是草稿状态",2001);
-        if (status == 2) throw new ServiceException("工资单已发放，不能作废",2001);
-        if (mapper.voidSlip(id) != 1) throw new ServiceException("工资单状态已变化",2001);
+        if (status == 0) throw new ServiceException("工资单已是草稿状态", ErpErrorCode.INVALID_STATE.code());
+        if (status == 2) throw new ServiceException("工资单已发放，不能作废", ErpErrorCode.INVALID_STATE.code());
+        if (mapper.voidSlip(id) != 1) throw new ServiceException("工资单状态已变化", ErpErrorCode.INVALID_STATE.code());
         workflow.complete("payroll","hr_salary_slip",id);
     }
 
     @Transactional
     public Map<String,String> pay(Long id, SalaryPayRequest request) {
-        if (request == null) throw new ServiceException("发放参数必填",1001);
+        if (request == null) throw new ServiceException("发放参数必填", ErpErrorCode.INVALID_PARAM.code());
         return finance.payPayroll(id,request.accountId(),request.payDate(),request.requestKey());
     }
 
@@ -188,14 +190,14 @@ public class ErpSalaryService {
     }
 
     private static void validatePeriod(String wagePeriod) {
-        if (wagePeriod == null) throw new ServiceException("员工与工资期必填",1001);
+        if (wagePeriod == null) throw new ServiceException("员工与工资期必填", ErpErrorCode.INVALID_PARAM.code());
         try {
             YearMonth month = YearMonth.parse(wagePeriod);
             if (!month.toString().equals(wagePeriod) || month.isAfter(YearMonth.now())) {
-                throw new ServiceException("工资期不合法",1001);
+                throw new ServiceException("工资期不合法", ErpErrorCode.INVALID_PARAM.code());
             }
         } catch (DateTimeParseException e) {
-            throw new ServiceException("工资期应为 yyyy-MM",1001);
+            throw new ServiceException("工资期应为 yyyy-MM", ErpErrorCode.INVALID_PARAM.code());
         }
     }
 

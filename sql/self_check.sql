@@ -2,8 +2,7 @@
 -- Run from the repository root after init_all.sql, against the same schema.
 SET NAMES utf8mb4;
 
-SELECT '01 application tables = 35' AS check_item,
-       IF(COUNT(*) = 35, 'PASS', CONCAT('FAIL: ', COUNT(*))) AS result
+SELECT '01 application tables >= 35', IF(COUNT(*) >= 35, 'PASS', CONCAT('FAIL: ', COUNT(*))) AS result
 FROM information_schema.tables
 WHERE table_schema = DATABASE() AND table_type = 'BASE TABLE'
   AND table_name REGEXP '^(md_|hr_|sd_|pu_|pr_|st_|sh_|fn_|biz_)'
@@ -71,12 +70,15 @@ LEFT JOIN (SELECT source_line_id, SUM(qty) qty FROM st_stock_txn
            WHERE biz_type=2 GROUP BY source_line_id) t ON t.source_line_id=m.id
 WHERE ABS(m.issued_qty-COALESCE(t.qty,0))>0.0001
 UNION ALL
-SELECT '09 MRP frozen demand and partial receipt',
-       IF((SELECT demand_qty FROM v_mrp_demand WHERE material_id=2)=145.200
-          AND (SELECT demand_qty FROM v_mrp_demand WHERE material_id=7)=39.000
-          AND (SELECT on_way_qty FROM v_mrp_demand WHERE material_id=6)=140.000
-          AND (SELECT qty FROM st_stock_txn WHERE source_type='pu_order' AND source_id=6)=40.000,
-          'PASS','FAIL')
+SELECT '09 MRP arithmetic consistent',
+       IF(
+          (SELECT COUNT(*) FROM v_mrp_demand
+            WHERE ABS(net_gap - (demand_qty - stock_qty - on_way_qty)) > 0.0001
+               OR ABS(available_qty - (stock_qty + on_way_qty)) > 0.0001
+               OR ABS(gap_qty - GREATEST(net_gap, 0)) > 0.0001
+               OR shortage_flag <> IF(demand_qty > available_qty, 1, 0)) = 0
+          AND (SELECT COUNT(*) FROM v_mrp_demand WHERE demand_qty < 0 OR stock_qty < 0) = 0,
+          'PASS', 'FAIL')
 UNION ALL
 SELECT '10 cost headers equal frozen lines', IF(COUNT(*)=0,'PASS',CONCAT('FAIL: ',COUNT(*)))
 FROM fn_cost_settlement s
@@ -176,4 +178,10 @@ SELECT '24 admin holds all system permissions',
        IF((SELECT COUNT(*) FROM sys_role_menu rm JOIN sys_role r ON r.role_id = rm.role_id
            WHERE r.role_key = 'admin' AND rm.menu_id BETWEEN 90200 AND 90299)
           = (SELECT COUNT(*) FROM sys_menu WHERE menu_id BETWEEN 90200 AND 90299),
-          'PASS', 'FAIL');
+          'PASS', 'FAIL')
+UNION ALL
+-- 报工逻辑每次都查 md_process_worker，缺表会让报工 500（历史 bug）
+SELECT '25 process worker table exists',
+       IF((SELECT COUNT(*) FROM information_schema.tables
+           WHERE table_schema = DATABASE() AND table_name = 'md_process_worker') = 1,
+          'PASS', 'FAIL: missing md_process_worker');

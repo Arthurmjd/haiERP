@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { erpApi, type Quotation } from '../api/erp'
-import { isDemoMode } from '../api/demo'
 import { enumLabel, enumTagType } from '../api/labels'
 import { useUserStore } from '../stores/user'
 const route = useRoute()
@@ -31,9 +30,19 @@ async function transition(action: 'accept' | 'expire') {
   catch (e) { ElMessage.error((e as Error).message); await load() }
   finally { saving.value = false }
 }
+// 转订单最终走的是「新建订单」接口（sd:order:add），
+// 所以必须同时具备转单权与下单权，否则按钮能点但提交会 403。
+const canConvert = computed(() => user.can('sd:quotation:convert') && user.can('sd:order:add'))
+const canCreateOrder = computed(() => user.can('sd:order:add'))
+const convertHint = computed(() => {
+  if (!quotation.value) return ''
+  if (quotation.value.status === 3) return '该报价已转订单，不能重复转单'
+  if (!canCreateOrder.value) return '当前账号没有下单权限，无法转订单'
+  return '报价已接受后才能转订单'
+})
 function convert() {
-  if (!quotation.value || quotation.value.status !== 1) return ElMessage.warning('报价已接受后才能转订单')
-  if (isDemoMode()) return ElMessage.warning('演示模式不支持')
+  if (!quotation.value || quotation.value.status !== 1) return ElMessage.warning(convertHint.value || '报价已接受后才能转订单')
+  if (!canConvert.value) return ElMessage.warning('当前账号没有转订单权限')
   router.push(`/orders/new?quoteId=${encodeURIComponent(quotation.value.quoteId)}`)
 }
 async function load() {
@@ -45,7 +54,7 @@ async function load() {
 watch(() => route.params.id, load, { immediate: true })
 </script>
 <template>
-  <div class="page-head"><div><h1>{{ quotation?.quoteNo || '报价单' }}</h1><p>报价与成本参考</p></div><div class="head-actions"><el-button @click="router.push('/sales/quotations')">返回列表</el-button><el-button v-if="quotation?.status === 0 && user.can('sd:quotation:expire')" :loading="saving" @click="transition('expire')">标记失效</el-button><el-button v-if="quotation?.status === 0 && user.can('sd:quotation:accept')" type="primary" :loading="saving" @click="transition('accept')">接受报价</el-button><el-tooltip v-if="quotation && user.can('sd:quotation:convert')" :disabled="quotation.status === 1" content="报价已接受后才能转订单" placement="bottom"><span><el-button type="success" :disabled="quotation.status !== 1" @click="convert">转订单</el-button></span></el-tooltip><el-button v-if="quotation?.status === 0 && user.can('sd:quotation:remove')" type="danger" plain :loading="saving" @click="removeQuotation">删除</el-button></div></div>
+  <div class="page-head"><div><h1>{{ quotation?.quoteNo || '报价单' }}</h1><p>报价与成本参考</p></div><div class="head-actions"><el-button @click="router.push('/sales/quotations')">返回列表</el-button><el-button v-if="quotation?.status === 0 && user.can('sd:quotation:expire')" :loading="saving" @click="transition('expire')">标记失效</el-button><el-button v-if="quotation?.status === 0 && user.can('sd:quotation:accept')" type="primary" :loading="saving" @click="transition('accept')">接受报价</el-button><el-tooltip v-if="quotation && user.can('sd:quotation:convert')" :disabled="quotation.status === 1 && canConvert" :content="convertHint" placement="bottom"><span><el-button type="success" :disabled="quotation.status !== 1 || !canConvert" @click="convert">转订单</el-button></span></el-tooltip><el-button v-if="quotation?.status === 0 && user.can('sd:quotation:remove')" type="danger" plain :loading="saving" @click="removeQuotation">删除</el-button></div></div>
   <div v-if="loading" class="loading-state">正在加载…</div><div v-else-if="error" class="panel error-state">{{ error }} <el-button text type="primary" @click="load">重试</el-button></div>
   <template v-else-if="quotation"><section class="panel"><h2 class="panel-title">报价信息</h2><div class="detail-grid"><div><div class="detail-label">客户</div><div class="detail-value">{{ quotation.customerName }}</div></div><div><div class="detail-label">日期</div><div class="detail-value">{{ quotation.quoteDate }}</div></div><div><div class="detail-label">金额</div><div class="detail-value">¥{{ Number(quotation.totalAmount).toFixed(2) }}</div></div><div><div class="detail-label">状态</div><el-tag :type="enumTagType('quoteStatus', quotation.status)">{{ enumLabel('quoteStatus', quotation.status) }}</el-tag></div></div></section><section class="panel"><h2 class="panel-title">报价明细</h2><div class="table-wrap"><el-table :data="quotation.items" stripe><el-table-column prop="styleName" label="款式" min-width="170"/><el-table-column prop="qty" label="数量" min-width="90"/><el-table-column prop="unitPrice" label="报价单价" min-width="110"/><el-table-column prop="costRef" label="参考成本" min-width="110"/><el-table-column prop="amount" label="金额" min-width="120"/><el-table-column prop="sourceSettleId" label="来源结算 ID" min-width="130"/></el-table></div></section></template>
 </template>

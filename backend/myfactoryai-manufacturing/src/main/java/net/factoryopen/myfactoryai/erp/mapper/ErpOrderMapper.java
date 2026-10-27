@@ -97,6 +97,17 @@ public interface ErpOrderMapper {
     @Select("SELECT status,customer_id AS customerId FROM sd_quotation WHERE quote_id=#{id} AND del_flag='0'")
     Map<String, Object> quoteForOrder(@Param("id") Long id);
 
+    /** 该报价已经生成的有效订单数（不含作废），用于防止一张报价重复下单。 */
+    @Select("SELECT COUNT(*) FROM sd_order WHERE quote_id=#{id} AND status<>9")
+    int countOrdersByQuote(@Param("id") Long id);
+
+    /**
+     * 报价转订单成功：把「已接受(1)」置为「已转单(3)」。
+     * 条件更新兜住并发——两个请求同时转同一张报价时，只有一个能把 1 改成 3，另一个更新 0 行并回滚。
+     */
+    @Update("UPDATE sd_quotation SET status=3,update_by=#{username},update_time=NOW() WHERE quote_id=#{id} AND status=1 AND del_flag='0'")
+    int markQuoteConverted(@Param("id") Long id,@Param("username") String username);
+
     @Update("UPDATE sd_order SET order_no=#{orderNo} WHERE order_id=#{orderId}")
     int setOrderNo(@Param("orderId") Long orderId, @Param("orderNo") String orderNo);
 
@@ -110,6 +121,26 @@ public interface ErpOrderMapper {
                    @Param("colorId") Long colorId, @Param("sizeId") Long sizeId,
                    @Param("qty") Integer qty, @Param("unitPrice") BigDecimal unitPrice,
                    @Param("amount") BigDecimal amount, @Param("createdBy") String createdBy);
+
+    /** 明细行批量插入参数。 */
+    record OrderLineInsert(Long styleId, Long colorId, Long sizeId,
+                           Integer qty, BigDecimal unitPrice, BigDecimal amount) {
+    }
+
+    /** 批量插入订单明细，一次数据库往返完成全部行。 */
+    @Insert("""
+        <script>
+        INSERT INTO sd_order_item
+          (order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time)
+        VALUES
+        <foreach collection="lines" item="l" separator=",">
+          (#{orderId},#{l.styleId},#{l.colorId},#{l.sizeId},#{l.qty},#{l.unitPrice},
+           #{l.amount},#{createdBy},NOW())
+        </foreach>
+        </script>
+        """)
+    int insertLines(@Param("orderId") Long orderId, @Param("lines") List<OrderLineInsert> lines,
+                    @Param("createdBy") String createdBy);
 
     @Update("""
         UPDATE sd_order SET status=1,update_by=#{updatedBy},update_time=NOW()

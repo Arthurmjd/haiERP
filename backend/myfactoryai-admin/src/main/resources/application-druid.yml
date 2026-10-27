@@ -3,7 +3,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       master:
-        url: ${DB_URL:jdbc:mysql://localhost:3306/hai_erp_demo?useSSL=false&serverTimezone=Asia/Shanghai}
+        url: ${DB_URL:jdbc:mysql://localhost:3306/hai_erp?useSSL=false&serverTimezone=Asia/Shanghai}
         username: ${DB_USER:root}
         password: ${DB_PASSWORD:}
         driverClassName: com.mysql.cj.jdbc.Driver

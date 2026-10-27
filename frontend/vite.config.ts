@@ -35,12 +35,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks(id: string) {
-          if (!id.includes('node_modules')) return undefined
-          const p = id.replace(/\\/g, '/')
-          if (p.includes('/element-plus/') || p.includes('/@element-plus/')) return 'vendor-element'
-          if (p.includes('/@vue/') || p.includes('/vue-router/') || p.includes('/pinia/')) return 'vendor-vue'
-          return 'vendor'
+        // Vite 8 (Rolldown) 不再支持 manualChunks 函数写法，改用 advancedChunks 分组
+        advancedChunks: {
+          groups: [
+            { name: 'vendor-vue', test: /node_modules[\\/](vue|vue-router|pinia|@vue)[\\/]/ },
+            { name: 'vendor-element', test: /node_modules[\\/](element-plus|@element-plus)[\\/]/ },
+            { name: 'vendor', test: /node_modules[\\/]/ },
+          ],
         },
       },
     },

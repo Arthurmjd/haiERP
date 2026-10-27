@@ -13,6 +13,8 @@ import net.factoryopen.myfactoryai.erp.service.ErpQuotationService;
 import net.factoryopen.myfactoryai.erp.service.ErpStockService;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -35,13 +37,21 @@ class ErpAccessTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void businessQuestionChecksScopeBeforeReading() {
         ErpAiReadMapper mapper = mock(ErpAiReadMapper.class);
         PermissionService permissions = mock(PermissionService.class);
-        ErpAiQuestionController controller = new ErpAiQuestionController(mapper,permissions,mock(DeepSeekConfig.class));
-        assertThrows(ServiceException.class,() -> controller.ask(new ErpAiQuestionController.Question("cost","查看成本")));
-        verify(permissions).hasPermi("dashboard:styleCost:list");
-        verifyNoInteractions(mapper);
+        StringRedisTemplate redis = mock(StringRedisTemplate.class);
+        ValueOperations<String, String> ops = mock(ValueOperations.class);
+        when(redis.opsForValue()).thenReturn(ops);
+        when(ops.increment(anyString())).thenReturn(1L);
+        try (MockedStatic<SecurityUtils> security = mockStatic(SecurityUtils.class)) {
+            security.when(SecurityUtils::getUserId).thenReturn(1L);
+            ErpAiQuestionController controller = new ErpAiQuestionController(mapper,permissions,mock(DeepSeekConfig.class),redis);
+            assertThrows(ServiceException.class,() -> controller.ask(new ErpAiQuestionController.Question("cost","查看成本")));
+            verify(permissions).hasPermi("dashboard:styleCost:list");
+            verifyNoInteractions(mapper);
+        }
     }
 
     @Test

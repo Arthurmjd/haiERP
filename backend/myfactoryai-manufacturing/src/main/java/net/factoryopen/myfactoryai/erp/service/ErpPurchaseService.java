@@ -1,5 +1,7 @@
 package net.factoryopen.myfactoryai.erp.service;
 
+import net.factoryopen.myfactoryai.erp.support.ErpErrorCode;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -36,7 +38,7 @@ public class ErpPurchaseService {
 
     public Map<String,Object> detail(Long id) {
         Map<String,Object> header = mapper.detail(id);
-        if (header == null) throw new ServiceException("采购单不存在",1001);
+        if (header == null) throw new ServiceException("采购单不存在", ErpErrorCode.INVALID_PARAM.code());
         Map<String,Object> result = new HashMap<>(header);
         result.put("items",mapper.lines(id));
         return result;
@@ -54,31 +56,25 @@ public class ErpPurchaseService {
         mapper.insert(header);
         String no = DocNos.formal("PO", header.getPoId());
         mapper.setPoNo(header.getPoId(),no);
-        for (PurchaseDraftRequest.Line line : draft.lines()) {
-            mapper.insertLine(header.getPoId(),line.materialId(),line.qty(),line.unitPrice(),
-                    line.qty().multiply(line.unitPrice()).setScale(2,RoundingMode.HALF_UP),header.getCreatedBy());
-        }
+        mapper.insertLines(header.getPoId(), toLineParams(draft), header.getCreatedBy());
         return Map.of("poId",header.getPoId().toString(),"poNo",no);
     }
 
     @Transactional
     public Map<String,String> update(Long poId, PurchaseDraftRequest request) {
-        if (poId == null || poId <= 0) throw new ServiceException("采购单编号不合法",1001);
+        if (poId == null || poId <= 0) throw new ServiceException("采购单编号不合法", ErpErrorCode.INVALID_PARAM.code());
         Map<String,Object> locked = mapper.lockDraft(poId);
-        if (locked == null) throw new ServiceException("采购单不存在",1001);
+        if (locked == null) throw new ServiceException("采购单不存在", ErpErrorCode.INVALID_PARAM.code());
         if (((Number) locked.get("status")).intValue() != 0) {
-            throw new ServiceException("仅草稿采购单可编辑",2001);
+            throw new ServiceException("仅草稿采购单可编辑", ErpErrorCode.INVALID_STATE.code());
         }
         ValidatedDraft draft = validate(request);
         String username = SecurityUtils.getUsername();
         if (mapper.update(poId,request.supplierId(),request.expectDate(),draft.total(),username) != 1) {
-            throw new ServiceException("采购单状态已变化，请刷新后重试",2001);
+            throw new ServiceException("采购单状态已变化，请刷新后重试", ErpErrorCode.INVALID_STATE.code());
         }
         mapper.deleteLines(poId);
-        for (PurchaseDraftRequest.Line line : draft.lines()) {
-            mapper.insertLine(poId,line.materialId(),line.qty(),line.unitPrice(),
-                    line.qty().multiply(line.unitPrice()).setScale(2,RoundingMode.HALF_UP),username);
-        }
+        mapper.insertLines(poId, toLineParams(draft), username);
         return Map.of("poId",poId.toString(),"poNo",String.valueOf(locked.get("poNo")));
     }
 
@@ -86,9 +82,9 @@ public class ErpPurchaseService {
         if (request == null || request.supplierId() == null || request.expectDate() == null
                 || request.expectDate().isBefore(LocalDate.now()) || request.items() == null
                 || request.items().isEmpty() || request.items().size() > 100) {
-            throw new ServiceException("请填写供应商、有效到货日期和 1 至 100 条物料",1001);
+            throw new ServiceException("请填写供应商、有效到货日期和 1 至 100 条物料", ErpErrorCode.INVALID_PARAM.code());
         }
-        if (mapper.activeSupplier(request.supplierId()) != 1) throw new ServiceException("供应商不存在或已停用",1001);
+        if (mapper.activeSupplier(request.supplierId()) != 1) throw new ServiceException("供应商不存在或已停用", ErpErrorCode.INVALID_PARAM.code());
         Set<Long> seen = new HashSet<>();
         BigDecimal total = BigDecimal.ZERO;
         for (PurchaseDraftRequest.Line line : request.items()) {
@@ -96,24 +92,31 @@ public class ErpPurchaseService {
                     || line.qty().signum() <= 0 || line.qty().scale() > 3 || line.qty().compareTo(new BigDecimal("999999999.999")) > 0
                     || line.unitPrice().signum() <= 0 || line.unitPrice().scale() > 2
                     || line.unitPrice().compareTo(new BigDecimal("99999999.99")) > 0) {
-                throw new ServiceException("物料数量或单价不合法",1001);
+                throw new ServiceException("物料数量或单价不合法", ErpErrorCode.INVALID_PARAM.code());
             }
-            if (!seen.add(line.materialId())) throw new ServiceException("采购物料重复",1002);
-            if (mapper.activeMaterial(line.materialId()) != 1) throw new ServiceException("物料不存在或已停用",1001);
+            if (!seen.add(line.materialId())) throw new ServiceException("采购物料重复", ErpErrorCode.DUPLICATE.code());
+            if (mapper.activeMaterial(line.materialId()) != 1) throw new ServiceException("物料不存在或已停用", ErpErrorCode.INVALID_PARAM.code());
             total = total.add(line.qty().multiply(line.unitPrice()).setScale(2,RoundingMode.HALF_UP));
         }
-        if (total.compareTo(new BigDecimal("9999999999.99")) > 0) throw new ServiceException("采购金额超出上限",1001);
+        if (total.compareTo(new BigDecimal("9999999999.99")) > 0) throw new ServiceException("采购金额超出上限", ErpErrorCode.INVALID_PARAM.code());
         return new ValidatedDraft(request.items(), total);
     }
 
     private record ValidatedDraft(List<PurchaseDraftRequest.Line> lines, BigDecimal total) {}
 
+    private static List<ErpPurchaseMapper.PurchaseLineInsert> toLineParams(ValidatedDraft draft) {
+        return draft.lines().stream()
+                .map(line -> new ErpPurchaseMapper.PurchaseLineInsert(line.materialId(), line.qty(),
+                        line.unitPrice(), line.qty().multiply(line.unitPrice()).setScale(2, RoundingMode.HALF_UP)))
+                .toList();
+    }
+
     @Transactional
     public Map<String,String> confirm(Long id) {
-        if (id == null || id <= 0) throw new ServiceException("采购单状态不允许确认",2001);
+        if (id == null || id <= 0) throw new ServiceException("采购单状态不允许确认", ErpErrorCode.INVALID_STATE.code());
         Map<String,Object> header = mapper.lockHeader(id);
         if (header == null || number(header,"status") != 0) {
-            throw new ServiceException("采购单状态不允许确认",2001);
+            throw new ServiceException("采购单状态不允许确认", ErpErrorCode.INVALID_STATE.code());
         }
         String username = SecurityUtils.getUsername();
         BigDecimal total = decimal(header,"totalAmount");
@@ -123,14 +126,14 @@ public class ErpPurchaseService {
                 return Map.of("status","pending_approval");
             }
             if (mapper.markPendingApproval(id,username) != 1) {
-                throw new ServiceException("采购单状态已变化，请刷新后重试",2001);
+                throw new ServiceException("采购单状态已变化，请刷新后重试", ErpErrorCode.INVALID_STATE.code());
             }
             workflow.requestApproval("pu_purchase_order",id,"purchase",total);
             workflow.todo("approval","pu_order",id,"boss","采购单待审批","/approvals",null);
             return Map.of("status","pending_approval");
         }
         if (mapper.confirm(id,username) != 1) {
-            throw new ServiceException("采购单状态不允许确认",2001);
+            throw new ServiceException("采购单状态不允许确认", ErpErrorCode.INVALID_STATE.code());
         }
         // 小额直批：立即扣款（审批通过等价物）
         finance.payPurchase(id, supplierId, total, "purchase-confirm:" + id + ":" + System.currentTimeMillis());
@@ -142,14 +145,14 @@ public class ErpPurchaseService {
     public void approve(Long id,String comment) {
         Map<String,Object> header = mapper.lockHeader(id);
         if (header == null || number(header,"approvalStatus") != 1) {
-            throw new ServiceException("采购单状态不允许审批",2001);
+            throw new ServiceException("采购单状态不允许审批", ErpErrorCode.INVALID_STATE.code());
         }
         String username = SecurityUtils.getUsername();
         BigDecimal total = decimal(header,"totalAmount");
         Long supplierId = ((Number) header.get("supplierId")).longValue();
         workflow.decide("pu_purchase_order",id,true,comment);
         if (mapper.approve(id,username) != 1) {
-            throw new ServiceException("采购单状态已变化，请刷新后重试",2001);
+            throw new ServiceException("采购单状态已变化，请刷新后重试", ErpErrorCode.INVALID_STATE.code());
         }
         workflow.complete("approval","pu_order",id);
         // 审批通过即自动扣款，会计页面立即可见资金流水与应付核销
@@ -161,12 +164,12 @@ public class ErpPurchaseService {
     public void reject(Long id,String comment) {
         Map<String,Object> header = mapper.lockHeader(id);
         if (header == null || number(header,"approvalStatus") != 1) {
-            throw new ServiceException("采购单状态不允许审批",2001);
+            throw new ServiceException("采购单状态不允许审批", ErpErrorCode.INVALID_STATE.code());
         }
         String username = SecurityUtils.getUsername();
         workflow.decide("pu_purchase_order",id,false,comment);
         if (mapper.reject(id,comment,username) != 1) {
-            throw new ServiceException("采购单状态已变化，请刷新后重试",2001);
+            throw new ServiceException("采购单状态已变化，请刷新后重试", ErpErrorCode.INVALID_STATE.code());
         }
         workflow.complete("approval","pu_order",id);
         workflow.todo("plan","pu_order",id,"planner","采购单被驳回，请修改后重新提交","/purchases",null);
@@ -177,14 +180,14 @@ public class ErpPurchaseService {
         if (request == null || request.poId() == null || request.poId() <= 0
                 || request.actualArrivalDate() == null || request.actualArrivalDate().isAfter(LocalDate.now())
                 || request.items() == null || request.items().isEmpty() || request.items().size() > 100) {
-            throw new ServiceException("收货日期、采购单或明细不合法",1001);
+            throw new ServiceException("收货日期、采购单或明细不合法", ErpErrorCode.INVALID_PARAM.code());
         }
         Set<Long> seen = new HashSet<>();
         for (PurchaseReceiptRequest.Line line : request.items()) {
             if (line == null || line.itemId() == null || line.qty() == null || line.qty().signum() <= 0
                     || line.qty().scale() > 3 || line.batchNo() == null || line.batchNo().isBlank()
                     || line.batchNo().length() > 30 || !seen.add(line.itemId())) {
-                throw new ServiceException("收货明细、数量或批次不合法",1001);
+                throw new ServiceException("收货明细、数量或批次不合法", ErpErrorCode.INVALID_PARAM.code());
             }
         }
         workflow.assertOpen(request.actualArrivalDate());
@@ -193,15 +196,15 @@ public class ErpPurchaseService {
         }
         Map<String,Object> header = mapper.lockHeader(request.poId());
         Integer status = header == null ? null : ((Number) header.get("status")).intValue();
-        if (status == null || (status != 1 && status != 2)) throw new ServiceException("采购单状态不允许收货",2001);
+        if (status == null || (status != 1 && status != 2)) throw new ServiceException("采购单状态不允许收货", ErpErrorCode.INVALID_STATE.code());
         Long supplierId = ((Number) header.get("supplierId")).longValue();
         BigDecimal receiveAmount = BigDecimal.ZERO;
         for (PurchaseReceiptRequest.Line line : request.items()) {
             Map<String,Object> current = mapper.receiptLine(request.poId(),line.itemId());
-            if (current == null) throw new ServiceException("采购明细不存在",1001);
+            if (current == null) throw new ServiceException("采购明细不存在", ErpErrorCode.INVALID_PARAM.code());
             BigDecimal remaining = (BigDecimal) current.get("qty");
             remaining = remaining.subtract((BigDecimal) current.get("receivedQty"));
-            if (line.qty().compareTo(remaining) > 0) throw new ServiceException("收货数量超过未收数量",2006);
+            if (line.qty().compareTo(remaining) > 0) throw new ServiceException("收货数量超过未收数量", ErpErrorCode.CONFLICT.code());
             receiveAmount = receiveAmount.add(line.qty().multiply((BigDecimal) current.get("unitPrice")));
             stock.receipt(((Number) current.get("materialId")).longValue(),line.batchNo().trim(),
                     line.qty(),request.poId(),line.itemId(),request.requestKey(),request.actualArrivalDate());

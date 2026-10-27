@@ -1,11 +1,34 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useUserStore } from './stores/user'
 import { catalogs } from './api/catalog'
+
+// 详情页组件按 catalog.detailRoute 前缀分发；新增详情类型只需在此处登记一次
+const detailComponents: Record<string, { name: string; component: RouteRecordRaw['component'] }> = {
+  '/production/workOrders': { name: 'work-order-detail', component: () => import('./views/WorkOrderDetailView.vue') },
+  '/shipping/shipments': { name: 'shipment-detail', component: () => import('./views/ShipmentDetailView.vue') },
+  '/shipping/returns': { name: 'return-detail', component: () => import('./views/ShipmentDetailView.vue') },
+  '/cost/settlements': { name: 'settlement-detail', component: () => import('./views/SettlementDetailView.vue') },
+  '/sales/quotations': { name: 'quotation-detail', component: () => import('./views/QuotationDetailView.vue') },
+}
+
+const catalogDetailRoutes: RouteRecordRaw[] = Object.values(catalogs).flatMap((group) =>
+  Object.values(group)
+    .filter((spec) => spec.detailRoute && spec.detailPermission && detailComponents[spec.detailRoute])
+    .map((spec) => {
+      const detail = detailComponents[spec.detailRoute!]!
+      return {
+        path: `${spec.detailRoute}/:id`,
+        name: detail.name,
+        component: detail.component,
+        meta: { permission: spec.detailPermission! },
+      } as RouteRecordRaw
+    }),
+)
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/preview', name: 'preview', component: () => import('./views/LoginView.vue') },
+
     { path: '/login', name: 'login', component: () => import('./views/LoginView.vue'), meta: { public: true } },
     { path: '/', name: 'dashboard', component: () => import('./views/HomeView.vue'), meta: { permission: 'dashboard:overview:list' } },
     { path: '/todos', name: 'todos', component: () => import('./views/TodoView.vue'), meta: { permission: 'workflow:todo:list' } },
@@ -19,11 +42,7 @@ const router = createRouter({
     { path: '/purchases/new', name: 'new-purchase', component: () => import('./views/PurchaseFormView.vue'), meta: { permission: 'pu:purchaseOrder:add' } },
     { path: '/purchases/:id/edit', name: 'edit-purchase', component: () => import('./views/PurchaseFormView.vue'), meta: { permission: 'pu:purchaseOrder:edit' } },
     { path: '/purchases/:id', name: 'purchase-detail', component: () => import('./views/PurchaseDetailView.vue'), meta: { permission: 'pu:purchaseOrder:query' } },
-    { path: '/production/workOrders/:id', name: 'work-order-detail', component: () => import('./views/WorkOrderDetailView.vue'), meta: { permission: 'pr:workOrder:query' } },
-    { path: '/shipping/shipments/:id', name: 'shipment-detail', component: () => import('./views/ShipmentDetailView.vue'), meta: { permission: 'sh:shipment:query' } },
-    { path: '/shipping/returns/:id', name: 'return-detail', component: () => import('./views/ShipmentDetailView.vue'), meta: { permission: 'sh:return:query' } },
-    { path: '/cost/settlements/:id', name: 'settlement-detail', component: () => import('./views/SettlementDetailView.vue'), meta: { permission: 'fn:settlement:query' } },
-    { path: '/sales/quotations/:id', name: 'quotation-detail', component: () => import('./views/QuotationDetailView.vue'), meta: { permission: 'sd:quotation:query' } },
+    ...catalogDetailRoutes,
     { path: '/master/styles/:id', name: 'style-plan', component: () => import('./views/StylePlanView.vue'), meta: { permission: 'md:style:list' } },
     { path: '/mrp', name: 'mrp', component: () => import('./views/MrpView.vue'), meta: { permission: 'pu:suggestion:list' } },
     { path: '/inventory', name: 'inventory', component: () => import('./views/InventoryView.vue'), meta: { permission: 'st:inventory:list' } },
@@ -41,15 +60,9 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const user = useUserStore()
-  if (to.name === 'preview') {
-    if (!import.meta.env.DEV) return { name: 'login' }
-    user.enterDemo()
-    return { name: 'dashboard' }
-  }
-  if (to.meta.public) return user.demo || user.token ? '/' : true
-  if (user.demo && to.name === 'login') return { name: 'dashboard' }
-  if (!user.demo && !user.token) return { name: 'login', query: { redirect: to.fullPath } }
-  if (!user.demo && !user.ready) {
+  if (to.meta.public) return user.token ? '/' : true
+  if (!user.token) return { name: 'login', query: { redirect: to.fullPath } }
+  if (!user.ready) {
     try { await user.load() } catch { user.logout(); return { name: 'login' } }
   }
   const catalog = to.name === 'catalog' ? catalogs[String(to.params.group)]?.[String(to.params.key)] : undefined
@@ -62,7 +75,6 @@ router.beforeEach(async (to) => {
 
 window.addEventListener('erp-unauthorized', () => {
   const user = useUserStore()
-  if (user.demo) return
   user.logout()
   router.push({ name: 'login' })
 })

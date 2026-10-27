@@ -206,6 +206,16 @@ CREATE TABLE md_process (
   UNIQUE KEY uk_process_code (process_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='工序字典';
 
+-- 工序可报工员工（报工时校验：工序若配置了员工，只能由该工序的员工报工）
+CREATE TABLE IF NOT EXISTS md_process_worker (
+  process_id    BIGINT       NOT NULL                COMMENT '工序ID',
+  emp_id        BIGINT       NOT NULL                COMMENT '员工ID',
+  create_by     VARCHAR(64)  DEFAULT ''              COMMENT '创建者',
+  create_time   DATETIME     DEFAULT NULL            COMMENT '创建时间',
+  PRIMARY KEY (process_id, emp_id),
+  KEY idx_pw_emp (emp_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='工序可报工员工';
+
 -- -----------------------------------------------------------------------------
 -- 9. 款式工艺（款式 × 工序，含件单价 —— 计件工资的单价来源）
 -- -----------------------------------------------------------------------------

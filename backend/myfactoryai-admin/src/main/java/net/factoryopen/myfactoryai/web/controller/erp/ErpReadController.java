@@ -57,18 +57,18 @@ public class ErpReadController {
 
     @PreAuthorize("@ss.hasPermi('pu:suggestion:list')")
     @GetMapping("/pu/suggestion/list")
-    public AjaxResult mrp() {
-        return AjaxResult.success(mapper.mrp());
+    public AjaxResult mrp(@RequestParam(required = false) String keyword) {
+        return AjaxResult.success(mapper.mrp(keyword));
     }
 
     @PreAuthorize("@ss.hasPermi('dashboard:mrp:list')")
     @GetMapping("/dashboard/mrp")
-    public AjaxResult dashboardMrp() { return AjaxResult.success(mapper.mrp()); }
+    public AjaxResult dashboardMrp() { return AjaxResult.success(mapper.mrp(null)); }
 
     @PreAuthorize("@ss.hasPermi('st:inventory:list')")
     @GetMapping("/st/inventory/list")
-    public AjaxResult inventory() {
-        return AjaxResult.success(mapper.inventory());
+    public AjaxResult inventory(@RequestParam(required = false) String keyword) {
+        return AjaxResult.success(mapper.inventory(keyword));
     }
 
     @PreAuthorize("@ss.hasPermi('dashboard:overview:list')")

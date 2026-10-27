@@ -1,5 +1,7 @@
 package net.factoryopen.myfactoryai.web.controller.erp;
 
+import net.factoryopen.myfactoryai.erp.support.ErpErrorCode;
+
 import java.util.Map;
 import java.util.List;
 
@@ -47,10 +49,10 @@ public class ErpEmployeeController {
     @PostMapping("/{id}/status")
     public AjaxResult changeStatus(@PathVariable Long id,@RequestBody Map<String,Object> input) {
         Object raw = input == null ? null : input.get("status");
-        if (raw == null) throw new com.ruoyi.common.exception.ServiceException("请指定 status：0 离职，1 复职",1001);
+        if (raw == null) throw new com.ruoyi.common.exception.ServiceException("请指定 status：0 离职，1 复职", ErpErrorCode.INVALID_PARAM.code());
         int status;
         try { status = Integer.parseInt(raw.toString()); }
-        catch (NumberFormatException e) { throw new com.ruoyi.common.exception.ServiceException("status 不合法",1001); }
+        catch (NumberFormatException e) { throw new com.ruoyi.common.exception.ServiceException("status 不合法", ErpErrorCode.INVALID_PARAM.code()); }
         service.changeStatus("employee",id,status);
         return AjaxResult.success();
     }

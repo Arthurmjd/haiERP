@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { erpApi, type InventoryRow } from '../api/erp'
 import { useUserStore } from '../stores/user'
@@ -22,8 +22,10 @@ async function saveAdjust() {
   catch (e) { ElMessage.error((e as Error).message) }
   finally { saving.value = false }
 }
-const filtered = computed(() => rows.value.filter(row => (itemType.value === 'all' || String(row.itemType) === itemType.value) && (!keyword.value || `${row.itemCode}${row.itemName}${row.batchNo || ''}`.toLowerCase().includes(keyword.value.toLowerCase()))))
-async function load() { loading.value = true; error.value = ''; try { rows.value = await erpApi.inventory() } catch (e) { error.value = (e as Error).message; ElMessage.error(error.value) } finally { loading.value = false } }
+const filtered = computed(() => rows.value.filter(row => itemType.value === 'all' || String(row.itemType) === itemType.value))
+async function load() { loading.value = true; error.value = ''; try { rows.value = await erpApi.inventory(keyword.value.trim()) } catch (e) { error.value = (e as Error).message; ElMessage.error(error.value) } finally { loading.value = false } }
+let debounceTimer: ReturnType<typeof setTimeout> | undefined
+watch(keyword, () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(load, 300) })
 onMounted(load)
 </script>
 <template>

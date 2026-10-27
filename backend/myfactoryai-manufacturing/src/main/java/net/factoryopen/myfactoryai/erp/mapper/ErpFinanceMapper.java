@@ -21,8 +21,21 @@ public interface ErpFinanceMapper {
         """)
     List<Map<String,Object>> accounts();
 
-    @Select("SELECT account_id FROM fn_account WHERE status=1 ORDER BY account_id LIMIT 1")
-    Long defaultPaymentAccount();
+    /**
+     * 挑选一个「余额足以支付本次金额」的启用账户。
+     * 旧实现只取第一个启用账户，若该账户余额不足、而其他账户有钱，会误报「资金不足」。
+     * 这里按余额从大到小选第一个够付的账户。
+     */
+    @Select("""
+        SELECT account_id FROM fn_account
+        WHERE status=1 AND current_balance >= #{amount}
+        ORDER BY current_balance DESC, account_id LIMIT 1
+        """)
+    Long paymentAccountFor(@Param("amount") BigDecimal amount);
+
+    /** 所有启用账户的可用余额合计，用于「资金不足」时给出可读提示。 */
+    @Select("SELECT COALESCE(SUM(current_balance),0) FROM fn_account WHERE status=1")
+    BigDecimal availableCashBalance();
 
     @Select("SELECT account_id AS accountId,current_balance AS currentBalance,status FROM fn_account WHERE account_id=#{id} FOR UPDATE")
     Map<String,Object> lockAccount(@Param("id") Long id);
@@ -215,4 +228,43 @@ public interface ErpFinanceMapper {
           (SELECT COUNT(*) FROM fn_payable WHERE status IN (0,1) AND due_date<CURDATE()) AS payableOverdue
         """)
     Map<String,Object> summary();
+
+    /**
+     * 账龄汇总：应收 / 应付各自的「未到期、1-30、31-60、61-90、90 以上」分段余额。
+     * 只统计未结清单据（status IN (0,1)），未设到期日的按未到期处理。
+     */
+    @Select("""
+        SELECT 'receivable' AS category, '应收' AS categoryName,
+               COALESCE(SUM(CASE WHEN d <= 0 THEN bal ELSE 0 END), 0) AS notDue,
+               COALESCE(SUM(CASE WHEN d >= 1 AND d <= 30 THEN bal ELSE 0 END), 0) AS days1to30,
+               COALESCE(SUM(CASE WHEN d >= 31 AND d <= 60 THEN bal ELSE 0 END), 0) AS days31to60,
+               COALESCE(SUM(CASE WHEN d >= 61 AND d <= 90 THEN bal ELSE 0 END), 0) AS days61to90,
+               COALESCE(SUM(CASE WHEN d > 90 THEN bal ELSE 0 END), 0) AS over90,
+               COALESCE(SUM(bal), 0) AS total
+        FROM (
+          SELECT balance AS bal, COALESCE(DATEDIFF(CURDATE(), due_date), 0) AS d
+          FROM fn_receivable WHERE status IN (0, 1)
+        ) x
+        UNION ALL
+        SELECT 'payable' AS category, '应付' AS categoryName,
+               COALESCE(SUM(CASE WHEN d <= 0 THEN bal ELSE 0 END), 0) AS notDue,
+               COALESCE(SUM(CASE WHEN d >= 1 AND d <= 30 THEN bal ELSE 0 END), 0) AS days1to30,
+               COALESCE(SUM(CASE WHEN d >= 31 AND d <= 60 THEN bal ELSE 0 END), 0) AS days31to60,
+               COALESCE(SUM(CASE WHEN d >= 61 AND d <= 90 THEN bal ELSE 0 END), 0) AS days61to90,
+               COALESCE(SUM(CASE WHEN d > 90 THEN bal ELSE 0 END), 0) AS over90,
+               COALESCE(SUM(bal), 0) AS total
+        FROM (
+          SELECT balance AS bal, COALESCE(DATEDIFF(CURDATE(), due_date), 0) AS d
+          FROM fn_payable WHERE status IN (0, 1)
+        ) y
+        """)
+    List<Map<String,Object>> agingSummary();
+
+    /** 月度现金流：按月的流入 / 流出 / 净流量。 */
+    @Select("""
+        SELECT period, inflow, outflow, net_flow AS netFlow
+        FROM v_cash_flow_monthly
+        ORDER BY period DESC
+        """)
+    List<Map<String,Object>> cashFlowMonthly();
 }

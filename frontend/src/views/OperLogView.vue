@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { ElMessage } from 'element-plus'
 import { erpApi, type OperLogRow } from '../api/erp'
-
-const rows = ref<OperLogRow[]>([])
-const total = ref(0)
-const page = ref(1)
-const loading = ref(false)
+import { usePagedList } from '../composables/usePagedList'
+import ListPagination from '../components/ListPagination.vue'
 
 const title = ref('')
 const businessType = ref<number | undefined>(undefined)
@@ -28,41 +24,20 @@ const businessTypes = [
 const businessTypeLabel = (value: number) => businessTypes.find(item => item.value === value)?.label || `类型 ${value}`
 const resultLabel = (value: number) => (value === 0 ? '成功' : '失败')
 
-async function load() {
-  loading.value = true
-  try {
-    const result = await erpApi.operLogs({
-      pageNum: page.value,
-      pageSize: 10,
-      title: title.value.trim() || undefined,
-      businessType: businessType.value,
-      status: status.value,
-    })
-    rows.value = result.rows
-    total.value = result.total
-  } catch (e) {
-    ElMessage.error((e as Error).message)
-  } finally {
-    loading.value = false
-  }
-}
-
-function search() {
-  page.value = 1
-  load()
-}
+const { rows, total, page, loading, load, search, changePage } =
+  usePagedList<OperLogRow>((pageNum, pageSize) => erpApi.operLogs({
+    pageNum,
+    pageSize,
+    title: title.value.trim() || undefined,
+    businessType: businessType.value,
+    status: status.value,
+  }))
 
 function reset() {
   title.value = ''
   businessType.value = undefined
   status.value = undefined
-  page.value = 1
-  load()
-}
-
-function changePage(next: number) {
-  page.value = next
-  load()
+  search()
 }
 
 onMounted(load)
@@ -111,9 +86,7 @@ onMounted(load)
         <el-table-column label="错误信息" min-width="160" show-overflow-tooltip><template #default="scope">{{ scope.row.errorMsg || '—' }}</template></el-table-column>
       </el-table>
     </div>
-    <div class="pagination">
-      <el-pagination v-model:current-page="page" background layout="prev, pager, next, total" :total="total" :page-size="10" @current-change="changePage" />
-    </div>
+    <ListPagination :total="total" :page="page" @change="changePage" />
   </section>
 </template>
 

@@ -27,18 +27,4 @@ export function recognizedRoles(roles: string[]): RoleKey[] {
   return [...new Set(roles.map(role => roleKeys.includes(role as RoleKey) ? role as RoleKey : aliases[role]).filter((role): role is RoleKey => Boolean(role)))]
 }
 
-// Demo permissions mirror the role grants relevant to the current frontend.
-const demoRules: Record<RoleKey, RegExp[]> = {
-  admin: [/./],
-  sales: [/^dashboard:(overview|alerts|ontime):/, /^sd:/, /^md:customer:/, /^sh:/, /^workflow:todo:list$/],
-  planner: [/^dashboard:(overview|alerts|mrp):/, /^pu:/, /^md:(style|sku|material|supplier):list$/, /^pr:workOrder:(list|query|add)$/, /^sd:order:(list|query)$/, /^sh:(shipment|return):list$/, /^workflow:todo:list$/],
-  production: [/^dashboard:(overview|alerts):/, /^pr:/, /^st:inventory:list$/, /^md:(style|sku|material|process):list$/, /^sd:order:(list|query)$/, /^workflow:todo:list$/],
-  wh: [/^dashboard:(overview|alerts):/, /^st:/, /^pu:purchaseOrder:(list|query|receive)$/, /^pr:workOrder:(list|query|issue|finish)$/, /^sh:/, /^workflow:todo:list$/],
-  finance: [/^dashboard:(overview|alerts|ontime|styleCost):/, /^fn:/, /^workflow:/, /^fn:(account|receivable|payable|payment|cashTxn|period|payroll):/, /^sd:order:(list|query)$/, /^sd:quotation:/, /^sh:(shipment|return):(list|query)$/],
-  hr: [/^dashboard:(overview|alerts):/, /^hr:/, /^workflow:todo:list$/],
-  boss: [/^dashboard:/, /^(sd|pu|pr|st|sh|fn|md):.*:(list|query)$/, /^workflow:approval:/, /^workflow:todo:list$/, /^fn:(account|receivable|payable|payment|cashTxn|period):.*:(list)$/, /^pu:purchaseOrder:(approve|reject)$/],
-}
 
-export function demoCan(role: RoleKey, permission: string): boolean {
-  return demoRules[role].some(rule => rule.test(permission))
-}

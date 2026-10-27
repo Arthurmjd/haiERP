@@ -74,6 +74,7 @@ public interface ErpStockMapper {
     int skuExists(@Param("id") Long id);
 
     @Select("""
+        <script>
         SELECT CAST(t.txn_id AS CHAR) AS txnId,t.txn_no AS txnNo,t.txn_type AS txnType,
                t.biz_type AS bizType,t.item_type AS itemType,CAST(t.item_id AS CHAR) AS itemId,
                COALESCE(m.material_code,s.sku_code) AS itemCode,
@@ -84,7 +85,9 @@ public interface ErpStockMapper {
         LEFT JOIN md_material m ON t.item_type=1 AND m.material_id=t.item_id
         LEFT JOIN md_sku s ON t.item_type=2 AND s.sku_id=t.item_id
         LEFT JOIN md_style st ON st.style_id=s.style_id
+        <where><if test="month != null and month != ''">DATE_FORMAT(t.txn_time,'%Y-%m') = #{month}</if></where>
         ORDER BY t.txn_id DESC
+        </script>
         """)
-    List<Map<String,Object>> txns();
+    List<Map<String,Object>> txns(@Param("month") String month);
 }
