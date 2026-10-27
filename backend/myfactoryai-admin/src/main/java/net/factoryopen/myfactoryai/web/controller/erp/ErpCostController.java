@@ -1,6 +1,8 @@
 package net.factoryopen.myfactoryai.web.controller.erp;
 
+import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.enums.BusinessType;
 import net.factoryopen.myfactoryai.erp.domain.CostRequest;
 import net.factoryopen.myfactoryai.erp.service.ErpCostService;
 import net.factoryopen.myfactoryai.erp.service.ErpDocService;
@@ -25,15 +27,18 @@ public class ErpCostController {
     @GetMapping("/{id}")
     public AjaxResult detail(@PathVariable Long id) { return AjaxResult.success(service.detail(id)); }
 
+    @Log(title = "成本试算", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('fn:settlement:calc')")
     @PostMapping("/calc")
     public AjaxResult calculate(@RequestBody CostRequest request) { return AjaxResult.success(service.calculate(request)); }
 
+    @Log(title = "成本结算确认", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('fn:settlement:confirm')")
     @PostMapping("/confirm/{id}")
     public AjaxResult confirm(@PathVariable Long id) { service.confirm(id); return AjaxResult.success(); }
 
     /** 删除试算中的成本单（含明细）。已确认的不能删除。 */
+    @Log(title = "成本单", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('fn:settlement:remove')")
     @DeleteMapping("/{id}")
     public AjaxResult remove(@PathVariable Long id) { docs.deleteDraft("fn:settlement", id); return AjaxResult.success(); }

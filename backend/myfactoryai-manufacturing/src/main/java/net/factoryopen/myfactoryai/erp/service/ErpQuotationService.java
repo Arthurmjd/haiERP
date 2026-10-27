@@ -2,6 +2,7 @@ package net.factoryopen.myfactoryai.erp.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +12,7 @@ import java.util.Set;
 
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
+import net.factoryopen.myfactoryai.erp.domain.QuotationDraftRequest;
 import net.factoryopen.myfactoryai.erp.domain.QuotationRequest;
 import net.factoryopen.myfactoryai.erp.mapper.ErpQuotationMapper;
 import net.factoryopen.myfactoryai.erp.support.DocNos;
@@ -37,6 +39,46 @@ public class ErpQuotationService {
         if (mapper.transition(id,status,SecurityUtils.getUsername()) != 1) {
             throw new ServiceException("报价单不存在或已处理",2006);
         }
+    }
+
+    @Transactional
+    public Map<String,String> create(QuotationDraftRequest request) {
+        if (request == null || request.customerId() == null || request.quoteDate() == null
+                || request.items() == null || request.items().isEmpty() || request.items().size() > 100) {
+            throw new ServiceException("请填写客户、报价日期和 1 至 100 条报价明细",1001);
+        }
+        if (mapper.customerActive(request.customerId()) != 1) throw new ServiceException("客户不存在或已停用",1001);
+        Set<Long> styles = new HashSet<>();
+        BigDecimal total = BigDecimal.ZERO;
+        List<BigDecimal> amounts = new ArrayList<>();
+        for (QuotationDraftRequest.Line line : request.items()) {
+            if (line == null || line.styleId() == null || line.qty() == null || line.qty() <= 0
+                    || line.unitPrice() == null || line.unitPrice().signum() <= 0) {
+                throw new ServiceException("款式、数量或单价不合法",1001);
+            }
+            if (!styles.add(line.styleId())) throw new ServiceException("同一报价不能重复款式",1002);
+            if (mapper.styleActive(line.styleId()) != 1) throw new ServiceException("款式不存在或已停用",1001);
+            BigDecimal amount = money(line.unitPrice().multiply(BigDecimal.valueOf(line.qty())));
+            amounts.add(amount);
+            total = total.add(amount);
+        }
+        Map<String,Object> header = new HashMap<>();
+        header.put("quoteNo",DocNos.temp("QT"));
+        header.put("customerId",request.customerId());
+        header.put("quoteDate",request.quoteDate());
+        header.put("totalAmount",money(total));
+        header.put("username",SecurityUtils.getUsername());
+        mapper.insert(header);
+        Long id = number(header,"quoteId");
+        String no = DocNos.formal("QT",id);
+        mapper.setNo(id,no);
+        for (int i=0;i<request.items().size();i++) {
+            QuotationDraftRequest.Line line = request.items().get(i);
+            mapper.insertDraftLine(id,line.styleId(),line.qty(),line.unitPrice(),
+                    line.costRef()==null?BigDecimal.ZERO:line.costRef(),amounts.get(i),
+                    SecurityUtils.getUsername());
+        }
+        return Map.of("quoteId",id.toString(),"quoteNo",no);
     }
 
     @Transactional
@@ -73,6 +115,7 @@ public class ErpQuotationService {
         }
         Map<String,Object> header = new HashMap<>();
         header.put("quoteNo",DocNos.temp("QT")); header.put("customerId",customerId);
+        header.put("quoteDate",LocalDate.now());
         header.put("totalAmount",total); header.put("requestKey",request.requestKey());
         header.put("username",SecurityUtils.getUsername());
         mapper.insert(header);
@@ -89,6 +132,7 @@ public class ErpQuotationService {
         return Map.of("quoteId",id.toString(),"quoteNo",no);
     }
 
+    private static BigDecimal money(BigDecimal value) { return value.setScale(2,RoundingMode.HALF_UP); }
     private static Long number(Map<String,Object> row,String key) { return ((Number)row.get(key)).longValue(); }
     private static BigDecimal decimal(Map<String,Object> row,String key) { return new BigDecimal(row.get(key).toString()); }
 }

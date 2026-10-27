@@ -19,9 +19,20 @@ public interface ErpQuotationMapper {
     @Select("SELECT quote_id FROM sd_quotation WHERE request_key=#{key}")
     Long byRequestKey(@Param("key") String key);
 
-    @Insert("INSERT INTO sd_quotation(quote_no,customer_id,quote_date,status,total_amount,request_key,create_by,create_time) VALUES(#{quoteNo},#{customerId},CURDATE(),0,#{totalAmount},#{requestKey},#{username},NOW())")
+    @Insert("INSERT INTO sd_quotation(quote_no,customer_id,quote_date,status,total_amount,request_key,create_by,create_time) VALUES(#{quoteNo},#{customerId},COALESCE(#{quoteDate},CURDATE()),0,#{totalAmount},#{requestKey},#{username},NOW())")
     @Options(useGeneratedKeys=true,keyProperty="quoteId")
     int insert(Map<String,Object> row);
+
+    @Select("SELECT COUNT(*) FROM md_customer WHERE customer_id=#{id} AND status=1")
+    int customerActive(@Param("id") Long id);
+
+    @Select("SELECT COUNT(*) FROM md_style WHERE style_id=#{id} AND status=1")
+    int styleActive(@Param("id") Long id);
+
+    @Insert("INSERT INTO sd_quotation_item(quote_id,style_id,qty,unit_price,cost_ref,cost_src,source_settle_id,amount,create_by,create_time) VALUES(#{quoteId},#{styleId},#{qty},#{unitPrice},#{costRef},0,NULL,#{amount},#{username},NOW())")
+    int insertDraftLine(@Param("quoteId") Long quoteId,@Param("styleId") Long styleId,@Param("qty") Integer qty,
+                        @Param("unitPrice") BigDecimal unitPrice,@Param("costRef") BigDecimal costRef,
+                        @Param("amount") BigDecimal amount,@Param("username") String username);
 
     @Update("UPDATE sd_quotation SET quote_no=#{no} WHERE quote_id=#{id}")
     int setNo(@Param("id") Long id,@Param("no") String no);

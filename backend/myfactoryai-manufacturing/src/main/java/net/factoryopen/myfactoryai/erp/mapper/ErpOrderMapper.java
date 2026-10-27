@@ -87,12 +87,15 @@ public interface ErpOrderMapper {
 
     @Insert("""
         INSERT INTO sd_order
-          (order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time)
+          (order_no,customer_id,order_date,delivery_date,status,total_amount,quote_id,create_by,create_time)
         VALUES (#{orderNo},#{customerId},CURDATE(),#{deliveryDate},0,
-                #{totalAmount},#{createdBy},NOW())
+                #{totalAmount},#{quoteId},#{createdBy},NOW())
         """)
     @Options(useGeneratedKeys = true, keyProperty = "orderId")
     int insert(OrderHeader header);
+
+    @Select("SELECT status,customer_id AS customerId FROM sd_quotation WHERE quote_id=#{id} AND del_flag='0'")
+    Map<String, Object> quoteForOrder(@Param("id") Long id);
 
     @Update("UPDATE sd_order SET order_no=#{orderNo} WHERE order_id=#{orderId}")
     int setOrderNo(@Param("orderId") Long orderId, @Param("orderNo") String orderNo);

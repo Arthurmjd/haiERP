@@ -18,10 +18,8 @@ Thumbs.db
 # Historical reference dump; the demo uses the other SQL files.
 /sql/myfactoryai-free.sql
 
-# Local debugging scratch: verification scripts, DB dumps and backups
-/.workbuddy/backup/
-/.workbuddy/*.mjs
-/.workbuddy/*.txt
+# Local database backups contain demo/business data.
+/backup_*.sql
 
 *.log
 .env

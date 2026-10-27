@@ -32,11 +32,26 @@ export interface StyleBomLine { materialId: string; materialCode: string; materi
 export interface StyleProcessLine { processId: string; processName: string; seq: number; unitPrice: number }
 export interface Alert { id: string; alertType: string; title: string; subject: string; triggerValue: number; unit: string; sourceType: string; sourceId: string }
 export interface AiAnswer { answer: string; rows: Record<string, unknown>[]; source: string; dataTime: string; modelUsed: boolean }
+/** 操作日志（RuoYi sys_oper_log）：写操作留痕，删除/作废/确认都能查到是谁做的 */
+export interface OperLogRow {
+  operId: number; title: string; businessType: number; method: string;
+  operName: string; operUrl: string; operIp: string; status: number;
+  operTime: string; errorMsg?: string | null
+}
+export interface OperLogQuery {
+  pageNum: number; pageSize?: number; title?: string; businessType?: number;
+  status?: number; beginTime?: string; endTime?: string
+}
 
 /** 订单状态文案统一由 labels.ts 提供，避免各页面各写一套 */
 export const orderStatusLabel = (status: number) => enumLabel('orderStatus', status)
 
 export const erpApi = {
+  operLogs: async (query: OperLogQuery) => {
+    if (isDemoMode()) return demoApi.operLogs(query)
+    const result = (await http.get<Page<OperLogRow>>('/monitor/operlog/list', { params: query })).data
+    return { rows: result.rows, total: pageTotal(result.total) }
+  },
   options: () => isDemoMode() ? demoApi.options() : payload<OrderOptions>(http.get('/erp/md/orderOptions')),
   orders: async (pageNum: number, keyword: string) => {
     if (isDemoMode()) return demoApi.orders(pageNum, keyword)

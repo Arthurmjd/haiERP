@@ -156,4 +156,24 @@ SELECT '20 seed data present',
           AND (SELECT COUNT(*) FROM pr_work_order_material)>0
           AND (SELECT COUNT(*) FROM pr_process_report)>0
           AND (SELECT COUNT(*) FROM fn_cost_detail)>0,
-          'PASS','FAIL');
+          'PASS','FAIL')
+UNION ALL
+SELECT '21 system management permissions seeded',
+       IF((SELECT COUNT(*) FROM sys_menu WHERE menu_id BETWEEN 90200 AND 90299) >= 50,
+          'PASS', CONCAT('FAIL: ', (SELECT COUNT(*) FROM sys_menu WHERE menu_id BETWEEN 90200 AND 90299)))
+UNION ALL
+SELECT '22 every demo user has a department',
+       IF((SELECT COUNT(*) FROM sys_user WHERE user_id BETWEEN 1 AND 8 AND dept_id IS NULL) = 0,
+          'PASS', CONCAT('FAIL: ', (SELECT COUNT(*) FROM sys_user WHERE user_id BETWEEN 1 AND 8 AND dept_id IS NULL)))
+UNION ALL
+SELECT '23 departments and posts initialized',
+       IF((SELECT COUNT(*) FROM sys_dept WHERE dept_id BETWEEN 100 AND 106) = 7
+          AND (SELECT COUNT(*) FROM sys_post WHERE post_id BETWEEN 1 AND 7) = 7,
+          'PASS', CONCAT('FAIL: ', (SELECT COUNT(*) FROM sys_dept WHERE dept_id BETWEEN 100 AND 106),
+                              '/', (SELECT COUNT(*) FROM sys_post WHERE post_id BETWEEN 1 AND 7)))
+UNION ALL
+SELECT '24 admin holds all system permissions',
+       IF((SELECT COUNT(*) FROM sys_role_menu rm JOIN sys_role r ON r.role_id = rm.role_id
+           WHERE r.role_key = 'admin' AND rm.menu_id BETWEEN 90200 AND 90299)
+          = (SELECT COUNT(*) FROM sys_menu WHERE menu_id BETWEEN 90200 AND 90299),
+          'PASS', 'FAIL');

@@ -21,9 +21,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ErpOrderService {
     private final ErpOrderMapper mapper;
+    private final ErpWorkflowService workflow;
 
-    public ErpOrderService(ErpOrderMapper mapper) {
+    @org.springframework.beans.factory.annotation.Autowired
+    public ErpOrderService(ErpOrderMapper mapper, ErpWorkflowService workflow) {
         this.mapper = mapper;
+        this.workflow = workflow;
+    }
+
+    /** 兼容仅需订单读写（如单元测试）的场景，confirm 不会产生待办。 */
+    public ErpOrderService(ErpOrderMapper mapper) {
+        this(mapper, null);
     }
 
     public Map<String, Object> detail(Long orderId) {
@@ -38,11 +46,19 @@ public class ErpOrderService {
     @Transactional
     public Map<String, String> create(OrderDraftRequest request) {
         ValidatedDraft draft = validate(request);
+        if (request.quoteId() != null) {
+            Map<String, Object> quote = mapper.quoteForOrder(request.quoteId());
+            if (quote == null || ((Number) quote.get("status")).intValue() != 1
+                    || ((Number) quote.get("customerId")).longValue() != request.customerId()) {
+                throw new ServiceException("报价未接受或客户不一致", 2001);
+            }
+        }
         OrderHeader header = new OrderHeader();
         header.setOrderNo(DocNos.temp("SO"));
         header.setCustomerId(request.customerId());
         header.setDeliveryDate(request.deliveryDate());
         header.setTotalAmount(draft.total());
+        header.setQuoteId(request.quoteId());
         header.setCreatedBy(SecurityUtils.getUsername());
         mapper.insert(header);
         String orderNo = DocNos.formal("SO", header.getOrderId());
@@ -119,6 +135,21 @@ public class ErpOrderService {
         if (mapper.confirm(orderId, SecurityUtils.getUsername()) != 1) {
             throw new ServiceException("订单已确认、无明细或状态不允许确认", 2001);
         }
+        if (workflow != null) {
+            Map<String, Object> detail = mapper.detail(orderId);
+            LocalDate dueDate = detail == null ? null : toLocalDate(detail.get("deliveryDate"));
+            workflow.todo("plan", "sd_order", orderId, "planner",
+                    "订单已确认，请采购物料并按款式生成工单", "/orders/" + orderId, dueDate);
+        }
+    }
+
+    private static LocalDate toLocalDate(Object value) {
+        if (value instanceof LocalDate localDate) return localDate;
+        if (value instanceof java.sql.Date sqlDate) return sqlDate.toLocalDate();
+        if (value instanceof java.util.Date date) {
+            return date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        }
+        return null;
     }
 
     private record ValidatedLine(OrderDraftRequest.Line line, BigDecimal amount) {}

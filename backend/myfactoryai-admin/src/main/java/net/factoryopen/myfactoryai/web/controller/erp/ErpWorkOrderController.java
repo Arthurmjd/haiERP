@@ -1,6 +1,8 @@
 package net.factoryopen.myfactoryai.web.controller.erp;
 
+import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.enums.BusinessType;
 import net.factoryopen.myfactoryai.erp.domain.WorkOrderRequest;
 import net.factoryopen.myfactoryai.erp.service.ErpWorkOrderService;
 import net.factoryopen.myfactoryai.erp.service.ErpDocService;
@@ -28,22 +30,38 @@ public class ErpWorkOrderController {
     @GetMapping("/{id}")
     public AjaxResult detail(@PathVariable Long id) { return AjaxResult.success(service.detail(id)); }
 
+    @Log(title = "生产工单", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('pr:workOrder:add')")
     @PostMapping
     public AjaxResult create(@RequestBody WorkOrderRequest.Create request) { return AjaxResult.success(service.create(request)); }
 
+    @Log(title = "生产工单", businessType = BusinessType.INSERT)
+    @PreAuthorize("@ss.hasPermi('pr:workOrder:generate')")
+    @PostMapping("/generate/{orderId}")
+    public AjaxResult generate(@PathVariable Long orderId) { return AjaxResult.success(service.generate(orderId)); }
+
+    @Log(title = "工单退料", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('pr:workOrder:return')")
+    @PostMapping("/return")
+    public AjaxResult returnMaterial(@RequestBody WorkOrderRequest.Return request) {
+        service.returnMaterial(request); return AjaxResult.success();
+    }
+
+    @Log(title = "工单领料开工", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('pr:workOrder:issue')")
     @PostMapping("/issue/{id}")
     public AjaxResult issue(@PathVariable Long id,@RequestBody WorkOrderRequest.Action request) {
         service.issue(id,request); return AjaxResult.success();
     }
 
+    @Log(title = "工序报工", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('pr:process:report')")
     @PostMapping("/process/report")
     public AjaxResult report(@RequestBody WorkOrderRequest.Report request) {
         service.report(request); return AjaxResult.success();
     }
 
+    @Log(title = "工单完工入库", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('pr:workOrder:finish')")
     @PostMapping("/finish/{id}")
     public AjaxResult finish(@PathVariable Long id,@RequestBody WorkOrderRequest.Finish request) {
@@ -51,11 +69,13 @@ public class ErpWorkOrderController {
     }
 
     /** 删除待开工工单（含 SKU/用料/工序）。已领料或已报工时不允许。 */
+    @Log(title = "生产工单", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('pr:workOrder:remove')")
     @DeleteMapping("/{id}")
     public AjaxResult remove(@PathVariable Long id) { docs.deleteDraft("pr:workOrder", id); return AjaxResult.success(); }
 
     /** 作废待开工工单；领料后库存已变动，不允许作废。 */
+    @Log(title = "工单作废", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('pr:workOrder:cancel')")
     @PostMapping("/cancel/{id}")
     public AjaxResult cancel(@PathVariable Long id) { docs.cancel("pr:workOrder", id); return AjaxResult.success(); }

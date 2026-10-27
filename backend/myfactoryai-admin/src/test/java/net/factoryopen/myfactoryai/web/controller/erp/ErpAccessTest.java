@@ -5,7 +5,7 @@ import java.util.Map;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.framework.web.service.PermissionService;
-import net.factoryopen.myfactoryai.ai.config.LLMConfig;
+import net.factoryopen.myfactoryai.web.ai.DeepSeekConfig;
 import net.factoryopen.myfactoryai.erp.mapper.ErpAiReadMapper;
 import net.factoryopen.myfactoryai.erp.mapper.ErpReadMapper;
 import net.factoryopen.myfactoryai.erp.mapper.ErpQuotationMapper;
@@ -38,7 +38,7 @@ class ErpAccessTest {
     void businessQuestionChecksScopeBeforeReading() {
         ErpAiReadMapper mapper = mock(ErpAiReadMapper.class);
         PermissionService permissions = mock(PermissionService.class);
-        ErpAiQuestionController controller = new ErpAiQuestionController(mapper,permissions,mock(LLMConfig.class));
+        ErpAiQuestionController controller = new ErpAiQuestionController(mapper,permissions,mock(DeepSeekConfig.class));
         assertThrows(ServiceException.class,() -> controller.ask(new ErpAiQuestionController.Question("cost","查看成本")));
         verify(permissions).hasPermi("dashboard:styleCost:list");
         verifyNoInteractions(mapper);

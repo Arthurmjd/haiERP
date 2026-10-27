@@ -9,6 +9,7 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
 import net.factoryopen.myfactoryai.erp.mapper.ErpDocMapper;
 import net.factoryopen.myfactoryai.erp.mapper.ErpDocSql;
+import net.factoryopen.myfactoryai.erp.mapper.ErpWorkOrderMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class ErpDocService {
 
     private final ErpDocMapper mapper;
+    private final ErpWorkOrderMapper workOrderMapper;
 
-    public ErpDocService(ErpDocMapper mapper) { this.mapper = mapper; }
+    public ErpDocService(ErpDocMapper mapper, ErpWorkOrderMapper workOrderMapper) {
+        this.mapper = mapper;
+        this.workOrderMapper = workOrderMapper;
+    }
 
     @Transactional
     public void deleteDraft(String doc, Long id) {
@@ -34,6 +39,7 @@ public class ErpDocService {
             throw new ServiceException("只有草稿可以删除，当前状态不允许；如需终止业务请使用作废", 2001);
         }
         ensureNoRefs(doc, id, "删除");
+        if ("pr:workOrder".equals(doc)) workOrderMapper.releaseReservations(id);
         for (ErpDocSql.Child child : spec.children()) {
             Map<String, Object> args = new HashMap<>();
             args.put("table", child.table());
@@ -58,6 +64,7 @@ public class ErpDocService {
             throw new ServiceException("当前状态不允许作废", 2001);
         }
         ensureNoRefs(doc, id, "作废");
+        if ("pr:workOrder".equals(doc)) workOrderMapper.releaseReservations(id);
         Map<String, Object> args = new HashMap<>();
         args.put("doc", doc);
         args.put("id", id);

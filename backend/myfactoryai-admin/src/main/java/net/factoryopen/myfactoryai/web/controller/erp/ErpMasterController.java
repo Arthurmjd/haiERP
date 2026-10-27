@@ -2,7 +2,9 @@ package net.factoryopen.myfactoryai.web.controller.erp;
 
 import java.util.Map;
 
+import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.enums.BusinessType;
 import net.factoryopen.myfactoryai.erp.service.ErpMasterService;
 import net.factoryopen.myfactoryai.erp.mapper.ErpReadMapper;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,18 +33,22 @@ public class ErpMasterController {
     @GetMapping("/{resource}/{id}")
     public AjaxResult detail(@P("resource") @PathVariable String resource,@PathVariable Long id) { return AjaxResult.success(service.detail(resource,id)); }
 
+    @Log(title = "主数据", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('md:' + #resource + ':add')")
     @PostMapping("/{resource}")
     public AjaxResult create(@P("resource") @PathVariable String resource,@RequestBody Map<String,Object> input) { return AjaxResult.success(service.create(resource,input)); }
 
+    @Log(title = "主数据", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('md:' + #resource + ':edit')")
     @PutMapping("/{resource}/{id}")
     public AjaxResult update(@P("resource") @PathVariable String resource,@PathVariable Long id,@RequestBody Map<String,Object> input) { service.update(resource,id,input); return AjaxResult.success(); }
 
+    @Log(title = "主数据", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('md:' + #resource + ':remove')")
     @DeleteMapping("/{resource}/{id}")
     public AjaxResult remove(@P("resource") @PathVariable String resource,@PathVariable Long id) { service.delete(resource,id); return AjaxResult.success(); }
 
+    @Log(title = "生成SKU", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('md:sku:generate')")
     @PostMapping("/sku/generate")
     public AjaxResult generateSku(@RequestBody Map<String,Long> input) {

@@ -31,10 +31,11 @@ export const enums = {
     1: { label: '正常', type: 'success' },
     0: { label: '停用', type: 'info' },
   },
-  /** 计件工资 / 工资单：0待发 1已发 */
+  /** 计件工资 / 工资单：0草稿 1已确认 2已发放 */
   payrollStatus: {
-    0: { label: '待发', type: 'warning' },
-    1: { label: '已发', type: 'success' },
+    0: { label: '草稿', type: 'info' },
+    1: { label: '已确认', type: 'primary' },
+    2: { label: '已发放', type: 'success' },
   },
   /** 销售订单：0草稿 1已确认 2生产中 3已完工 4已出货 5已完成 9已取消 */
   orderStatus: {
@@ -131,6 +132,43 @@ export const enums = {
     5: { label: '盘盈' },
     6: { label: '盘亏' },
     7: { label: '退货回库' },
+  },
+  /** 资金方向：1收 2付 */
+  financeDirection: {
+    1: { label: '收', type: 'success' },
+    2: { label: '付', type: 'warning' },
+  },
+  /** 资金业务类型：1销售收款 2采购付款 3工资发放 4退款 5其他收 6其他付 */
+  financeBizType: {
+    1: { label: '销售收款' },
+    2: { label: '采购付款' },
+    3: { label: '工资发放' },
+    4: { label: '退款' },
+    5: { label: '其他收' },
+    6: { label: '其他付' },
+  },
+  /** 应收/应付状态：0未收付 1部分 2已结清 9作废 */
+  arApStatus: {
+    0: { label: '未收付', type: 'warning' },
+    1: { label: '部分', type: 'primary' },
+    2: { label: '已结清', type: 'success' },
+    9: { label: '作废', type: 'danger' },
+  },
+  /** 资金账户类型：1现金 2银行 3电子 */
+  accountType: {
+    1: { label: '现金' },
+    2: { label: '银行' },
+    3: { label: '电子' },
+  },
+  /** 收付款单：0待确认 1已确认 */
+  paymentStatus: {
+    0: { label: '待确认', type: 'warning' },
+    1: { label: '已确认', type: 'success' },
+  },
+  /** 会计期间：0开放 1已结账 */
+  periodStatus: {
+    0: { label: '开放', type: 'info' },
+    1: { label: '已结账', type: 'success' },
   },
   /** 退货类型：1退货入库 2换货 3报废 */
   returnType: {

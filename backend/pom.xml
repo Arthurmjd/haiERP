@@ -83,11 +83,6 @@
                 <artifactId>myfactoryai-manufacturing</artifactId>
                 <version>${myfactoryai.version}</version>
             </dependency>
-            <dependency>
-                <groupId>net.factoryopen.myfactoryai</groupId>
-                <artifactId>myfactoryai-ai</artifactId>
-                <version>${myfactoryai.version}</version>
-            </dependency>
 
             <!-- 数据源连接池 -->
             <dependency>
@@ -192,7 +187,6 @@
         <module>ruoyi-quartz</module>
         <module>myfactoryai-system</module>
         <module>myfactoryai-manufacturing</module>
-        <module>myfactoryai-ai</module>
         <module>myfactoryai-admin</module>
     </modules>
 

@@ -85,7 +85,9 @@ class ErpDraftUpdateTest {
     @Test
     void purchaseUpdateRejectsConfirmedDocument() {
         ErpPurchaseMapper mapper = mock(ErpPurchaseMapper.class);
-        ErpPurchaseService service = new ErpPurchaseService(mapper, mock(ErpStockService.class));
+        ErpPurchaseService service = new ErpPurchaseService(mapper, mock(ErpStockService.class),
+                mock(net.factoryopen.myfactoryai.erp.service.ErpFinanceService.class),
+                mock(net.factoryopen.myfactoryai.erp.service.ErpWorkflowService.class));
         when(mapper.lockDraft(3L)).thenReturn(Map.of("status", 3, "poNo", "PO2026000003"));
 
         ServiceException error = assertThrows(ServiceException.class, () -> service.update(3L, purchaseRequest()));
@@ -98,7 +100,9 @@ class ErpDraftUpdateTest {
     @Test
     void purchaseUpdateReplacesLinesForDraft() {
         ErpPurchaseMapper mapper = mock(ErpPurchaseMapper.class);
-        ErpPurchaseService service = new ErpPurchaseService(mapper, mock(ErpStockService.class));
+        ErpPurchaseService service = new ErpPurchaseService(mapper, mock(ErpStockService.class),
+                mock(net.factoryopen.myfactoryai.erp.service.ErpFinanceService.class),
+                mock(net.factoryopen.myfactoryai.erp.service.ErpWorkflowService.class));
         when(mapper.lockDraft(3L)).thenReturn(Map.of("status", 0, "poNo", "PO2026000003"));
         when(mapper.activeSupplier(5L)).thenReturn(1);
         when(mapper.activeMaterial(9L)).thenReturn(1);

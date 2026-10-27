@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.List;
@@ -26,11 +27,14 @@ public class ErpWorkOrderService {
     private final ErpWorkOrderMapper mapper;
     private final ErpStockMapper stockMapper;
     private final ErpStockService stock;
+    private final ErpWorkflowService workflow;
 
-    public ErpWorkOrderService(ErpWorkOrderMapper mapper, ErpStockMapper stockMapper, ErpStockService stock) {
+    public ErpWorkOrderService(ErpWorkOrderMapper mapper, ErpStockMapper stockMapper, ErpStockService stock,
+                               ErpWorkflowService workflow) {
         this.mapper = mapper;
         this.stockMapper = stockMapper;
         this.stock = stock;
+        this.workflow = workflow;
     }
 
     public Map<String,Object> detail(Long id) {
@@ -56,11 +60,18 @@ public class ErpWorkOrderService {
         int qty = skus.stream().mapToInt(row -> ((Number) row.get("qty")).intValue()).sum();
         if (qty <= 0) throw new ServiceException("生产数量不合法",1001);
         String username = SecurityUtils.getUsername();
+        LocalDate today = LocalDate.now();
+        LocalDate planEnd = mapper.orderDelivery(request.orderId());
+        if (planEnd == null) planEnd = today.plusDays(7);
+        LocalDate planStart = planEnd.minusDays(7);
+        if (planStart.isBefore(today)) planStart = today;
         WorkOrderHeader header = new WorkOrderHeader();
         header.setWoNo(DocNos.temp("WO"));
         header.setOrderId(request.orderId());
         header.setStyleId(request.styleId());
         header.setQty(qty);
+        header.setPlanStartDate(planStart);
+        header.setPlanEndDate(planEnd);
         header.setCreatedBy(username);
         mapper.insert(header);
         String no = DocNos.formal("WO",header.getWoId());
@@ -78,13 +89,21 @@ public class ErpWorkOrderService {
                     .multiply(BigDecimal.ONE.add(lossRate.movePointLeft(2)))
                     .setScale(3,RoundingMode.CEILING);
             if (unitQty.signum() <= 0 || planQty.signum() <= 0) throw new ServiceException("BOM 用量不合法",2005);
-            mapper.insertMaterial(header.getWoId(),longValue(row,"materialId"),
+            Long materialId = longValue(row,"materialId");
+            mapper.insertMaterial(header.getWoId(),materialId,
                     (String) row.get("materialUnit"),unitQty,lossRate,planQty,username);
+            BigDecimal available = mapper.availableToReserve(materialId);
+            BigDecimal reserve = available == null ? BigDecimal.ZERO : planQty.min(available);
+            if (reserve.signum() > 0) {
+                mapper.insertReservation(header.getWoId(),materialId,reserve,username);
+            }
         }
         for (Map<String,Object> row : processes) {
             mapper.insertProcess(header.getWoId(),longValue(row,"processId"),
                     ((Number) row.get("seq")).intValue(),qty,decimal(row,"unitPrice"),username);
         }
+        workflow.todo("issue","pr_wo",header.getWoId(),"production","工单已下达，请领料开工",
+                "/production/workOrders/"+header.getWoId(),planEnd);
         return Map.of("woId",header.getWoId().toString(),"woNo",no);
     }
 
@@ -93,16 +112,24 @@ public class ErpWorkOrderService {
         if (woId == null || request == null) throw new ServiceException("工单或请求键缺失",1001);
         if (stock.begin(request.requestKey(),"work_order_issue","pr_wo",woId,Map.of("woId",woId))) return;
         Integer status = mapper.lockStatus(woId);
-        if (status == null || status != 0) throw new ServiceException("工单状态不允许领料",2001);
+        if (status == null || (status != 0 && status != 1)) throw new ServiceException("工单状态不允许领料",2001);
         List<Map<String,Object>> materials = mapper.materials(woId);
         if (materials.isEmpty()) throw new ServiceException("工单没有冻结用料",2005);
-        for (Map<String,Object> material : materials) {
+        Set<Long> selected = request.materialIds() == null || request.materialIds().isEmpty()
+                ? null : new HashSet<>(request.materialIds());
+        List<Map<String,Object>> targets = selected == null ? materials : materials.stream()
+                .filter(row -> selected.contains(longValue(row,"materialId"))).toList();
+        for (Map<String,Object> material : targets) {
             BigDecimal need = decimal(material,"planQty").subtract(decimal(material,"issuedQty"));
             if (need.signum() <= 0) continue;
+            BigDecimal originalNeed = need;
             Long materialId = longValue(material,"materialId");
+            BigDecimal physical = mapper.availableForIssue(materialId,woId);
+            if (physical == null || physical.compareTo(need) < 0) {
+                throw new ServiceException("物料 " + materialId + " 库存不足",2003);
+            }
             List<Map<String,Object>> batches = mapper.stockBatches(materialId);
-            BigDecimal available = batches.stream().map(row -> decimal(row,"qty")).reduce(BigDecimal.ZERO,BigDecimal::add);
-            if (available.compareTo(need) < 0) throw new ServiceException("物料 " + materialId + " 库存不足",2003);
+            BigDecimal takenTotal = BigDecimal.ZERO;
             for (Map<String,Object> batch : batches) {
                 if (need.signum() == 0) break;
                 BigDecimal taken = need.min(decimal(batch,"qty"));
@@ -110,13 +137,25 @@ public class ErpWorkOrderService {
                 if (stockMapper.subtractStock(1,materialId,batchNo,taken) != 1) throw new ServiceException("并发领料导致库存不足",2003);
                 stock.txn(2,2,1,materialId,batchNo,taken,"pr_wo",woId,longValue(material,"id"),request.requestKey(),LocalDate.now());
                 need = need.subtract(taken);
+                takenTotal = takenTotal.add(taken);
             }
-            if (mapper.markIssued(longValue(material,"id"),decimal(material,"planQty").subtract(decimal(material,"issuedQty"))) != 1) {
+            if (takenTotal.signum() > 0) {
+                mapper.reduceReservation(woId,materialId,takenTotal.min(originalNeed));
+            }
+            if (mapper.markIssued(longValue(material,"id"),takenTotal) != 1) {
                 throw new ServiceException("用料数量已变化",2006);
             }
         }
-        mapper.start(woId,SecurityUtils.getUsername());
-        mapper.startOrder(longValue(mapper.header(woId),"orderId"),SecurityUtils.getUsername());
+        String username = SecurityUtils.getUsername();
+        if (status == 0) {
+            mapper.start(woId,username);
+            mapper.startOrder(longValue(mapper.header(woId),"orderId"),username);
+            workflow.todo("report","pr_wo",woId,"production","工单已开工，请报工",
+                    "/production/workOrders/"+woId,null);
+        }
+        boolean allIssued = mapper.materials(woId).stream()
+                .allMatch(row -> decimal(row,"issuedQty").compareTo(decimal(row,"planQty")) >= 0);
+        if (allIssued) workflow.complete("issue","pr_wo",woId);
         stock.complete(request.requestKey(),woId);
     }
 
@@ -129,6 +168,7 @@ public class ErpWorkOrderService {
                 || request.reportDate().isAfter(LocalDate.now())) {
             throw new ServiceException("报工数量、日期或色码不合法",1001);
         }
+        workflow.assertOpen(request.reportDate());
         Map<String,Object> process = mapper.lockProcess(request.workOrderProcessId());
         if (process == null) throw new ServiceException("工序不存在",1001);
         Long woId = longValue(process,"woId");
@@ -196,10 +236,72 @@ public class ErpWorkOrderService {
             stock.txn(1,3,2,item.skuId(),item.batchNo().trim(),qty,"pr_wo",woId,null,request.requestKey(),LocalDate.now());
         }
         if (mapper.unfinishedSkuCount(woId) == 0) {
-            mapper.finish(woId,SecurityUtils.getUsername());
-            mapper.finishOrder(longValue(mapper.header(woId),"orderId"),SecurityUtils.getUsername());
+            String username = SecurityUtils.getUsername();
+            mapper.finish(woId,username);
+            Long orderId = longValue(mapper.header(woId),"orderId");
+            int orderFinished = mapper.finishOrder(orderId,username);
+            workflow.complete("report","pr_wo",woId);
+            workflow.complete("issue","pr_wo",woId);
+            mapper.releaseReservations(woId);
+            if (orderFinished == 1) {
+                workflow.todo("ship","sd_order",orderId,"sales","订单已完工，可安排出货",
+                        "/shipping/shipments",null);
+            }
         }
         stock.complete(request.requestKey(),woId);
+    }
+
+    @Transactional
+    public void returnMaterial(WorkOrderRequest.Return request) {
+        if (request == null || request.woId() == null || request.items() == null || request.items().isEmpty()
+                || request.requestKey() == null || request.requestKey().isBlank()) {
+            throw new ServiceException("退料参数不合法",1001);
+        }
+        Long woId = request.woId();
+        if (stock.begin(request.requestKey(),"work_order_material_return","pr_wo",woId,request)) return;
+        Integer status = mapper.lockStatus(woId);
+        if (status == null || status != 1) throw new ServiceException("工单不在生产中，不能退料",2001);
+        Map<Long,Map<String,Object>> materials = new HashMap<>();
+        for (Map<String,Object> row : mapper.materials(woId)) materials.put(longValue(row,"materialId"),row);
+        String username = SecurityUtils.getUsername();
+        for (WorkOrderRequest.MaterialReturn item : request.items()) {
+            if (item == null || item.materialId() == null || item.batchNo() == null || item.batchNo().isBlank()
+                    || item.batchNo().length() > 30 || item.qty() == null || item.qty().signum() <= 0) {
+                throw new ServiceException("退料物料、批次或数量不合法",1001);
+            }
+            Map<String,Object> material = materials.get(item.materialId());
+            if (material == null) throw new ServiceException("物料不属于该工单",1001);
+            BigDecimal issued = decimal(material,"issuedQty");
+            BigDecimal returned = material.get("returnedQty") == null ? BigDecimal.ZERO : decimal(material,"returnedQty");
+            if (returned.add(item.qty()).compareTo(issued) > 0) {
+                throw new ServiceException("退料数量超过已领数量",2006);
+            }
+            stockMapper.addStock(1,item.materialId(),item.batchNo().trim(),item.qty(),username);
+            stock.txn(1,7,1,item.materialId(),item.batchNo().trim(),item.qty(),"pr_wo",woId,
+                    longValue(material,"id"),request.requestKey(),LocalDate.now());
+            if (mapper.returnMaterial(longValue(material,"id"),item.qty()) != 1) {
+                throw new ServiceException("退料数量已变化",2006);
+            }
+            material.put("issuedQty",issued.subtract(item.qty()));
+            material.put("returnedQty",returned.add(item.qty()));
+        }
+        stock.complete(request.requestKey(),woId);
+    }
+
+    @Transactional
+    public List<Map<String,String>> generate(Long orderId) {
+        if (orderId == null) throw new ServiceException("订单必填",1001);
+        Integer orderStatus = mapper.lockOrder(orderId);
+        if (orderStatus == null || (orderStatus != 1 && orderStatus != 2)) {
+            throw new ServiceException("订单未确认或状态不允许建工单",2001);
+        }
+        List<Map<String,String>> created = new ArrayList<>();
+        for (Long styleId : mapper.orderStyles(orderId)) {
+            if (mapper.existingWorkOrder(orderId,styleId) == 0) {
+                created.add(create(new WorkOrderRequest.Create(orderId,styleId)));
+            }
+        }
+        return created;
     }
 
     private static Long longValue(Map<String,Object> row,String key) { return ((Number) row.get(key)).longValue(); }

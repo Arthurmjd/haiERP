@@ -2,7 +2,9 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { http, payload } from '../api/client'
 import { erpApi, orderStatusLabel, type Order } from '../api/erp'
+import { isDemoMode } from '../api/demo'
 import { enumTagType } from '../api/labels'
 import { useUserStore } from '../stores/user'
 const route = useRoute()
@@ -12,6 +14,7 @@ const order = ref<Order | null>(null)
 const loading = ref(true)
 const confirming = ref(false)
 const creatingWorkOrder = ref(false)
+const generating = ref(false)
 const shipping = ref(false)
 const logisticsCompany = ref('')
 const logisticsNo = ref('')
@@ -39,6 +42,18 @@ async function createWorkOrder(styleId: string) {
   try { const created = await erpApi.createWorkOrder(order.value.orderId, styleId); ElMessage.success('工单已创建'); router.push(`/production/workOrders/${created.woId}`) }
   catch (e) { ElMessage.error((e as Error).message) }
   finally { creatingWorkOrder.value = false }
+}
+async function generateWorkOrders() {
+  if (!order.value) return
+  if (isDemoMode()) return ElMessage.warning('演示模式不支持')
+  generating.value = true
+  try {
+    const created = await payload<{ woId: string; woNo: string }[]>(http.post(`/erp/pr/workOrder/generate/${encodeURIComponent(order.value.orderId)}`))
+    if (created.length) ElMessage.success(`已生成 ${created.length} 张工单`)
+    else ElMessage.info('该订单款式均已有工单，未新建')
+    await load()
+  } catch (e) { ElMessage.error((e as Error).message) }
+  finally { generating.value = false }
 }
 async function removeOrder() {
   if (!order.value) return
@@ -80,7 +95,7 @@ async function calculateCost(styleId: string) {
 onMounted(load)
 </script>
 <template>
-  <div class="page-head"><div><h1>{{ order?.orderNo || '订单详情' }}</h1><p>销售订单与交付明细</p></div><div class="head-actions"><el-button @click="router.push('/orders')">返回列表</el-button><el-button v-if="order?.status === 0 && user.can('sd:order:confirm')" type="primary" :loading="confirming" @click="confirm">确认订单</el-button><el-button v-if="order && [2,3].includes(order.status) && user.can('sh:shipment:add')" type="primary" @click="openShipment">创建出货单</el-button><el-button v-if="order?.status === 0 && user.can('sd:order:remove')" type="danger" plain :loading="confirming" @click="removeOrder">删除</el-button><el-button v-if="order && order.status !== 9 && user.can('sd:order:cancel')" type="danger" plain :loading="confirming" @click="cancelOrder">作废</el-button></div></div>
+  <div class="page-head"><div><h1>{{ order?.orderNo || '订单详情' }}</h1><p>销售订单与交付明细</p></div><div class="head-actions"><el-button @click="router.push('/orders')">返回列表</el-button><el-button v-if="order?.status === 0 && user.can('sd:order:confirm')" type="primary" :loading="confirming" @click="confirm">确认订单</el-button><el-button v-if="order && [1,2].includes(order.status) && user.can('pr:workOrder:generate')" type="primary" :loading="generating" @click="generateWorkOrders">一键生成工单</el-button><el-button v-if="order && [2,3].includes(order.status) && user.can('sh:shipment:add')" type="primary" @click="openShipment">创建出货单</el-button><el-button v-if="order?.status === 0 && user.can('sd:order:remove')" type="danger" plain :loading="confirming" @click="removeOrder">删除</el-button><el-button v-if="order && order.status !== 9 && user.can('sd:order:cancel')" type="danger" plain :loading="confirming" @click="cancelOrder">作废</el-button></div></div>
   <div v-if="loading" class="loading-state">正在加载…</div><div v-else-if="error" class="panel error-state">{{ error }} <el-button text type="primary" @click="load">重试</el-button></div>
   <template v-else-if="order"><section class="panel"><h2 class="panel-title">订单信息</h2><div class="detail-grid"><div><div class="detail-label">客户</div><div class="detail-value">{{ order.customerName }}</div></div><div><div class="detail-label">下单日期</div><div class="detail-value">{{ order.orderDate }}</div></div><div><div class="detail-label">交期</div><div class="detail-value">{{ order.deliveryDate }}</div></div><div><div class="detail-label">状态</div><el-tag :type="enumTagType('orderStatus', order.status)">{{ orderStatusLabel(order.status) }}</el-tag></div><div><div class="detail-label">订单金额</div><div class="detail-value">{{ currency(order.totalAmount) }}</div></div><div><div class="detail-label">实际完成发货</div><div class="detail-value">{{ order.fullShipDate || '—' }}</div></div></div></section>
     <section class="panel"><h2 class="panel-title">产品明细</h2><div class="table-wrap"><el-table :data="order.items || []" stripe><el-table-column prop="skuCode" label="SKU" min-width="160"/><el-table-column prop="styleName" label="产品" min-width="150"/><el-table-column prop="colorName" label="颜色" min-width="90"/><el-table-column prop="sizeName" label="尺码" min-width="80"/><el-table-column prop="qty" label="订购数量" width="100"/><el-table-column prop="shippedQty" label="已发数量" width="100"/><el-table-column prop="remainingQty" label="未发数量" width="100"/><el-table-column label="单价" width="110"><template #default="scope">{{ currency(scope.row.unitPrice) }}</template></el-table-column><el-table-column label="金额" width="130"><template #default="scope">{{ currency(scope.row.amount) }}</template></el-table-column></el-table></div><div class="form-actions"><el-button v-for="styleId in [...new Set((order.items || []).map(item => item.styleId))]" v-if="user.can('fn:settlement:calc')" :key="styleId" :loading="creatingWorkOrder" @click="calculateCost(styleId)">试算 {{ order.items?.find(item => item.styleId === styleId)?.styleName }} 成本</el-button><el-button v-for="styleId in [...new Set((order.items || []).map(item => item.styleId))]" v-if="[1,2].includes(order.status) && user.can('pr:workOrder:add')" :key="styleId" :loading="creatingWorkOrder" @click="createWorkOrder(styleId)">为 {{ order.items?.find(item => item.styleId === styleId)?.styleName }} 建工单</el-button></div></section>

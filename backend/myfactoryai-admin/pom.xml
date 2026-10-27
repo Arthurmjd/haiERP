@@ -56,9 +56,10 @@
             <groupId>net.factoryopen.myfactoryai</groupId>
             <artifactId>myfactoryai-manufacturing</artifactId>
         </dependency>
+        <!-- 调用 DeepSeek 用 WebClient，原先由 myfactoryai-ai 模块间接带入 -->
         <dependency>
-            <groupId>net.factoryopen.myfactoryai</groupId>
-            <artifactId>myfactoryai-ai</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
         <!-- JimuReport Spring Boot 3 专用 -->

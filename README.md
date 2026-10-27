@@ -4,6 +4,10 @@
 
 组内理解订单到采购、生产、出货、成本和 AI 的接力关系，请看[业务逻辑图](docs/业务逻辑图.md)。
 
+想启用 AI 问答（DeepSeek），按[AI 问答接入 DeepSeek](docs/AI问答接入DeepSeek.md) 配一个环境变量即可；不配也能用，只是降级为数据摘要。
+
+课程答辩前，按[答辩分工与实施方案](docs/答辩分工与实施方案.md) 分配发言、统一口径、准备演示与问答。
+
 ## 环境准备
 
 每位组员在自己的电脑上安装并确认：
@@ -48,12 +52,13 @@ USE hai_erp_demo;
 SOURCE sql/platform-schema.sql;
 SOURCE sql/init_all.sql;
 SOURCE sql/erp-permissions.sql;
+SOURCE sql/system-permissions.sql;
 SOURCE sql/platform-demo-users.sql;
 SOURCE sql/self_check.sql;
 exit
 ```
 
-若 `CREATE DATABASE` 提示库已存在，先停止并确认库中数据，不要继续运行初始化。自检应有 20 行 `PASS`。若提示找不到 `mysql`，把 MySQL 的 `bin` 目录加入系统 `PATH`，再打开新的终端。
+若 `CREATE DATABASE` 提示库已存在，先停止并确认库中数据，不要继续运行初始化。自检应有 24 行 `PASS`。若提示找不到 `mysql`，把 MySQL 的 `bin` 目录加入系统 `PATH`，再打开新的终端。
 
 ## 启动服务
 
@@ -101,7 +106,7 @@ $env:DB_PASSWORD = [System.Net.NetworkCredential]::new('', $dbPassword).Password
 Remove-Variable dbPassword
 $env:REDIS_HOST = '127.0.0.1'
 $env:TOKEN_SECRET = [guid]::NewGuid().ToString('N')
-mvn -DskipTests package
+mvn clean -DskipTests package
 java -jar myfactoryai-admin/target/myfactoryai-admin.jar --server.address=127.0.0.1
 ```
 
@@ -132,13 +137,44 @@ npm run dev
 
 八个账号的临时密码都是 `Demo@2026!`，由 `sql/platform-demo-users.sql` 创建。它们**只供本机演示**，不得用于公开部署。演示种子的业务日期固定在 2026 年 10 月；新建订单时交期需选择当前日期之后。
 
+## 系统管理（管理员）
+
+左侧导航底部独立分组「系统管理」，仅管理员可见，用于维护账号、角色、菜单与组织架构。
+权限数据由 `sql/system-permissions.sql` 写入 `sys_menu`（菜单 ID 段 90200-90299），可重复执行。
+
+| 页面 | 路径 | 权限标识 | 能做什么 |
+| --- | --- | --- | --- |
+| 用户管理 | `/system/users` | `system:user:*` | 新增/编辑账号、分配角色、重置密码、停用启用、删除 |
+| 角色管理 | `/system/roles` | `system:role:*` | 定义角色与数据范围、勾选可见菜单、停用删除 |
+| 菜单管理 | `/system/menus` | `system:menu:*` | 维护菜单树与按钮级权限标识 |
+| 组织架构 | `/system/org` | `system:dept:*` `system:post:*` | 维护部门层级与岗位定义 |
+
+- **权限模型**：前端用静态路由 `meta.permission` 拦截，后端用 `@PreAuthorize("@ss.hasPermi(...)")` 兜底，
+  两边权限字符串必须与 `sys_menu.perms` 完全一致。未授权请求返回 HTTP 200 + body `{"code":403}`。
+- **菜单树与权限标识是同一份数据**：菜单管理里改的 `perms` 直接决定前端按钮显隐与后端接口放行。
+- **角色决定权限，用户承载权限**：给用户授权角色即可获得该角色的菜单集合。
+- **数据范围**独立于菜单：角色可配置「全部 / 自定义 / 本部门 / 本部门及以下 / 仅本人」。
+- 组织架构初始化：7 个部门（销售、计划、生产、仓储、财务、人事 + 总部）与 7 个岗位，八个演示账号已挂到对应部门。
+
+## 操作日志（审计留痕）
+
+所有写操作——新增单据、编辑、删除、作废、确认、收货、盘点、报价接受、工资生成——都会留痕，
+记录写入 RuoYi 的 `sys_oper_log` 表。
+
+- 入口：左侧导航「操作日志」（仅管理员与厂长可见）
+- 记录内容：操作时间、模块、类型（新增/修改/删除…）、操作人、方法名、请求地址、来源 IP、成功或失败
+- 失败的尝试也会记录，例如越权删除被拒、工单被下游单据引用而无法作废
+- 接口权限：`monitor:operlog:list` 查看、`monitor:operlog:remove` 清理。
+  清理权限**只给管理员**，厂长只能看不能删
+- 没配 AI 也能用：日志是后端能力，与大模型无关
+
 ## 验证与排错
 
 - 后端测试：在 `backend` 目录运行 `mvn test`。
 - 前端构建：在 `frontend` 目录运行 `npm run build`。
 - 前端提示 `ECONNREFUSED 127.0.0.1:8080`：后端未启动或端口不一致，先查看后端终端是否显示启动成功。
 - 登录失败：确认四份 SQL 按上述顺序导入、MySQL 和 Redis 均在运行，且后端连接的是 `hai_erp_demo`。
-- 修改后端代码后：先停止旧后端，再执行 `mvn -DskipTests package` 并重启 JAR；运行中的旧 JAR 不会自动更新，且在 Windows 上可能占用文件导致打包失败。
+- 修改后端代码后：先停止旧后端，再执行 `mvn clean -DskipTests package` 并重启 JAR；运行中的旧 JAR 不会自动更新，且在 Windows 上可能占用文件导致打包失败。删除或移动源码后必须带 `clean`，否则 `target/` 里的旧 class 和 mapper XML 会继续被打进 JAR，引发启动报错。
 
 更多实现状态和验收事项见 [开发启动说明](开发启动说明.md)、[需求分析](AI-ERP需求分析文档.md)、[接口设计](AI-ERP接口设计文档.md) 和 [数据库设计](AI-ERP数据库设计文档.md)。
 
