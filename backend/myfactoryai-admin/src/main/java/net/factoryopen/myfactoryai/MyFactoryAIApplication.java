@@ -55,23 +55,7 @@ public class MyFactoryAIApplication {
                                                         海岚 ERP ｜ 服装制造 · 订单到成本 ⚡
         
         ═════════════════════════════════════════════════════════════════════════════════════════════════════════
-          🚀 海岚 ERP 系统已成功启动
-          📘 接入文档: docs/AI问答接入DeepSeek.md
-          🌐 API: http://localhost:8080/swagger-ui/index.html  |  Druid: http://localhost:8080/druid/index.html
-          🌐 微信: factoryopen
-        
-          ✨ 核心能力已加载：
-             • 💬 智能对话（DeepSeek / 通义千问）
-             • 📊 自然语言图表（NL2SQL + ECharts）
-             • 📈 11维数据洞察报告 + 智能总结
-             • 🛡️ SQL安全校验 + 权限拦截
-             • 🧠 元数据增强（字典映射 + 字段中文化）
-             • 📄 多模态PPT生成（Apache POI）
-             • 🎤 持续语音输入 + 实时语音应答
-             • 🏭 业务一体化：PLM + ERP(MRPII) + MES + IIoT适配 + 车间数字孪生
-        
-          💡 提示：语音识别需 HTTPS / localhost 环境，若遇 network 错误请检查网络或使用安全域名。
-          🎉 欢迎使用 factoryOpen.aifactory | 让工厂插上 AI 的翅膀！
+         
         ═════════════════════════════════════════════════════════════════════════════════════════════════════════
         """;
             log.info(logContent);
@@ -86,29 +70,7 @@ public class MyFactoryAIApplication {
 
             String slogan = "                                                        海岚 ERP ｜ 服装制造 · 订单到成本 ⚡\n";
 
-            //输出到控制台
-            System.out.println();
-            System.out.println(CYAN + BOLD + asciiArt + RESET);
-            System.out.println(CYAN + BOLD + slogan + RESET);
-            System.out.println(YELLOW + BOLD + "═════════════════════════════════════════════════════════════════════════════════════════════════════════" + RESET);
-            System.out.println(GREEN + BOLD + "  🚀 海岚 ERP 系统已成功启动" + RESET);
-            System.out.println(CYAN + "  🌐 文档: " + BOLD + "docs/AI问答接入DeepSeek.md" + RESET + CYAN + "  |  API: http://localhost:8080/swagger-ui/index.html" + RESET);
-            System.out.println(CYAN + "  🌐 文档: " + BOLD + "http://localhost:8080/swagger-ui/index.html" + RESET + CYAN + "  |  Druid: http://localhost:8080/druid/index.html" + RESET);
-            System.out.println(CYAN + "  🌐 微信: " + BOLD + "factoryopen" + RESET);
-            System.out.println();
-            System.out.println(YELLOW + "  ✨ 核心能力已加载：" + RESET);
-            System.out.println("     • 💬 智能对话（DeepSeek / 通义千问）");
-            System.out.println("     • 📊 自然语言图表（NL2SQL + ECharts）");
-            System.out.println("     • 📈 11维数据洞察报告 + 智能总结");
-            System.out.println("     • 🛡️ SQL安全校验 + 权限拦截");
-            System.out.println("     • 🧠 元数据增强（字典映射 + 字段中文化）");
-            System.out.println("     • 📄 多模态PPT生成（Apache POI）");
-            System.out.println("     • 🎤 持续语音输入 + 实时语音应答");
-            //System.out.println("     • 🧩 四层Skill体系（57种AI技能）");
-            System.out.println("     • 🏭 业务一体化：PLM + ERP(MRPII) + MES + IIoT适配 + 车间数字孪生");
-            System.out.println();
-            System.out.println(RED + "  💡 提示：语音识别需 HTTPS / localhost 环境，若遇 network 错误请检查网络或使用安全域名。" + RESET);
-            System.out.println(GREEN + "  🎉 欢迎使用 factoryOpen.aifactory | 让工厂插上 AI 的翅膀！" + RESET);
+
             System.out.println(YELLOW + BOLD + "═════════════════════════════════════════════════════════════════════════════════════════════════════════" + RESET);
             System.out.println();
         };
