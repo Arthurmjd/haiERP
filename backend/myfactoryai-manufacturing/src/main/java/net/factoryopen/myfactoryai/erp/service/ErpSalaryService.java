@@ -51,7 +51,11 @@ public class ErpSalaryService {
         BigDecimal piece = mapper.pieceTotal(request.empId(),request.wagePeriod());
         Map<String,BigDecimal> config = configs();
         Map<String,Object> previous = mapper.existing(request.empId(),request.wagePeriod());
-        if (previous != null && number(previous,"status").intValue() == 1) throw new ServiceException("工资单已确认",2001);
+        if (previous != null) {
+            int previousStatus = number(previous,"status").intValue();
+            if (previousStatus == 1) throw new ServiceException("工资单已确认，不能重新生成",2001);
+            if (previousStatus == 2) throw new ServiceException("工资单已发放，不能重新生成",2001);
+        }
 
         BigDecimal allowance = value(previous,"allowance");
         BigDecimal overtime = value(previous,"overtimePay");

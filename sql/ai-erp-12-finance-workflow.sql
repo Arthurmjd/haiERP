@@ -332,7 +332,7 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id)
 SELECT r.role_id, m.menu_id
 FROM sys_role r JOIN sys_menu m ON m.menu_id BETWEEN 90110 AND 90135
 WHERE (r.role_key = 'finance' AND m.menu_id IN (90110,90111,90112,90113,90114,90115,90116,90117,90118,90119,90120,90121,90122,90123,90124,90133,90134))
-   OR (r.role_key = 'boss' AND m.menu_id IN (90110,90111,90112,90113,90114,90115,90116,90121,90122,90126,90127,90134))
+   OR (r.role_key = 'boss' AND m.menu_id IN (90110,90111,90112,90113,90114,90115,90116,90121,90122,90125,90126,90127,90134))
    OR (r.role_key = 'hr' AND m.menu_id IN (90110,90132,90133))
    OR (r.role_key = 'planner' AND m.menu_id IN (90110,90130))
    OR (r.role_key = 'production' AND m.menu_id IN (90110,90131))

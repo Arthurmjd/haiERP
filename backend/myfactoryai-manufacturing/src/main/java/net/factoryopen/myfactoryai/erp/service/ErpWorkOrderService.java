@@ -168,6 +168,7 @@ public class ErpWorkOrderService {
                 || request.reportDate().isAfter(LocalDate.now())) {
             throw new ServiceException("报工数量、日期或色码不合法",1001);
         }
+        workflow.assertOpen(request.reportDate());
         Map<String,Object> process = mapper.lockProcess(request.workOrderProcessId());
         if (process == null) throw new ServiceException("工序不存在",1001);
         Long woId = longValue(process,"woId");

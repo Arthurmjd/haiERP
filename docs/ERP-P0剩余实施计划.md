@@ -1,8 +1,9 @@
 # 海岚 ERP：P0 剩余实施计划（收口清单）
 
-> 版本：v1.0（2026-10-26）。用于下一次会话继续完成 P0 闭环。
-> 已完成：数据库脚本、后端服务/接口、业务事件挂接、前端页面与 API；后端 `mvn test` 通过，前端 `npm run build` 通过（exit 0）。
-> 未完成：真实数据库迁移、权限刷新、端到端场景验证、少量数据/口径校正。
+> 版本：v1.1（2026-10-27）。P0 已收口：迁移已落库、权限已生效、端到端验收已跑通。
+> 已完成：数据库脚本、后端服务/接口、业务事件挂接、前端页面与 API；后端 `mvn test`、前端 `npm run build` 通过。
+> 2026-10-27 实测：`hai_erp_demo` 迁移+一次性修正完成；61 条端到端断言首轮 46 通过，修复 2 个真实缺陷后相关链路全部通过。
+> 剩余：P1/P2 项见第 5 节；演示库留有本次验收测试数据（已备份到 `backup_hai_erp_before_p0.sql`）。
 
 ---
 
@@ -18,9 +19,9 @@
 | 报价手工建单/转订单 | 代码完成 | `sd:quotation:add/convert` |
 | 工单排期/预留/分批领料/退料/一键生成 | 代码完成 | `st_reservation`、`pr:workOrder:return/generate` |
 | 前端页面与导航 | 代码完成 | 待办、审批、会计资金、工资、工单、报价 |
-| 数据库落库 | **未执行** | 需在演示库执行迁移 |
-| 权限生效 | **未验证** | 需重新登录/清缓存 |
-| 端到端验收 | **未执行** | 见第 3 节 |
+| 数据库落库 | 已完成（2026-10-27） | 函数表/业务表/新增列/菜单授权均已落库；旧工资单 15 张 1→2 |
+| 权限生效 | 已生效 | finance/boss/hr 等角色可访问；反结账 90125 授予 boss |
+| 端到端验收 | 已跑通 | 见第 3 节与第 4 节「本次修复」 |
 
 ---
 
@@ -32,18 +33,15 @@
 # 1) 备份
 mysqldump -uroot -p hai_erp_demo > backup_hai_erp_before_p0.sql
 
-# 2) 执行增量迁移（可重复执行新增表/列）
+# 2) 执行增量迁移（可重复执行新增表/列/菜单）
 mysql -uroot -p hai_erp_demo < sql/ai-erp-12-finance-workflow.sql
 
 # 3) 一次性：旧工资单 status=1（旧语义“已发”）迁到新语义 2（已发放）
 #    仅执行一次，执行后不要再跑，否则会把新确认未发放的单据误标为已发。
-mysql -uroot -p hai_erp_demo -e "
-UPDATE hr_salary_slip
-SET status=2, paid_time=IFNULL(paid_time,NOW())
-WHERE status=1 AND paid_time IS NULL;"
+mysql -uroot -p hai_erp_demo < sql/p0-data-fix-salary-status.sql
 ```
 
-> 注意：`sql/ai-erp-12-finance-workflow.sql` 末尾目前包含上述 UPDATE。若要反复执行迁移，请先把它注释掉，或只在首次执行；建议下一次把该语句移出迁移脚本，改为独立的一次性数据修正脚本。
+> 注意：上述 UPDATE 已从 `sql/ai-erp-12-finance-workflow.sql` 移出，改为独立脚本 `sql/p0-data-fix-salary-status.sql`，保证迁移脚本可反复执行；一次性修正脚本只跑一次。
 
 ### 2.2 权限与菜单生效
 
@@ -91,14 +89,24 @@ cd frontend && npm run dev
 
 ## 4. 已知风险与待修
 
-1. **工资状态迁移**：如上，一次性 UPDATE 不能重复执行；建议移出迁移脚本。
+1. **工资状态迁移**：已拆成独立脚本 `sql/p0-data-fix-salary-status.sql`，迁移脚本可重复执行；该修正脚本只跑一次（本次已将 15 张旧单 1→2）。
 2. **收款/付款单允许无核销明细**：当前可登记一笔“纯收付款”，不挂 AR/AP；若业务要求必须核销，需在 `createPayment` 增加校验。
-3. **工资发放的内部确认**：`payPayroll` 创建付款单后调用 `confirmPayment`，付款单没有 `payment_line`，核销待办由工资待办单独完成；已在逻辑中处理，联调时确认无重复过账。
+3. **工资发放的内部确认**：`payPayroll` 创建无核销明细的付款单后调用 `confirmPayment`；本次实测通过，资金流水单条、工资单 1→2，无重复过账。
 4. **待办可见性**：`myTodos` 按登录角色过滤；admin 不会看到业务角色待办（admin 通常也不需要），如需要可给 admin 角色额外 JOIN。
 5. **库存预留与 MRP**：MRP 供给仍按库存+在途，未扣预留；多订单抢料时建议后续把 `st_reservation` 纳入 `v_mrp_demand`。
 6. **前端演示模式**：新增写操作在 demo 模式会提示“不支持”，联调需连真实后端。
 7. **菜单组件路径**：`sys_menu.path/component` 是给 RuoYi 动态菜单用的；当前前端是静态路由，`/finance`、`/todos`、`/approvals` 必须与 `App.vue`/`router.ts` 一致，联调时核对。
 8. **前端现有页面动作**：工资批量/发放、工单退料、订单生成工单、报价新建/转订单已写入，但未逐项点击验证；构建通过不代表交互正确。
+
+### 4.1 本次验收发现并已修复（2026-10-27）
+
+| # | 问题 | 修复 |
+|---|---|---|
+| 1 | 收付款确认抛 `java.sql.Date cannot be cast to LocalDate`，导致付款/工资发放全体失败 | `ErpFinanceService.confirmPayment` 改用 `toLocalDate(...)` 兼容 `java.sql.Date` |
+| 2 | 财务/厂长均无 `fn:period:reopen`，反结账接口 403 | 迁移脚本给 boss 授予菜单 90125；财务保留结账 90124 |
+| 3 | 报工未校验会计期间，结账后仍可补录 | `ErpWorkOrderService.report` 增加 `workflow.assertOpen(reportDate)` |
+| 4 | 工资发放后仍可再报工，产生滞留在已发期间的计件工资 | `closedWagePeriod` 改为 `status IN (1,2)` |
+| 5 | 已发放工资单重新生成报“状态已变化”，语义不清 | `ErpSalaryService.generate` 显式拦截 status=2 |
 
 ---
 

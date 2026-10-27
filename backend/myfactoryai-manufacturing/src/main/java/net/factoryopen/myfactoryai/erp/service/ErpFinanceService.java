@@ -117,7 +117,7 @@ public class ErpFinanceService {
         if (stock.begin(requestKey, "payment_confirm", "fn_payment", id, Map.of("paymentId", id))) return;
         Map<String,Object> payment = mapper.lockPayment(id);
         if (payment == null || number(payment, "status") != 0) throw new ServiceException("收付款单状态不允许确认", 2001);
-        workflow.assertOpen((LocalDate) payment.get("payDate"));
+        workflow.assertOpen(toLocalDate(payment.get("payDate")));
         int direction = number(payment, "direction");
         for (Map<String,Object> line : mapper.paymentLines(id)) {
             int targetType = number(line, "targetType");
@@ -249,4 +249,11 @@ public class ErpFinanceService {
         return value == null ? BigDecimal.ZERO : new BigDecimal(value.toString());
     }
     private static String blank(String value) { return value == null || value.isBlank() ? null : value; }
+    private static LocalDate toLocalDate(Object value) {
+        if (value == null) return null;
+        if (value instanceof LocalDate date) return date;
+        if (value instanceof java.sql.Date date) return date.toLocalDate();
+        if (value instanceof java.util.Date date) return date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        return LocalDate.parse(value.toString());
+    }
 }

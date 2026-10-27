@@ -230,7 +230,7 @@ public interface ErpWorkOrderMapper {
     @Select("SELECT status FROM hr_employee WHERE emp_id=#{id} AND emp_type=1 FOR UPDATE")
     Integer activeWorker(@Param("id") Long id);
 
-    @Select("SELECT COUNT(*) FROM hr_salary_slip WHERE emp_id=#{empId} AND wage_period=#{period} AND status=1")
+    @Select("SELECT COUNT(*) FROM hr_salary_slip WHERE emp_id=#{empId} AND wage_period=#{period} AND status IN (1,2)")
     int closedWagePeriod(@Param("empId") Long empId,@Param("period") String period);
 
     @Update("UPDATE pr_work_order_sku SET completed_qty=completed_qty+#{qty} WHERE wo_id=#{woId} AND sku_id=#{skuId} AND completed_qty+#{qty}<=plan_qty")
