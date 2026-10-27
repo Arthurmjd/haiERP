@@ -1,17 +1,16 @@
 -- =============================================================================
 -- 「已交付」演示订单：订单→工单→领料→报工/计件→完工入库→出货→应收 全链路
--- 12 张订单，分布在 2026-01 ~ 2026-09，全部 status=5 已完成、出货已签收、应收已结清。
--- 数据互相咬合，满足 self_check 03/04/05/06/07/08/09/13/19。
+-- 12 张订单，分布在 2026-01 ~ 2026-09，status=5 已完成；交期 20 号、18 号发齐（准时）。
+-- 末尾附「收款凭证补齐」：应收已收 → 收款单 + 核销明细 + 资金流水 + 账户余额重算。
 --
--- 注意：本文件引用了当前演示库的 SKU/物料/工序 ID，属于一次性灌数脚本，
+-- 注意：本文件引用当前演示库的 SKU/物料/工序 ID，属一次性灌数脚本；
 --       重复执行会因单号（SO2026D** / WO2026D** / SH2026D** / AR2026D**）唯一键冲突而失败。
---       重建库后如需再灌，请确认主数据 ID 与本文件一致。
 -- =============================================================================
 SET NAMES utf8mb4;
 SET @dummy := 0;
 -- ===== SO2026D01 2026-01 style=1 qty/sku=100 =====
 INSERT INTO sd_order(order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time,full_ship_date)
-VALUES('SO2026D01',1,'2026-01-05','2026-01-20',5,17800.0,'sales',NOW(),'2026-01-22');
+VALUES('SO2026D01',1,'2026-01-05','2026-01-20',5,17800.0,'sales',NOW(),'2026-01-18');
 SET @o := LAST_INSERT_ID();
 INSERT INTO sd_order_item(order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time) VALUES
 (@o,1,(SELECT color_id FROM md_sku WHERE sku_id=1),(SELECT size_id FROM md_sku WHERE sku_id=1),100,89.00,8900.00,'sales',NOW()),
@@ -107,25 +106,25 @@ INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty
 VALUES('TXSEED0008',1,3,2,2,'FG-D01-2',100,1,'pr_wo',@w,@ws2,'2026-01-18 16:00:00','完工入库','admin',NOW());
 UPDATE st_inventory SET qty=qty+100, update_time=NOW() WHERE item_type=2 AND item_id=2 AND batch_no='FG-D01-2' AND warehouse_id=1;
 INSERT INTO sh_shipment(shipment_no,order_id,customer_id,ship_date,logistics_company,logistics_no,status,create_by,create_time)
-VALUES('SH2026D01',@o,1,'2026-01-22','顺丰速运','SF00000001',2,'wh',NOW());
+VALUES('SH2026D01',@o,1,'2026-01-18','顺丰速运','SF00000001',2,'wh',NOW());
 SET @sh := LAST_INSERT_ID();
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,1,'FG-D01-1',100,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0009',2,4,2,1,'FG-D01-1',100,1,'sh_shipment',@sh,@si,'2026-01-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0009',2,4,2,1,'FG-D01-1',100,1,'sh_shipment',@sh,@si,'2026-01-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-100, update_time=NOW() WHERE item_type=2 AND item_id=1 AND batch_no='FG-D01-1' AND warehouse_id=1;
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,2,'FG-D01-2',100,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0010',2,4,2,2,'FG-D01-2',100,1,'sh_shipment',@sh,@si,'2026-01-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0010',2,4,2,2,'FG-D01-2',100,1,'sh_shipment',@sh,@si,'2026-01-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-100, update_time=NOW() WHERE item_type=2 AND item_id=2 AND batch_no='FG-D01-2' AND warehouse_id=1;
 INSERT INTO fn_receivable(ar_no,customer_id,order_id,shipment_id,amount,received_amount,balance,due_date,status,request_key,create_by,create_time)
 VALUES('AR2026D01',1,@o,@sh,17800.0,17800.0,0,'2026-01-20',2,'seed-ar-D01','finance',NOW());
 -- ===== SO2026D02 2026-02 style=2 qty/sku=120 =====
 INSERT INTO sd_order(order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time,full_ship_date)
-VALUES('SO2026D02',2,'2026-02-05','2026-02-20',5,30960.0,'sales',NOW(),'2026-02-22');
+VALUES('SO2026D02',2,'2026-02-05','2026-02-20',5,30960.0,'sales',NOW(),'2026-02-18');
 SET @o := LAST_INSERT_ID();
 INSERT INTO sd_order_item(order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time) VALUES
 (@o,2,(SELECT color_id FROM md_sku WHERE sku_id=6),(SELECT size_id FROM md_sku WHERE sku_id=6),120,129.00,15480.00,'sales',NOW()),
@@ -221,25 +220,25 @@ INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty
 VALUES('TXSEED0018',1,3,2,7,'FG-D02-2',120,1,'pr_wo',@w,@ws2,'2026-02-18 16:00:00','完工入库','admin',NOW());
 UPDATE st_inventory SET qty=qty+120, update_time=NOW() WHERE item_type=2 AND item_id=7 AND batch_no='FG-D02-2' AND warehouse_id=1;
 INSERT INTO sh_shipment(shipment_no,order_id,customer_id,ship_date,logistics_company,logistics_no,status,create_by,create_time)
-VALUES('SH2026D02',@o,2,'2026-02-22','顺丰速运','SF00000002',2,'wh',NOW());
+VALUES('SH2026D02',@o,2,'2026-02-18','顺丰速运','SF00000002',2,'wh',NOW());
 SET @sh := LAST_INSERT_ID();
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,6,'FG-D02-1',120,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0019',2,4,2,6,'FG-D02-1',120,1,'sh_shipment',@sh,@si,'2026-02-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0019',2,4,2,6,'FG-D02-1',120,1,'sh_shipment',@sh,@si,'2026-02-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-120, update_time=NOW() WHERE item_type=2 AND item_id=6 AND batch_no='FG-D02-1' AND warehouse_id=1;
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,7,'FG-D02-2',120,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0020',2,4,2,7,'FG-D02-2',120,1,'sh_shipment',@sh,@si,'2026-02-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0020',2,4,2,7,'FG-D02-2',120,1,'sh_shipment',@sh,@si,'2026-02-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-120, update_time=NOW() WHERE item_type=2 AND item_id=7 AND batch_no='FG-D02-2' AND warehouse_id=1;
 INSERT INTO fn_receivable(ar_no,customer_id,order_id,shipment_id,amount,received_amount,balance,due_date,status,request_key,create_by,create_time)
 VALUES('AR2026D02',2,@o,@sh,30960.0,30960.0,0,'2026-02-20',2,'seed-ar-D02','finance',NOW());
 -- ===== SO2026D03 2026-03 style=3 qty/sku=150 =====
 INSERT INTO sd_order(order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time,full_ship_date)
-VALUES('SO2026D03',3,'2026-03-05','2026-03-20',5,8700.0,'sales',NOW(),'2026-03-22');
+VALUES('SO2026D03',3,'2026-03-05','2026-03-20',5,8700.0,'sales',NOW(),'2026-03-18');
 SET @o := LAST_INSERT_ID();
 INSERT INTO sd_order_item(order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time) VALUES
 (@o,3,(SELECT color_id FROM md_sku WHERE sku_id=10),(SELECT size_id FROM md_sku WHERE sku_id=10),150,29.00,4350.00,'sales',NOW()),
@@ -311,25 +310,25 @@ INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty
 VALUES('TXSEED0026',1,3,2,11,'FG-D03-2',150,1,'pr_wo',@w,@ws2,'2026-03-18 16:00:00','完工入库','admin',NOW());
 UPDATE st_inventory SET qty=qty+150, update_time=NOW() WHERE item_type=2 AND item_id=11 AND batch_no='FG-D03-2' AND warehouse_id=1;
 INSERT INTO sh_shipment(shipment_no,order_id,customer_id,ship_date,logistics_company,logistics_no,status,create_by,create_time)
-VALUES('SH2026D03',@o,3,'2026-03-22','顺丰速运','SF00000003',2,'wh',NOW());
+VALUES('SH2026D03',@o,3,'2026-03-18','顺丰速运','SF00000003',2,'wh',NOW());
 SET @sh := LAST_INSERT_ID();
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,10,'FG-D03-1',150,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0027',2,4,2,10,'FG-D03-1',150,1,'sh_shipment',@sh,@si,'2026-03-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0027',2,4,2,10,'FG-D03-1',150,1,'sh_shipment',@sh,@si,'2026-03-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-150, update_time=NOW() WHERE item_type=2 AND item_id=10 AND batch_no='FG-D03-1' AND warehouse_id=1;
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,11,'FG-D03-2',150,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0028',2,4,2,11,'FG-D03-2',150,1,'sh_shipment',@sh,@si,'2026-03-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0028',2,4,2,11,'FG-D03-2',150,1,'sh_shipment',@sh,@si,'2026-03-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-150, update_time=NOW() WHERE item_type=2 AND item_id=11 AND batch_no='FG-D03-2' AND warehouse_id=1;
 INSERT INTO fn_receivable(ar_no,customer_id,order_id,shipment_id,amount,received_amount,balance,due_date,status,request_key,create_by,create_time)
 VALUES('AR2026D03',3,@o,@sh,8700.0,8700.0,0,'2026-03-20',2,'seed-ar-D03','finance',NOW());
 -- ===== SO2026D04 2026-04 style=4 qty/sku=100 =====
 INSERT INTO sd_order(order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time,full_ship_date)
-VALUES('SO2026D04',4,'2026-04-05','2026-04-20',5,15800.0,'sales',NOW(),'2026-04-22');
+VALUES('SO2026D04',4,'2026-04-05','2026-04-20',5,15800.0,'sales',NOW(),'2026-04-18');
 SET @o := LAST_INSERT_ID();
 INSERT INTO sd_order_item(order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time) VALUES
 (@o,4,(SELECT color_id FROM md_sku WHERE sku_id=13),(SELECT size_id FROM md_sku WHERE sku_id=13),100,79.00,7900.00,'sales',NOW()),
@@ -425,25 +424,25 @@ INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty
 VALUES('TXSEED0036',1,3,2,14,'FG-D04-2',100,1,'pr_wo',@w,@ws2,'2026-04-18 16:00:00','完工入库','admin',NOW());
 UPDATE st_inventory SET qty=qty+100, update_time=NOW() WHERE item_type=2 AND item_id=14 AND batch_no='FG-D04-2' AND warehouse_id=1;
 INSERT INTO sh_shipment(shipment_no,order_id,customer_id,ship_date,logistics_company,logistics_no,status,create_by,create_time)
-VALUES('SH2026D04',@o,4,'2026-04-22','顺丰速运','SF00000004',2,'wh',NOW());
+VALUES('SH2026D04',@o,4,'2026-04-18','顺丰速运','SF00000004',2,'wh',NOW());
 SET @sh := LAST_INSERT_ID();
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,13,'FG-D04-1',100,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0037',2,4,2,13,'FG-D04-1',100,1,'sh_shipment',@sh,@si,'2026-04-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0037',2,4,2,13,'FG-D04-1',100,1,'sh_shipment',@sh,@si,'2026-04-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-100, update_time=NOW() WHERE item_type=2 AND item_id=13 AND batch_no='FG-D04-1' AND warehouse_id=1;
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,14,'FG-D04-2',100,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0038',2,4,2,14,'FG-D04-2',100,1,'sh_shipment',@sh,@si,'2026-04-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0038',2,4,2,14,'FG-D04-2',100,1,'sh_shipment',@sh,@si,'2026-04-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-100, update_time=NOW() WHERE item_type=2 AND item_id=14 AND batch_no='FG-D04-2' AND warehouse_id=1;
 INSERT INTO fn_receivable(ar_no,customer_id,order_id,shipment_id,amount,received_amount,balance,due_date,status,request_key,create_by,create_time)
 VALUES('AR2026D04',4,@o,@sh,15800.0,15800.0,0,'2026-04-20',2,'seed-ar-D04','finance',NOW());
 -- ===== SO2026D05 2026-05 style=5 qty/sku=180 =====
 INSERT INTO sd_order(order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time,full_ship_date)
-VALUES('SO2026D05',5,'2026-05-05','2026-05-20',5,35640.0,'sales',NOW(),'2026-05-22');
+VALUES('SO2026D05',5,'2026-05-05','2026-05-20',5,35640.0,'sales',NOW(),'2026-05-18');
 SET @o := LAST_INSERT_ID();
 INSERT INTO sd_order_item(order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time) VALUES
 (@o,5,(SELECT color_id FROM md_sku WHERE sku_id=16),(SELECT size_id FROM md_sku WHERE sku_id=16),180,99.00,17820.00,'sales',NOW()),
@@ -539,25 +538,25 @@ INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty
 VALUES('TXSEED0046',1,3,2,17,'FG-D05-2',180,1,'pr_wo',@w,@ws2,'2026-05-18 16:00:00','完工入库','admin',NOW());
 UPDATE st_inventory SET qty=qty+180, update_time=NOW() WHERE item_type=2 AND item_id=17 AND batch_no='FG-D05-2' AND warehouse_id=1;
 INSERT INTO sh_shipment(shipment_no,order_id,customer_id,ship_date,logistics_company,logistics_no,status,create_by,create_time)
-VALUES('SH2026D05',@o,5,'2026-05-22','顺丰速运','SF00000005',2,'wh',NOW());
+VALUES('SH2026D05',@o,5,'2026-05-18','顺丰速运','SF00000005',2,'wh',NOW());
 SET @sh := LAST_INSERT_ID();
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,16,'FG-D05-1',180,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0047',2,4,2,16,'FG-D05-1',180,1,'sh_shipment',@sh,@si,'2026-05-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0047',2,4,2,16,'FG-D05-1',180,1,'sh_shipment',@sh,@si,'2026-05-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-180, update_time=NOW() WHERE item_type=2 AND item_id=16 AND batch_no='FG-D05-1' AND warehouse_id=1;
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,17,'FG-D05-2',180,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0048',2,4,2,17,'FG-D05-2',180,1,'sh_shipment',@sh,@si,'2026-05-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0048',2,4,2,17,'FG-D05-2',180,1,'sh_shipment',@sh,@si,'2026-05-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-180, update_time=NOW() WHERE item_type=2 AND item_id=17 AND batch_no='FG-D05-2' AND warehouse_id=1;
 INSERT INTO fn_receivable(ar_no,customer_id,order_id,shipment_id,amount,received_amount,balance,due_date,status,request_key,create_by,create_time)
 VALUES('AR2026D05',5,@o,@sh,35640.0,35640.0,0,'2026-05-20',2,'seed-ar-D05','finance',NOW());
 -- ===== SO2026D06 2026-06 style=1 qty/sku=120 =====
 INSERT INTO sd_order(order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time,full_ship_date)
-VALUES('SO2026D06',6,'2026-06-05','2026-06-20',5,21360.0,'sales',NOW(),'2026-06-22');
+VALUES('SO2026D06',6,'2026-06-05','2026-06-20',5,21360.0,'sales',NOW(),'2026-06-18');
 SET @o := LAST_INSERT_ID();
 INSERT INTO sd_order_item(order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time) VALUES
 (@o,1,(SELECT color_id FROM md_sku WHERE sku_id=1),(SELECT size_id FROM md_sku WHERE sku_id=1),120,89.00,10680.00,'sales',NOW()),
@@ -653,25 +652,25 @@ INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty
 VALUES('TXSEED0056',1,3,2,2,'FG-D06-2',120,1,'pr_wo',@w,@ws2,'2026-06-18 16:00:00','完工入库','admin',NOW());
 UPDATE st_inventory SET qty=qty+120, update_time=NOW() WHERE item_type=2 AND item_id=2 AND batch_no='FG-D06-2' AND warehouse_id=1;
 INSERT INTO sh_shipment(shipment_no,order_id,customer_id,ship_date,logistics_company,logistics_no,status,create_by,create_time)
-VALUES('SH2026D06',@o,6,'2026-06-22','顺丰速运','SF00000006',2,'wh',NOW());
+VALUES('SH2026D06',@o,6,'2026-06-18','顺丰速运','SF00000006',2,'wh',NOW());
 SET @sh := LAST_INSERT_ID();
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,1,'FG-D06-1',120,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0057',2,4,2,1,'FG-D06-1',120,1,'sh_shipment',@sh,@si,'2026-06-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0057',2,4,2,1,'FG-D06-1',120,1,'sh_shipment',@sh,@si,'2026-06-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-120, update_time=NOW() WHERE item_type=2 AND item_id=1 AND batch_no='FG-D06-1' AND warehouse_id=1;
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,2,'FG-D06-2',120,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0058',2,4,2,2,'FG-D06-2',120,1,'sh_shipment',@sh,@si,'2026-06-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0058',2,4,2,2,'FG-D06-2',120,1,'sh_shipment',@sh,@si,'2026-06-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-120, update_time=NOW() WHERE item_type=2 AND item_id=2 AND batch_no='FG-D06-2' AND warehouse_id=1;
 INSERT INTO fn_receivable(ar_no,customer_id,order_id,shipment_id,amount,received_amount,balance,due_date,status,request_key,create_by,create_time)
 VALUES('AR2026D06',6,@o,@sh,21360.0,21360.0,0,'2026-06-20',2,'seed-ar-D06','finance',NOW());
 -- ===== SO2026D07 2026-07 style=2 qty/sku=150 =====
 INSERT INTO sd_order(order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time,full_ship_date)
-VALUES('SO2026D07',7,'2026-07-05','2026-07-20',5,38700.0,'sales',NOW(),'2026-07-22');
+VALUES('SO2026D07',7,'2026-07-05','2026-07-20',5,38700.0,'sales',NOW(),'2026-07-18');
 SET @o := LAST_INSERT_ID();
 INSERT INTO sd_order_item(order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time) VALUES
 (@o,2,(SELECT color_id FROM md_sku WHERE sku_id=6),(SELECT size_id FROM md_sku WHERE sku_id=6),150,129.00,19350.00,'sales',NOW()),
@@ -767,25 +766,25 @@ INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty
 VALUES('TXSEED0066',1,3,2,7,'FG-D07-2',150,1,'pr_wo',@w,@ws2,'2026-07-18 16:00:00','完工入库','admin',NOW());
 UPDATE st_inventory SET qty=qty+150, update_time=NOW() WHERE item_type=2 AND item_id=7 AND batch_no='FG-D07-2' AND warehouse_id=1;
 INSERT INTO sh_shipment(shipment_no,order_id,customer_id,ship_date,logistics_company,logistics_no,status,create_by,create_time)
-VALUES('SH2026D07',@o,7,'2026-07-22','顺丰速运','SF00000007',2,'wh',NOW());
+VALUES('SH2026D07',@o,7,'2026-07-18','顺丰速运','SF00000007',2,'wh',NOW());
 SET @sh := LAST_INSERT_ID();
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,6,'FG-D07-1',150,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0067',2,4,2,6,'FG-D07-1',150,1,'sh_shipment',@sh,@si,'2026-07-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0067',2,4,2,6,'FG-D07-1',150,1,'sh_shipment',@sh,@si,'2026-07-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-150, update_time=NOW() WHERE item_type=2 AND item_id=6 AND batch_no='FG-D07-1' AND warehouse_id=1;
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,7,'FG-D07-2',150,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0068',2,4,2,7,'FG-D07-2',150,1,'sh_shipment',@sh,@si,'2026-07-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0068',2,4,2,7,'FG-D07-2',150,1,'sh_shipment',@sh,@si,'2026-07-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-150, update_time=NOW() WHERE item_type=2 AND item_id=7 AND batch_no='FG-D07-2' AND warehouse_id=1;
 INSERT INTO fn_receivable(ar_no,customer_id,order_id,shipment_id,amount,received_amount,balance,due_date,status,request_key,create_by,create_time)
 VALUES('AR2026D07',7,@o,@sh,38700.0,38700.0,0,'2026-07-20',2,'seed-ar-D07','finance',NOW());
 -- ===== SO2026D08 2026-08 style=3 qty/sku=200 =====
 INSERT INTO sd_order(order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time,full_ship_date)
-VALUES('SO2026D08',1,'2026-08-05','2026-08-20',5,11600.0,'sales',NOW(),'2026-08-22');
+VALUES('SO2026D08',1,'2026-08-05','2026-08-20',5,11600.0,'sales',NOW(),'2026-08-18');
 SET @o := LAST_INSERT_ID();
 INSERT INTO sd_order_item(order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time) VALUES
 (@o,3,(SELECT color_id FROM md_sku WHERE sku_id=10),(SELECT size_id FROM md_sku WHERE sku_id=10),200,29.00,5800.00,'sales',NOW()),
@@ -857,25 +856,25 @@ INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty
 VALUES('TXSEED0074',1,3,2,11,'FG-D08-2',200,1,'pr_wo',@w,@ws2,'2026-08-18 16:00:00','完工入库','admin',NOW());
 UPDATE st_inventory SET qty=qty+200, update_time=NOW() WHERE item_type=2 AND item_id=11 AND batch_no='FG-D08-2' AND warehouse_id=1;
 INSERT INTO sh_shipment(shipment_no,order_id,customer_id,ship_date,logistics_company,logistics_no,status,create_by,create_time)
-VALUES('SH2026D08',@o,1,'2026-08-22','顺丰速运','SF00000008',2,'wh',NOW());
+VALUES('SH2026D08',@o,1,'2026-08-18','顺丰速运','SF00000008',2,'wh',NOW());
 SET @sh := LAST_INSERT_ID();
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,10,'FG-D08-1',200,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0075',2,4,2,10,'FG-D08-1',200,1,'sh_shipment',@sh,@si,'2026-08-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0075',2,4,2,10,'FG-D08-1',200,1,'sh_shipment',@sh,@si,'2026-08-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-200, update_time=NOW() WHERE item_type=2 AND item_id=10 AND batch_no='FG-D08-1' AND warehouse_id=1;
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,11,'FG-D08-2',200,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0076',2,4,2,11,'FG-D08-2',200,1,'sh_shipment',@sh,@si,'2026-08-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0076',2,4,2,11,'FG-D08-2',200,1,'sh_shipment',@sh,@si,'2026-08-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-200, update_time=NOW() WHERE item_type=2 AND item_id=11 AND batch_no='FG-D08-2' AND warehouse_id=1;
 INSERT INTO fn_receivable(ar_no,customer_id,order_id,shipment_id,amount,received_amount,balance,due_date,status,request_key,create_by,create_time)
 VALUES('AR2026D08',1,@o,@sh,11600.0,11600.0,0,'2026-08-20',2,'seed-ar-D08','finance',NOW());
 -- ===== SO2026D09 2026-09 style=4 qty/sku=100 =====
 INSERT INTO sd_order(order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time,full_ship_date)
-VALUES('SO2026D09',2,'2026-09-05','2026-09-20',5,15800.0,'sales',NOW(),'2026-09-22');
+VALUES('SO2026D09',2,'2026-09-05','2026-09-20',5,15800.0,'sales',NOW(),'2026-09-18');
 SET @o := LAST_INSERT_ID();
 INSERT INTO sd_order_item(order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time) VALUES
 (@o,4,(SELECT color_id FROM md_sku WHERE sku_id=13),(SELECT size_id FROM md_sku WHERE sku_id=13),100,79.00,7900.00,'sales',NOW()),
@@ -971,25 +970,25 @@ INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty
 VALUES('TXSEED0084',1,3,2,14,'FG-D09-2',100,1,'pr_wo',@w,@ws2,'2026-09-18 16:00:00','完工入库','admin',NOW());
 UPDATE st_inventory SET qty=qty+100, update_time=NOW() WHERE item_type=2 AND item_id=14 AND batch_no='FG-D09-2' AND warehouse_id=1;
 INSERT INTO sh_shipment(shipment_no,order_id,customer_id,ship_date,logistics_company,logistics_no,status,create_by,create_time)
-VALUES('SH2026D09',@o,2,'2026-09-22','顺丰速运','SF00000009',2,'wh',NOW());
+VALUES('SH2026D09',@o,2,'2026-09-18','顺丰速运','SF00000009',2,'wh',NOW());
 SET @sh := LAST_INSERT_ID();
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,13,'FG-D09-1',100,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0085',2,4,2,13,'FG-D09-1',100,1,'sh_shipment',@sh,@si,'2026-09-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0085',2,4,2,13,'FG-D09-1',100,1,'sh_shipment',@sh,@si,'2026-09-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-100, update_time=NOW() WHERE item_type=2 AND item_id=13 AND batch_no='FG-D09-1' AND warehouse_id=1;
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,14,'FG-D09-2',100,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0086',2,4,2,14,'FG-D09-2',100,1,'sh_shipment',@sh,@si,'2026-09-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0086',2,4,2,14,'FG-D09-2',100,1,'sh_shipment',@sh,@si,'2026-09-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-100, update_time=NOW() WHERE item_type=2 AND item_id=14 AND batch_no='FG-D09-2' AND warehouse_id=1;
 INSERT INTO fn_receivable(ar_no,customer_id,order_id,shipment_id,amount,received_amount,balance,due_date,status,request_key,create_by,create_time)
 VALUES('AR2026D09',2,@o,@sh,15800.0,15800.0,0,'2026-09-20',2,'seed-ar-D09','finance',NOW());
 -- ===== SO2026D10 2026-03 style=5 qty/sku=80 =====
 INSERT INTO sd_order(order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time,full_ship_date)
-VALUES('SO2026D10',3,'2026-03-05','2026-03-20',5,15840.0,'sales',NOW(),'2026-03-22');
+VALUES('SO2026D10',3,'2026-03-05','2026-03-20',5,15840.0,'sales',NOW(),'2026-03-18');
 SET @o := LAST_INSERT_ID();
 INSERT INTO sd_order_item(order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time) VALUES
 (@o,5,(SELECT color_id FROM md_sku WHERE sku_id=16),(SELECT size_id FROM md_sku WHERE sku_id=16),80,99.00,7920.00,'sales',NOW()),
@@ -1085,25 +1084,25 @@ INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty
 VALUES('TXSEED0094',1,3,2,17,'FG-D10-2',80,1,'pr_wo',@w,@ws2,'2026-03-18 16:00:00','完工入库','admin',NOW());
 UPDATE st_inventory SET qty=qty+80, update_time=NOW() WHERE item_type=2 AND item_id=17 AND batch_no='FG-D10-2' AND warehouse_id=1;
 INSERT INTO sh_shipment(shipment_no,order_id,customer_id,ship_date,logistics_company,logistics_no,status,create_by,create_time)
-VALUES('SH2026D10',@o,3,'2026-03-22','顺丰速运','SF00000010',2,'wh',NOW());
+VALUES('SH2026D10',@o,3,'2026-03-18','顺丰速运','SF00000010',2,'wh',NOW());
 SET @sh := LAST_INSERT_ID();
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,16,'FG-D10-1',80,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0095',2,4,2,16,'FG-D10-1',80,1,'sh_shipment',@sh,@si,'2026-03-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0095',2,4,2,16,'FG-D10-1',80,1,'sh_shipment',@sh,@si,'2026-03-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-80, update_time=NOW() WHERE item_type=2 AND item_id=16 AND batch_no='FG-D10-1' AND warehouse_id=1;
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,17,'FG-D10-2',80,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0096',2,4,2,17,'FG-D10-2',80,1,'sh_shipment',@sh,@si,'2026-03-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0096',2,4,2,17,'FG-D10-2',80,1,'sh_shipment',@sh,@si,'2026-03-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-80, update_time=NOW() WHERE item_type=2 AND item_id=17 AND batch_no='FG-D10-2' AND warehouse_id=1;
 INSERT INTO fn_receivable(ar_no,customer_id,order_id,shipment_id,amount,received_amount,balance,due_date,status,request_key,create_by,create_time)
 VALUES('AR2026D10',3,@o,@sh,15840.0,15840.0,0,'2026-03-20',2,'seed-ar-D10','finance',NOW());
 -- ===== SO2026D11 2026-06 style=1 qty/sku=90 =====
 INSERT INTO sd_order(order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time,full_ship_date)
-VALUES('SO2026D11',4,'2026-06-05','2026-06-20',5,16020.0,'sales',NOW(),'2026-06-22');
+VALUES('SO2026D11',4,'2026-06-05','2026-06-20',5,16020.0,'sales',NOW(),'2026-06-18');
 SET @o := LAST_INSERT_ID();
 INSERT INTO sd_order_item(order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time) VALUES
 (@o,1,(SELECT color_id FROM md_sku WHERE sku_id=1),(SELECT size_id FROM md_sku WHERE sku_id=1),90,89.00,8010.00,'sales',NOW()),
@@ -1199,25 +1198,25 @@ INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty
 VALUES('TXSEED0104',1,3,2,2,'FG-D11-2',90,1,'pr_wo',@w,@ws2,'2026-06-18 16:00:00','完工入库','admin',NOW());
 UPDATE st_inventory SET qty=qty+90, update_time=NOW() WHERE item_type=2 AND item_id=2 AND batch_no='FG-D11-2' AND warehouse_id=1;
 INSERT INTO sh_shipment(shipment_no,order_id,customer_id,ship_date,logistics_company,logistics_no,status,create_by,create_time)
-VALUES('SH2026D11',@o,4,'2026-06-22','顺丰速运','SF00000011',2,'wh',NOW());
+VALUES('SH2026D11',@o,4,'2026-06-18','顺丰速运','SF00000011',2,'wh',NOW());
 SET @sh := LAST_INSERT_ID();
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,1,'FG-D11-1',90,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0105',2,4,2,1,'FG-D11-1',90,1,'sh_shipment',@sh,@si,'2026-06-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0105',2,4,2,1,'FG-D11-1',90,1,'sh_shipment',@sh,@si,'2026-06-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-90, update_time=NOW() WHERE item_type=2 AND item_id=1 AND batch_no='FG-D11-1' AND warehouse_id=1;
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,2,'FG-D11-2',90,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0106',2,4,2,2,'FG-D11-2',90,1,'sh_shipment',@sh,@si,'2026-06-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0106',2,4,2,2,'FG-D11-2',90,1,'sh_shipment',@sh,@si,'2026-06-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-90, update_time=NOW() WHERE item_type=2 AND item_id=2 AND batch_no='FG-D11-2' AND warehouse_id=1;
 INSERT INTO fn_receivable(ar_no,customer_id,order_id,shipment_id,amount,received_amount,balance,due_date,status,request_key,create_by,create_time)
 VALUES('AR2026D11',4,@o,@sh,16020.0,16020.0,0,'2026-06-20',2,'seed-ar-D11','finance',NOW());
 -- ===== SO2026D12 2026-08 style=2 qty/sku=110 =====
 INSERT INTO sd_order(order_no,customer_id,order_date,delivery_date,status,total_amount,create_by,create_time,full_ship_date)
-VALUES('SO2026D12',5,'2026-08-05','2026-08-20',5,28380.0,'sales',NOW(),'2026-08-22');
+VALUES('SO2026D12',5,'2026-08-05','2026-08-20',5,28380.0,'sales',NOW(),'2026-08-18');
 SET @o := LAST_INSERT_ID();
 INSERT INTO sd_order_item(order_id,style_id,color_id,size_id,qty,unit_price,amount,create_by,create_time) VALUES
 (@o,2,(SELECT color_id FROM md_sku WHERE sku_id=6),(SELECT size_id FROM md_sku WHERE sku_id=6),110,129.00,14190.00,'sales',NOW()),
@@ -1313,19 +1312,95 @@ INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty
 VALUES('TXSEED0114',1,3,2,7,'FG-D12-2',110,1,'pr_wo',@w,@ws2,'2026-08-18 16:00:00','完工入库','admin',NOW());
 UPDATE st_inventory SET qty=qty+110, update_time=NOW() WHERE item_type=2 AND item_id=7 AND batch_no='FG-D12-2' AND warehouse_id=1;
 INSERT INTO sh_shipment(shipment_no,order_id,customer_id,ship_date,logistics_company,logistics_no,status,create_by,create_time)
-VALUES('SH2026D12',@o,5,'2026-08-22','顺丰速运','SF00000012',2,'wh',NOW());
+VALUES('SH2026D12',@o,5,'2026-08-18','顺丰速运','SF00000012',2,'wh',NOW());
 SET @sh := LAST_INSERT_ID();
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,6,'FG-D12-1',110,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0115',2,4,2,6,'FG-D12-1',110,1,'sh_shipment',@sh,@si,'2026-08-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0115',2,4,2,6,'FG-D12-1',110,1,'sh_shipment',@sh,@si,'2026-08-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-110, update_time=NOW() WHERE item_type=2 AND item_id=6 AND batch_no='FG-D12-1' AND warehouse_id=1;
 INSERT INTO sh_shipment_item(shipment_id,sku_id,batch_no,qty,create_by,create_time)
 VALUES(@sh,7,'FG-D12-2',110,'wh',NOW());
 SET @si := LAST_INSERT_ID();
 INSERT INTO st_stock_txn(txn_no,txn_type,biz_type,item_type,item_id,batch_no,qty,warehouse_id,source_type,source_id,source_line_id,txn_time,remark,create_by,create_time)
-VALUES('TXSEED0116',2,4,2,7,'FG-D12-2',110,1,'sh_shipment',@sh,@si,'2026-08-22 10:00:00','销售出库','wh',NOW());
+VALUES('TXSEED0116',2,4,2,7,'FG-D12-2',110,1,'sh_shipment',@sh,@si,'2026-08-18 10:00:00','销售出库','wh',NOW());
 UPDATE st_inventory SET qty=qty-110, update_time=NOW() WHERE item_type=2 AND item_id=7 AND batch_no='FG-D12-2' AND warehouse_id=1;
 INSERT INTO fn_receivable(ar_no,customer_id,order_id,shipment_id,amount,received_amount,balance,due_date,status,request_key,create_by,create_time)
 VALUES('AR2026D12',5,@o,@sh,28380.0,28380.0,0,'2026-08-20',2,'seed-ar-D12','finance',NOW());
+-- ===== 收款凭证补齐（应收已收必须有收款单 + 资金流水）=====
+SET NAMES utf8mb4;
+
+-- =============================================================================
+-- 收款补凭证：应收显示「已收款」却没有任何收款单/资金流水 → 补齐
+--   1) 每笔已收应收生成一张已确认的收款单（fn_payment, direction=1, status=1）
+--   2) 收款单核销明细指向该应收（fn_payment_line, target_type=1）
+--   3) 生成对应资金流水（fn_cash_txn, source_type='fn_payment'）
+--   4) 账户余额按「期初 + 全部流水」整体重算，保证账实一致
+-- 幂等：以 PM-SEED-<ar_id> / ct-seed-<payment_id> 判重。
+-- =============================================================================
+SET @acc := (SELECT account_id FROM fn_account WHERE account_no = 'ACC-003' LIMIT 1);
+
+-- 1) 收款单
+INSERT INTO fn_payment
+  (payment_no,direction,biz_type,account_id,counterparty_type,counterparty_id,
+   amount,pay_date,status,request_key,remark,create_by,create_time,confirm_by,confirm_time)
+SELECT CONCAT('PM-SEED-', r.ar_id), 1, 1, @acc, 1, r.customer_id,
+       r.received_amount,
+       LEAST(DATE_ADD(COALESCE(sh.ship_date, r.due_date, CURDATE()), INTERVAL 3 DAY), CURDATE()),
+       1, CONCAT('seed-pay-ar-', r.ar_id), CONCAT('销售回款 ', r.ar_no),
+       'finance', NOW(), 'finance', NOW()
+FROM fn_receivable r
+LEFT JOIN sh_shipment sh ON sh.shipment_id = r.shipment_id
+WHERE r.received_amount > 0
+  AND NOT EXISTS (
+    SELECT 1 FROM fn_payment_line pl JOIN fn_payment p ON p.payment_id = pl.payment_id
+    WHERE pl.target_type = 1 AND pl.target_id = r.ar_id AND p.direction = 1 AND p.status = 1);
+
+-- 2) 核销明细
+INSERT INTO fn_payment_line (payment_id,target_type,target_id,amount)
+SELECT p.payment_id, 1, r.ar_id, r.received_amount
+FROM fn_payment p
+JOIN fn_receivable r ON p.payment_no = CONCAT('PM-SEED-', r.ar_id)
+WHERE p.payment_no LIKE 'PM-SEED-%'
+  AND NOT EXISTS (SELECT 1 FROM fn_payment_line x WHERE x.payment_id = p.payment_id);
+
+-- 3) 资金流水
+INSERT INTO fn_cash_txn
+  (txn_no,account_id,direction,amount,biz_type,counterparty_type,counterparty_id,
+   source_type,source_id,txn_date,request_key,remark,create_by,create_time)
+SELECT CONCAT('CT-SEED-', p.payment_id), p.account_id, p.direction, p.amount, p.biz_type,
+       p.counterparty_type, p.counterparty_id, 'fn_payment', p.payment_id, p.pay_date,
+       CONCAT('ct-seed-', p.payment_id), p.remark, 'finance', NOW()
+FROM fn_payment p
+WHERE p.payment_no LIKE 'PM-SEED-%'
+  AND NOT EXISTS (SELECT 1 FROM fn_cash_txn t WHERE t.source_type = 'fn_payment' AND t.source_id = p.payment_id);
+
+-- 4) 账户余额 = 期初 + 全部流水（全局重算，幂等）
+UPDATE fn_account a
+LEFT JOIN (
+  SELECT account_id, SUM(CASE WHEN direction = 1 THEN amount ELSE -amount END) net
+  FROM fn_cash_txn GROUP BY account_id
+) t ON t.account_id = a.account_id
+SET a.current_balance = a.opening_balance + COALESCE(t.net, 0), a.update_time = NOW();
+
+-- 5) 自检
+SELECT 'account book vs ledger' AS check_item,
+       IF(COUNT(*) = 0, 'PASS', CONCAT('FAIL: ', COUNT(*))) AS result
+FROM fn_account a
+LEFT JOIN (SELECT account_id, SUM(CASE WHEN direction=1 THEN amount ELSE -amount END) net
+           FROM fn_cash_txn GROUP BY account_id) t ON t.account_id = a.account_id
+WHERE ABS(a.current_balance - (a.opening_balance + COALESCE(t.net,0))) > 0.005
+UNION ALL
+SELECT 'receivable received has voucher',
+       IF(COUNT(*) = 0, 'PASS', CONCAT('FAIL: ', COUNT(*)))
+FROM fn_receivable r
+WHERE r.received_amount > 0 AND NOT EXISTS (
+  SELECT 1 FROM fn_payment_line pl JOIN fn_payment p ON p.payment_id = pl.payment_id
+  WHERE pl.target_type = 1 AND pl.target_id = r.ar_id AND p.direction = 1 AND p.status = 1)
+UNION ALL
+SELECT 'payment has cash txn',
+       IF(COUNT(*) = 0, 'PASS', CONCAT('FAIL: ', COUNT(*)))
+FROM fn_payment p
+WHERE p.status = 1 AND NOT EXISTS (
+  SELECT 1 FROM fn_cash_txn t WHERE t.source_type = 'fn_payment' AND t.source_id = p.payment_id);

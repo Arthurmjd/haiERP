@@ -22,42 +22,46 @@
 
 | 角色                | 用户名          | 在本链路中的定位         | 关键写权限                                                                                          |
 | ----------------- | ------------ | ---------------- | ---------------------------------------------------------------------------------------------- |
-| 管理员 `admin`       | `admin`      | **主数据守门人** + 兜底  | 全部权限；款式/BOM/工序/物料/供应商/SKU 的新增与编辑**目前只有 admin 有**                                               |
-| 销售 `sales`        | `sales`      | 客户、报价、订单、出货、退货   | 客户维护、`sd:order:add/confirm/edit`、报价引用/接受/失效、出货单建单/发货/签收、退货登记/处理                                |
-| 计划员 `planner`     | `planner`    | MRP 缺料、采购、下工单    | `pu:suggestion:generate`、`pu:purchaseOrder:add/edit/confirm/receive`、`pr:workOrder:add`        |
-| 生产主管 `production` | `production` | 领料、报工、完工         | `pr:workOrder:add/issue/finish`、`pr:process:report`                                            |
-| 仓管 `wh`           | `wh`         | 收货、领料、完工入库、发货、盘点 | `pu:purchaseOrder:receive`、`pr:workOrder:issue/finish`、`sh:shipment:ship/sign`、`st:txn:adjust` |
-| 财务 `finance`      | `finance`    | 标准成本试算与确认        | `fn:settlement:calc/confirm`、报价生成、订单/出货/成本只读                                                   |
-| 人事 `hr`           | `hr`         | 计件与工资            | `hr:employee:add/edit`、`hr:salarySlip:generate/confirm`                                        |
-| 厂长 `boss`         | `boss`       | 看板与AI问答，只读为主     | 大部分模块 `list/query`；成本明细按敏感授权；无工资菜单                                                             |
+| 管理员 `admin`       | `admin`      | **平台守门人** + 兜底  | 全部权限（`*:*:*`）；系统管理（用户/角色/菜单/部门）只授给他                                                              |
+| 销售 `sales`        | `sales`      | 客户、报价、订单、出货、退货   | 客户增改删、`sd:order:add/confirm/edit/remove/cancel`、`sd:quotation:add/edit/accept/expire/convert`、出货单建单/发货/签收、退货登记/处理 |
+| 计划员 `planner`     | `planner`    | 主数据、MRP 缺料、采购、下工单 | 主数据全量维护（分类/颜色/尺码/款式/物料/供应商/工序/SKU 生成）、`pu:suggestion:generate`、`pu:purchaseOrder:add/edit/confirm/receive/remove/cancel`、`pr:workOrder:add` |
+| 生产主管 `production` | `production` | 派工、领料、报工、完工、退料   | `pr:workOrder:add/issue/finish/remove/cancel/generate/return`、`pr:process:report`、`md:process:assign` |
+| 仓管 `wh`           | `wh`         | 收货、领料、完工入库、发货、盘点 | `pu:purchaseOrder:receive`、`pr:workOrder:issue/finish`、`sh:shipment:add/ship/sign/remove/cancel`、`sh:return:add/handle`、`st:txn:adjust` |
+| 财务 `finance`      | `finance`    | 成本结算 + **资金全流程**   | `fn:settlement:calc/confirm/remove`、`fn:account:add/edit`、`fn:payment:add/confirm`、`fn:period:close/reopen`、`fn:payroll:pay`、资金域全部 `list/query` |
+| 人事 `hr`           | `hr`         | 计件与工资            | `hr:employee:add/edit/remove`、`hr:salarySlip:generate/generateBatch/confirm/query`                                        |
+| 厂长 `boss`         | `boss`       | 看板、审批、只读为主     | 业务单据 `list/query`、`pu:purchaseOrder:approve/reject`、资金域只读（账户/应收/应付/收付款/期间 `list`）；**无资金写权限** |
 
 三条敏感数据红线（需求 §2）：工资明细默认仅 `hr`/`admin`；成本明细默认仅 `finance`/`admin`/授权后的 `boss`；**没有 `fn:settlement:list` 的角色，看板 `/erp/dashboard/overview` 不会返回 `standardGrossProfit`**（接口文档 §6，服务端硬校验，不是前端遮掩）。
 
+> `sql/p4-rbac-completion.sql` 负责维护这张表：它按「谁执行动作就授给谁」补齐按钮权限，并自带 7 项自检——财务能打开财务页并登记收付款、销售能新建报价并转订单、生产能一键生成工单、人事能批量生成工资单、除运维专用的 `monitor:operlog:remove` 外没有无人拥有的按钮权限、厂长资金权限保持只读。
+
 ---
 
-## 2. 主链路全景：一条订单跑通 16 步
+## 2. 主链路全景：一条订单跑通 19 步
 
 贯穿示例：客户「锐跑体育」要订 **HL-T26 运动上衣**，藏青/浅灰两色 × S/M/L 三码，共 3000 件，承诺交期 2026-11-15。
 
 | #  | 阶段                    | 谁发起                       | 谁审核/确认                                            | 产出单据                                            | 状态变化                                   |
 | -- | --------------------- | ------------------------- | ------------------------------------------------- | ----------------------------------------------- | -------------------------------------- |
-| 0  | 主数据与设计（款式/BOM/工序/SKU） | admin（技术资料）               | admin 自检启用                                        | `md_style`/`md_bom`/`md_style_process`/`md_sku` | 主数据无状态机，停用不影响历史快照                      |
+| 0  | 主数据与设计（款式/BOM/工序/SKU） | planner（技术资料）              | planner 自检启用                                        | `md_style`/`md_bom`/`md_style_process`/`md_sku` | 主数据无状态机，停用不影响历史快照                      |
 | 1  | 客户档案                  | sales                     | sales                                             | `md_customer`                                   | —                                      |
 | 2  | 报价                    | sales                     | 客户接受 → sales 点"接受"                                | `sd_quotation`                                  | 0待确认 → 1已接受 / 2已失效                     |
-| 3  | 销售订单（草稿）              | sales                     | —                                                 | `sd_order` + 色码行                                | 0 草稿                                   |
+| 3  | 销售订单（草稿）              | sales                     | 可带 `quoteId` 由报价转单                               | `sd_order` + 色码行；报价置为已转单                          | 0 草稿；报价 1 → **3 已转单**（一次且不可逆）         |
 | 4  | **订单确认**              | sales 提交                  | `sd:order:confirm`（现为 sales，建议销售主管）               | 冻结色码/数量/单价/交期                                   | 0 → 1 已确认                              |
 | 5  | MRP 净缺料               | planner 查看 `v_mrp_demand` | 系统算，不需人审                                          | `pu:suggestion` 读视图                             | —                                      |
 | 6  | 生成采购单（草稿）             | planner                   | —                                                 | `pu_purchase_order` + 明细                        | 0 草稿（**不计在途**）                         |
-| 7  | **采购下单**              | planner 提交                | `pu:purchaseOrder:confirm`（现为 planner，建议厂长/财务按金额） | 采购单生效                                           | 0 → 1 已下单（**此刻才计入在途**）                 |
-| 8  | 分批收货                  | wh                        | `pu:purchaseOrder:receive`                        | 库存流水 `st_stock_txn`                             | 1 → 2 部分收货 → 3 全部收货                    |
+| 7  | **采购下单/审批**           | planner 提交                | 小额直接确认；超阈值走 boss 审批                                | 采购单生效 + 应付与付款单                                   | 0 → 1 已下单（**此刻才计入在途**）；小额或审批通过即自动付款   |
+| 8  | 分批收货                  | wh                        | `pu:purchaseOrder:receive`                        | 库存流水 `st_stock_txn`                             | 1 → 2 部分收货 → 3 全部收货；**已有应付时不重复挂账**     |
 | 9  | 下达工单（冻结）              | planner / production      | 系统冻结校验                                            | `pr_work_order` + SKU/物料/工序快照                   | 0 待下达                                  |
 | 10 | **领料开工**              | production 申请             | `pr:workOrder:issue`（production 或 wh 执行）          | 领料流水                                            | 0 → 1 生产中                              |
 | 11 | 报工                    | production                | `pr:process:report`                               | `pr_process_report` + 计件 `hr_piece_wage`        | 工序累计合格/不良数                             |
 | 12 | **完工入库**              | production                | `pr:workOrder:finish`（production 或 wh）            | 成品入库流水                                          | 1 → 2 已完工；订单 1 → 3 已完工                 |
-| 13 | 出货（建单→发货→签收）          | sales 建单                  | wh 发货（ship）、sales/wh 签收（sign）                     | `sh_shipment`                                   | 0 → 1 已发货 → 2 已签收；订单 3 → 4 已发齐 → 5 已完成 |
-| 14 | **标准成本结算**            | finance 试算                | `fn:settlement:confirm`（finance，建议成本主管复核）         | `fn_cost_settlement` + `fn_cost_detail` 快照      | 0 试算 → 1 确认（冻结）                        |
-| 15 | 生成新报价（闭环）             | finance 从结算生成             | sales 对客发出 → 客户接受                                 | `sd_quotation`（带 `source_settle_id`）            | 回到步骤 2                                 |
-| 16 | 计件工资                  | hr 生成                     | `hr:salarySlip:confirm`                           | `hr_salary_slip`                                | 草稿 → 已确认                               |
+| 13 | 出货（建单→发货→签收）          | sales 建单                  | wh 发货（ship）、wh/sales 签收（sign）                      | `sh_shipment`                                   | 0 → 1 已发货 → 2 已签收；订单 3 → 4 已发齐 → 5 已完成 |
+| 14 | **应收生成**              | 系统（发货即开票）                 | 无需人工                                              | `fn_receivable`                                 | 0 未收；金额 = 出货量 × 订单单价，到期日 = 发货日 + 客户账期 |
+| 15 | **收款核销**              | finance 确认                | `fn:payment:confirm`                              | `fn_payment` + `fn_payment_line` + `fn_cash_txn` | 应收 0 → 1 部分收款 → 2 已收清；账户余额同步          |
+| 16 | **标准成本结算**            | finance 试算                | `fn:settlement:confirm`（finance，建议成本主管复核）         | `fn_cost_settlement` + `fn_cost_detail` 快照      | 0 试算 → 1 确认（冻结）                        |
+| 17 | 生成新报价（闭环）             | finance 从结算生成             | sales 对客发出 → 客户接受                                 | `sd_quotation`（带 `source_settle_id`）            | 回到步骤 2                                 |
+| 18 | 计件工资与发放               | hr 生成                     | hr 确认；finance 发放                                  | `hr_salary_slip` + 工资付款流水                       | 草稿 0 → 已确认 1 → 已发放 2                  |
 
 
 

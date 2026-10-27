@@ -1,16 +1,16 @@
 # AI 驱动精益 ERP 系统 - 技术方案文档
 
-> 版本：v2.0，2026-10-14。定位：运动服装代工厂内部 ERP，首期为实训/作品演示。
+> 版本：v3.1，2026-10-28。定位：运动服装代工厂内部 ERP，首期为实训/作品演示。
 > 本文定义实现方式；业务与验收见《AI-ERP需求分析文档》，数据见《AI-ERP数据库设计文档》，端点见《AI-ERP接口设计文档》。
-> 状态：实施方案已统一；首个开发切片已实现登录工作台、销售订单创建/确认/查询、缺料与库存只读视图。采购、生产、发货、成本动作及 AI 工具仍待开发。运行步骤见《开发启动说明》。
+> 状态：**方案已全部落地**。主数据、销售（报价→订单）、采购、生产（工单→领料→报工→完工）、库存、出货退货、成本结算、人事工资、财务资金、看板预警、AI 受控问答均已实现并通过 `sql/self_check.sql` 29 项自检。运行步骤见《开发启动说明》。
 
 ## 1. 架构基线
 
-以后端本地 `D:\code\myFactoryAI-master\myFactoryAI` 为代码起点，采用 Java 21、Spring Boot 3.5 系列、RuoYi 派生的 Spring Security + JWT、原生 MyBatis、PageHelper、`AjaxResult`、`TableDataInfo` 和 `sys_*` 平台表。业务域分为 `md/hr/sd/pu/pr/st/sh/fn`，属于一个 Spring Boot 应用，不拆为微服务。首次启动后锁定实际可工作的依赖版本。
+以 RuoYi 派生的现有仓库为代码起点，采用 Java 21、Spring Boot 3.5 系列、Spring Security + JWT、原生 MyBatis、PageHelper、`AjaxResult`、`TableDataInfo` 和 `sys_*` 平台表。业务域分为 `md/hr/sd/pu/pr/st/sh/fn`，属于一个 Spring Boot 应用，不拆为微服务。
 
-前端单独建设 Vue 3 + TypeScript + Vite + Vue Router 4 + Pinia + Element Plus + ECharts；复用后端接口协议和菜单语义，不移植 Vue 2 组件。数据库 MySQL 8.x，Redis 沿用底座登录缓存。Spring AI 用于只读工具问答与规则预警解释。首期无需 Python 服务、Flink、ClickHouse、ES、RabbitMQ、MongoDB 或 MinIO。
+前端单独建设 Vue 3 + TypeScript + Vite + Vue Router 4 + Pinia + Element Plus + ECharts；复用后端接口协议和菜单语义，不移植 Vue 2 组件。数据库 MySQL 8.x，Redis 沿用底座登录缓存并承担 AI 问答限流。AI 问答直连 DeepSeek HTTP 接口（`myfactoryai-admin` 的 `web/ai/DeepSeekConfig`），不引入 Spring AI 等额外框架。首期无需 Python 服务、Flink、ClickHouse、ES、RabbitMQ、MongoDB 或 MinIO。
 
-后端建议使用现有 `ruoyi-common`、`ruoyi-framework`、`myfactoryai-system`、`myfactoryai-manufacturing`、`myfactoryai-ai`、`myfactoryai-admin` 模块。Controller 统一放在 admin；domain/mapper/service 放在 manufacturing；AI 模块调用受控业务查询 Service。第一次垂直切片须验证组件扫描和模块依赖方向，不在两个模块重复放 Controller。底座公共响应、认证、分页不重写。
+后端模块为 `ruoyi-common`、`ruoyi-framework`、`ruoyi-quartz`、`myfactoryai-system`、`myfactoryai-manufacturing`、`myfactoryai-admin` 六个，合计 325 个 Java 文件。**Controller 统一放在 admin（`web/controller/erp` 下 18 个 ERP 控制器 + `web/ai` 放 AI 配置）；domain/mapper/service/support 放在 manufacturing 的 `erp` 包（55 个文件、5051 行）。** 没有单独的 AI 模块，AI 只读查询走 manufacturing 的 `ErpAiReadMapper`。底座公共响应、认证、分页不重写。
 
 ## 2. 底座适配
 
@@ -49,15 +49,15 @@ BIGINT 主外键以字符串下发。若用全局 Long 转字符串，`total` �
 
 ## 5. AI 实施
 
-第一项亮点是 Spring AI 只读业务工具：订单状态、净缺料、库存、款式标准成本和发齐准交率。工具参数结构化，逐个做业务权限校验，限制结果量，记录调用、来源单据和数据时间。模型不得直接改变单据。
+第一项亮点是受控只读业务问答（`POST /ai/erp/ask`）：查询范围固定为订单、库存、净缺料、款式标准成本、发齐准交率五个档位，用户先选范围再提问。入口先校验工作台权限，再按范围映射到具体读权限（`sd:order:list` / `st:inventory:list` / `pu:suggestion:list` / `dashboard:styleCost:list` / `dashboard:ontime:list`），未授权直接拒绝。查询走预设只读 SQL，最多返回 20 条记录，连同数据时间与来源一起交给 DeepSeek。**模型只解释这批记录，不生成 SQL、不执行写操作。** 每个用户每分钟限 10 次，问题长度 1~500 字。
 
-第二项亮点是规则预警与 AI 解释：缺料、逾期未发齐、低于阈值的已确认标准毛利。预警触发条件和数值由业务规则生成，模型只负责解释和建议；模型超时仍返回规则结果。NL2SQL 直查、RAG、需求预测与智能排料留后续版本。现有五张订单种子不足以验证时序预测。
+第二项亮点是规则预警与 AI 解释：缺料、逾期未发齐、低于阈值的已确认标准毛利。预警触发条件和数值由业务规则生成，模型只负责解释和建议；模型不可用或超时时仍返回规则结果（`modelUsed=false`），看板与预警功能不受影响。NL2SQL 直查、RAG、需求预测与智能排料不在本期范围。
 
 ## 6. 开发与验收顺序
 
-1. 用平台表、权限和八账号脚本建立独立演示库；登录、权限与菜单已在隔离实例验证，继续联调字典和分页。
-2. 完成一张订单的一款多色码可操作闭环，走到标准成本确认与下一次报价引用。
-3. 补一单多款、部分收发、超收超发、重复请求、并发扣库存、调价后历史冻结。
-4. 接看板、受控问答和规则预警解释，按角色做验收。
+1. 平台表 + 权限 + 八账号脚本建立独立演示库，登录、权限、菜单、字典、分页已联通。
+2. 订单→工单→领料→报工→完工→出货→应收→收款的全链路可操作闭环已跑通，标准成本确认后可被下一次报价引用。
+3. 一单多款、部分收发、超收超发、重复请求、并发扣库存、调价后历史冻结均已覆盖，其中重复请求由 `biz_action_request` 幂等闸门保证。
+4. 看板、受控问答、规则预警解释均已接入，并按 8 个角色做权限边界验收。
 
-每阶段以页面可操作、接口可复现、数据能对账为完成标准。`sql/self_check.sql` 已按 v2.0 扩充；它验证 SQL 基线，不替代服务端并发、权限和端到端流程测试。
+每阶段以页面可操作、接口可复现、数据能对账为完成标准。`sql/self_check.sql` 现有 29 项，配合 `p2`(9 项)、`p3`(15 项)、`p4`(7 项) 三个幂等补丁的自检，验证 SQL 基线与单据链路；它不替代服务端并发、权限和端到端流程测试。

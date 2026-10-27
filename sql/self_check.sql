@@ -184,4 +184,33 @@ UNION ALL
 SELECT '25 process worker table exists',
        IF((SELECT COUNT(*) FROM information_schema.tables
            WHERE table_schema = DATABASE() AND table_name = 'md_process_worker') = 1,
-          'PASS', 'FAIL: missing md_process_worker');
+          'PASS', 'FAIL: missing md_process_worker')
+UNION ALL
+-- 已发货/已签收的出货单必须真的扣过库存；只有单头没有出库流水的是"幽灵出货"
+SELECT '26 shipped shipment has outbound stock', IF(COUNT(*) = 0, 'PASS', CONCAT('FAIL: ', COUNT(*)))
+FROM sh_shipment s
+WHERE s.status IN (1,2) AND s.del_flag = '0'
+  AND NOT EXISTS (SELECT 1 FROM st_stock_txn t
+                  WHERE t.biz_type = 4 AND t.source_type = 'sh_shipment' AND t.source_id = s.shipment_id)
+UNION ALL
+-- 应收由发货生成：必须挂本订单的已发货出货单，不能空挂或挂到别人的单子上
+SELECT '27 receivable backed by own shipment', IF(COUNT(*) = 0, 'PASS', CONCAT('FAIL: ', COUNT(*)))
+FROM fn_receivable r
+LEFT JOIN sh_shipment s ON s.shipment_id = r.shipment_id
+WHERE r.order_id IS NOT NULL
+  AND (r.shipment_id IS NULL OR s.shipment_id IS NULL
+       OR s.status NOT IN (1,2) OR s.order_id <> r.order_id)
+UNION ALL
+-- 订单状态必须能被下游单据支撑：生产中/已完工就得有工单
+SELECT '28 producing order has work order', IF(COUNT(*) = 0, 'PASS', CONCAT('FAIL: ', COUNT(*)))
+FROM sd_order o
+LEFT JOIN pr_work_order w ON w.order_id = o.order_id
+WHERE o.status IN (2,3) AND w.wo_id IS NULL AND o.del_flag = '0'
+UNION ALL
+-- 订单金额必须等于明细合计（不能只有金额没有明细）
+SELECT '29 order amount equals items', IF(COUNT(*) = 0, 'PASS', CONCAT('FAIL: ', COUNT(*)))
+FROM sd_order o
+LEFT JOIN (SELECT order_id, SUM(amount) amt FROM sd_order_item GROUP BY order_id) t
+  ON t.order_id = o.order_id
+WHERE o.del_flag = '0'
+  AND ABS(o.total_amount - COALESCE(t.amt, 0)) > 0.005;

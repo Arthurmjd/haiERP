@@ -1,5 +1,7 @@
 # 列表行操作按钮与草稿编辑 Implementation Plan
 
+> **状态：已完成（归档）。** 本计划描述的行操作按钮与草稿编辑已全部落地：销售订单/采购单在草稿态可编辑（`PUT /erp/order/{id}`、`PUT /erp/purchaseOrder/{id}`），列表页按权限显示「详情 / 编辑」，通用档案页合并出统一操作列。下文保留当时的任务分解与验收记录，作为实施过程留档；其中的代码行数、接口数量等数字均为 2026-10-20 基线，不代表当前状态（当前为 43 个控制器 / 260 个方法级接口 / 66 张表）。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 为销售订单、采购订单与通用档案页统一行操作按钮，并让销售订单/采购单在草稿状态可编辑。

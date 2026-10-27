@@ -98,7 +98,7 @@ SELECT o.order_id, s.style_id, s.color_id, s.size_id,
        'sales', NOW()
 FROM sd_order o
 JOIN md_sku s ON s.sku_id IN (1, 3, 6, 10, 13, 16)
-WHERE o.order_no BETWEEN 'SO2026101' AND 'SO2026117'
+WHERE o.order_no BETWEEN 'SO2026101' AND 'SO2026120'
   AND o.status NOT IN (9)
   AND NOT EXISTS (SELECT 1 FROM sd_order_item i WHERE i.order_id = o.order_id);
 
@@ -172,25 +172,20 @@ WHERE w.wo_no BETWEEN 'WO2026101' AND 'WO2026108'
   AND NOT EXISTS (SELECT 1 FROM pr_work_order_process x WHERE x.wo_id = w.wo_id);
 
 -- -----------------------------------------------------------------------------
--- 6. 出货单补充：7 单（0待发货/1已发货/2已签收）
+-- 6. 出货单补充：7 单
+--    全部建成「0 待发货」。原因：种子里这几张订单没有对应的报工/入库记录，
+--    若直接写「已发货 / 已签收」就变成没有出库流水的幽灵出货单，
+--    「库存 - 出库流水」会对不上。待发货状态下它们是仓库里真实待发的任务。
 -- -----------------------------------------------------------------------------
 INSERT INTO sh_shipment (shipment_no, order_id, customer_id, ship_date, logistics_company, logistics_no, status, create_by, create_time)
-SELECT * FROM (SELECT 'SH2026101' no, 10 o, 7 c, DATE_SUB(CURDATE(), INTERVAL 5 DAY) sd, '顺丰速运' lc, 'SF1234567890' ln, 2 st, 'wh' cb, NOW() ct UNION ALL
-SELECT 'SH2026102', 11, 9, DATE_SUB(CURDATE(), INTERVAL 9 DAY), '德邦物流', 'DB9876543210', 2, 'wh', NOW() UNION ALL
-SELECT 'SH2026103', 12, 6, DATE_SUB(CURDATE(), INTERVAL 14 DAY), '中通快递', 'ZT1122334455', 2, 'wh', NOW() UNION ALL
-SELECT 'SH2026104', 13, 8, DATE_SUB(CURDATE(), INTERVAL 4 DAY), '圆通速递', 'YT5566778899', 1, 'wh', NOW() UNION ALL
-SELECT 'SH2026105', 17, 6, DATE_SUB(CURDATE(), INTERVAL 7 DAY), '韵达快递', 'YD2233445566', 2, 'wh', NOW() UNION ALL
+SELECT * FROM (SELECT 'SH2026101' no, 10 o, 7 c, NULL sd, NULL lc, NULL ln, 0 st, 'wh' cb, NOW() ct UNION ALL
+SELECT 'SH2026102', 11, 9, NULL, NULL, NULL, 0, 'wh', NOW() UNION ALL
+SELECT 'SH2026103', 12, 6, NULL, NULL, NULL, 0, 'wh', NOW() UNION ALL
+SELECT 'SH2026104', 13, 8, NULL, NULL, NULL, 0, 'wh', NOW() UNION ALL
+SELECT 'SH2026105', 17, 6, NULL, NULL, NULL, 0, 'wh', NOW() UNION ALL
 SELECT 'SH2026106', 8, 4, NULL, NULL, NULL, 0, 'wh', NOW() UNION ALL
 SELECT 'SH2026107', 9, 5, NULL, NULL, NULL, 0, 'wh', NOW()) t
 WHERE NOT EXISTS (SELECT 1 FROM sh_shipment WHERE shipment_no = t.no);
-
-INSERT INTO sh_shipment_item (shipment_id, sku_id, batch_no, qty, create_by, create_time)
-SELECT sh.shipment_id, s.sku_id, CONCAT('FG', DATE_FORMAT(CURDATE(), '%y%m'), '-1'), 200, 'wh', NOW()
-FROM sh_shipment sh
-JOIN sd_order o ON o.order_id = sh.order_id
-JOIN md_sku s ON s.style_id = (SELECT MIN(style_id) FROM sd_order_item WHERE order_id = o.order_id) AND s.color_id = 2 AND s.size_id IN (2, 3)
-WHERE sh.shipment_no BETWEEN 'SH2026101' AND 'SH2026107'
-  AND NOT EXISTS (SELECT 1 FROM sh_shipment_item x WHERE x.shipment_id = sh.shipment_id);
 
 -- -----------------------------------------------------------------------------
 -- 7. 库存补充：新物料多批次 + 成品库存
@@ -220,6 +215,27 @@ WHERE s.sku_id IN (1, 6, 10, 16)
   AND NOT EXISTS (SELECT 1 FROM st_inventory i WHERE i.item_type = 2 AND i.item_id = s.sku_id AND i.batch_no = CONCAT('FG26-', LPAD(s.sku_id, 3, '0'), '-B'));
 
 -- -----------------------------------------------------------------------------
+-- 7.1 出货单明细：SKU 必须来自本订单明细、批号必须取自真实成品库存、数量不超过库存
+--     （原来硬编码 CONCAT('FG','2610','-1')，库存里从来没有这个批号，
+--       真点「发货」会报「出货超过订单未发数量」或「成品库存不足」）
+-- -----------------------------------------------------------------------------
+INSERT INTO sh_shipment_item (shipment_id, sku_id, batch_no, qty, create_by, create_time)
+SELECT sh.shipment_id, x.sku_id, x.batch_no, x.qty, 'wh', NOW()
+FROM sh_shipment sh
+JOIN (
+  SELECT oi.order_id, sku.sku_id, i.batch_no, LEAST(oi.qty, 100, i.qty) AS qty,
+         ROW_NUMBER() OVER (PARTITION BY oi.order_id ORDER BY sku.sku_id) AS rn
+  FROM sd_order_item oi
+  JOIN md_sku sku ON sku.style_id = oi.style_id AND sku.color_id = oi.color_id
+       AND sku.size_id = oi.size_id
+  JOIN st_inventory i ON i.item_type = 2 AND i.item_id = sku.sku_id AND i.warehouse_id = 2
+       AND i.batch_no = CONCAT('FG26-', LPAD(sku.sku_id, 3, '0'), '-A')
+  WHERE i.qty > 0 AND oi.qty > 0
+) x ON x.order_id = sh.order_id AND x.rn = 1 + MOD(sh.order_id, 3)
+WHERE sh.shipment_no BETWEEN 'SH2026101' AND 'SH2026107'
+  AND NOT EXISTS (SELECT 1 FROM sh_shipment_item y WHERE y.shipment_id = sh.shipment_id);
+
+-- -----------------------------------------------------------------------------
 -- 8. 报价单补充：4 单（0草稿/1已成交/2已过期）
 -- -----------------------------------------------------------------------------
 INSERT INTO sd_quotation (quote_no, customer_id, quote_date, status, total_amount, create_by, create_time, request_key)
@@ -236,18 +252,33 @@ WHERE q.quote_no BETWEEN 'QT2026101' AND 'QT2026104'
   AND NOT EXISTS (SELECT 1 FROM sd_quotation_item x WHERE x.quote_id = q.quote_id);
 
 -- -----------------------------------------------------------------------------
--- 9. 应收补充：8 单（0未收/1部分收款/2已收清）
+-- 9. 应收补充：由「真正发出去的出货单」生成
+--    口径与代码保持一致（ErpFinanceService.createReceivable）：
+--      金额   = Σ(出货数量 × 该订单同款色码单价)   —— ErpFinanceMapper.shipmentAmount
+--      到期日 = 发货日 + 客户信用天数
+--      客户   = 订单客户
+--    不给待发货的出货单开票，也不手填金额，避免「订单 ¥7,200、应收 ¥58,200」这种对不上的数据。
 -- -----------------------------------------------------------------------------
 INSERT INTO fn_receivable (ar_no, customer_id, order_id, shipment_id, amount, received_amount, balance, due_date, status, request_key, create_by, create_time)
-SELECT * FROM (SELECT 'AR2026101' no, 7 c, 10 o, 1 sh, 86400.00 amt, 86400.00 rec, 0.00 bal, DATE_ADD(CURDATE(), INTERVAL 25 DAY) dd, 2 st, 'seed-ar-101' rk, 'finance' cb, NOW() ct UNION ALL
-SELECT 'AR2026102', 9, 11, 2, 67800.00, 30000.00, 37800.00, DATE_ADD(CURDATE(), INTERVAL 12 DAY), 1, 'seed-ar-102', 'finance', NOW() UNION ALL
-SELECT 'AR2026103', 6, 12, 3, 44900.00, 0.00, 44900.00, DATE_ADD(CURDATE(), INTERVAL 8 DAY), 0, 'seed-ar-103', 'finance', NOW() UNION ALL
-SELECT 'AR2026104', 8, 13, 4, 33600.00, 33600.00, 0.00, DATE_ADD(CURDATE(), INTERVAL 30 DAY), 2, 'seed-ar-104', 'finance', NOW() UNION ALL
-SELECT 'AR2026105', 6, 17, 5, 52600.00, 20000.00, 32600.00, DATE_ADD(CURDATE(), INTERVAL 5 DAY), 1, 'seed-ar-105', 'finance', NOW() UNION ALL
-SELECT 'AR2026106', 4, 1, NULL, 46800.00, 0.00, 46800.00, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 0, 'seed-ar-106', 'finance', NOW() UNION ALL
-SELECT 'AR2026107', 5, 2, NULL, 32500.00, 0.00, 32500.00, DATE_SUB(CURDATE(), INTERVAL 10 DAY), 0, 'seed-ar-107', 'finance', NOW() UNION ALL
-SELECT 'AR2026108', 10, 3, NULL, 58200.00, 58200.00, 0.00, DATE_SUB(CURDATE(), INTERVAL 20 DAY), 2, 'seed-ar-108', 'finance', NOW()) t
-WHERE NOT EXISTS (SELECT 1 FROM fn_receivable WHERE ar_no = t.no);
+SELECT CONCAT('AR-SEED-', s.shipment_id), s.customer_id, s.order_id, s.shipment_id,
+       amt.total, 0.00, amt.total,
+       DATE_ADD(s.ship_date, INTERVAL COALESCE(c.credit_days, 30) DAY), 0,
+       CONCAT('seed-ar-ship-', s.shipment_id), 'finance', NOW()
+FROM sh_shipment s
+JOIN sd_order o ON o.order_id = s.order_id
+JOIN md_customer c ON c.customer_id = o.customer_id
+JOIN (
+  SELECT si.shipment_id, SUM(si.qty * oi.unit_price) AS total
+  FROM sh_shipment_item si
+  JOIN sh_shipment s2 ON s2.shipment_id = si.shipment_id
+  JOIN md_sku sku ON sku.sku_id = si.sku_id
+  JOIN sd_order_item oi ON oi.order_id = s2.order_id
+       AND oi.style_id = sku.style_id AND oi.color_id = sku.color_id AND oi.size_id = sku.size_id
+  GROUP BY si.shipment_id
+) amt ON amt.shipment_id = s.shipment_id
+WHERE s.status IN (1, 2) AND s.ship_date IS NOT NULL AND s.del_flag = '0'
+  AND amt.total > 0
+  AND NOT EXISTS (SELECT 1 FROM fn_receivable r WHERE r.shipment_id = s.shipment_id);
 
 -- -----------------------------------------------------------------------------
 -- 10. 待办 / 审批补充
@@ -256,8 +287,7 @@ INSERT INTO biz_todo (todo_type, target_type, target_id, assignee_role, title, p
 SELECT * FROM (SELECT 'receive' ttype, 'pu_purchase_order' tt, 10 tid, 'wh' ar, '采购单 PO2026106 已到货，请安排收货' title, '/purchases/10' path, DATE_ADD(CURDATE(), INTERVAL 2 DAY) dd, 0 st, NOW() ct UNION ALL
 SELECT 'receive', 'pu_purchase_order', 11, 'wh', '采购单 PO2026107 部分到货，请补录收货', '/purchases/11', DATE_ADD(CURDATE(), INTERVAL 3 DAY), 0, NOW() UNION ALL
 SELECT 'approval', 'pu_purchase_order', 12, 'boss', '采购单 PO2026112 待审批（¥24,800）', '/approvals', DATE_ADD(CURDATE(), INTERVAL 1 DAY), 0, NOW() UNION ALL
-SELECT 'collect', 'fn_receivable', 6, 'finance', '应收单 AR2026106 已逾期，请催收', '/finance/receivables', DATE_SUB(CURDATE(), INTERVAL 3 DAY), 0, NOW() UNION ALL
-SELECT 'collect', 'fn_receivable', 7, 'finance', '应收单 AR2026107 即将到期', '/finance/receivables', DATE_ADD(CURDATE(), INTERVAL 5 DAY), 0, NOW() UNION ALL
+SELECT 'collect', 'fn_receivable', (SELECT MIN(ar_id) FROM fn_receivable), 'finance', '应收单待催收，请跟进', '/finance/receivables', DATE_SUB(CURDATE(), INTERVAL 3 DAY), 0, NOW() UNION ALL
 SELECT 'issue', 'pr_wo', 6, 'production', '工单 WO2026106 待下达领料', '/production/workOrders', DATE_ADD(CURDATE(), INTERVAL 4 DAY), 0, NOW() UNION ALL
 SELECT 'issue', 'pr_wo', 7, 'production', '工单 WO2026107 待下达领料', '/production/workOrders', DATE_ADD(CURDATE(), INTERVAL 6 DAY), 0, NOW() UNION ALL
 SELECT 'ship', 'sh_shipment', 6, 'wh', '出货单 SH2026106 待发货', '/shipping/shipments', DATE_ADD(CURDATE(), INTERVAL 2 DAY), 0, NOW()) t
@@ -401,5 +431,30 @@ SET o.status = CASE WHEN COALESCE(sh.qty,0) >= i.ord THEN 4
     o.full_ship_date = NULL,
     o.update_time = NOW()
 WHERE o.status IN (4,5) AND COALESCE(sh.qty,0) < i.ord;
+
+-- 12.2 订单状态必须能被工单支撑（没有工单就不能是「生产中 / 已完工」）
+--   ① 没有工单却写着生产/完工 → 回到「已确认」，等排产
+UPDATE sd_order o
+LEFT JOIN pr_work_order w ON w.order_id = o.order_id
+SET o.status = 1, o.update_time = NOW()
+WHERE o.status IN (2,3) AND w.wo_id IS NULL;
+
+--   ② 工单已在产，订单却还停在「已确认」→ 订单进入生产中
+UPDATE sd_order o
+JOIN pr_work_order w ON w.order_id = o.order_id
+SET o.status = 2, o.update_time = NOW()
+WHERE o.status = 1 AND w.status IN (1,2);
+
+--   ③ 订单已开工，工单却还是草稿 → 工单推进到生产中
+UPDATE pr_work_order w
+JOIN sd_order o ON o.order_id = w.order_id
+SET w.status = 1, w.update_time = NOW()
+WHERE w.status = 0 AND o.status IN (2,3);
+
+--   ④ 订单写「已完工」，工单却没完工 → 订单回落到生产中
+UPDATE sd_order o
+JOIN pr_work_order w ON w.order_id = o.order_id
+SET o.status = 2, o.update_time = NOW()
+WHERE o.status = 3 AND w.status <> 2;
 
 SET FOREIGN_KEY_CHECKS = 1;

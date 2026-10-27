@@ -22,9 +22,7 @@
 
 以下以 Windows 为例。克隆仓库后，分别在**仓库根目录**打开终端。MySQL 默认端口为 3306，Redis 为 6379；前端会把 `/api` 请求转发给本机 8080 端口的后端。无需另装一个 RuoYi 项目。
 
-## 只看页面
-
-暂时没有配置数据库时，可以先在 PowerShell 中运行：
+## 先启动前端看一眼
 
 ```powershell
 cd frontend
@@ -32,7 +30,7 @@ npm ci
 npm run dev
 ```
 
-打开 <http://127.0.0.1:5173/preview>，可切换岗位查看演示页面。这是浏览器会话内的模拟数据，不会写入 MySQL，也不能代替真实接口联调。后续启动前端时已安装依赖就无需重复执行 `npm ci`。
+打开 <http://127.0.0.1:5173>。注意：浏览器内的模拟数据模式（`/preview`、`api/demo.ts`）已移除，页面数据全部走真实接口，**必须先建库并启动后端**，否则登录后会看到空列表。后续启动前端时已安装依赖就无需重复执行 `npm ci`。
 
 ## 首次建立演示库
 
@@ -52,13 +50,18 @@ USE hai_erp_demo;
 SOURCE sql/platform-schema.sql;
 SOURCE sql/init_all.sql;
 SOURCE sql/erp-permissions.sql;
-SOURCE sql/system-permissions.sql;
+SOURCE sql/ai-erp-13-seed-rich.sql;
+SOURCE sql/ai-erp-14-boss-permissions.sql;
+SOURCE sql/p4-rbac-completion.sql;
 SOURCE sql/platform-demo-users.sql;
+SOURCE sql/system-permissions.sql;
 SOURCE sql/self_check.sql;
 exit
 ```
 
-若 `CREATE DATABASE` 提示库已存在，先停止并确认库中数据，不要继续运行初始化。自检应有 24 行 `PASS`。若提示找不到 `mysql`，把 MySQL 的 `bin` 目录加入系统 `PATH`，再打开新的终端。
+若 `CREATE DATABASE` 提示库已存在，先停止并确认库中数据，不要继续运行初始化。自检应出现 **29 行 `PASS`**。顺序不能换来换去：`system-permissions.sql` 必须在 `platform-demo-users.sql` 之后（它负责把八个账号挂到部门、给 admin 发全部系统权限），`p4-rbac-completion.sql` 必须在自检之前（它按岗位下发按钮权限，漏跑会让财务账号打不开财务页）。若提示找不到 `mysql`，把 MySQL 的 `bin` 目录加入系统 `PATH`，再打开新的终端。
+
+想要更完整的演示数据（12 张已交付订单、1~9 月历史工资单），再按顺序执行 `sql/ai-erp-16-delivered-orders.sql`、`sql/ai-erp-15-salary-history.sql`、`sql/p3-chain-integrity.sql`，说明见 [开发启动说明](开发启动说明.md)。
 
 ## 启动服务
 
@@ -173,7 +176,7 @@ npm run dev
 - 后端测试：在 `backend` 目录运行 `mvn test`。
 - 前端构建：在 `frontend` 目录运行 `npm run build`。
 - 前端提示 `ECONNREFUSED 127.0.0.1:8080`：后端未启动或端口不一致，先查看后端终端是否显示启动成功。
-- 登录失败：确认四份 SQL 按上述顺序导入、MySQL 和 Redis 均在运行，且后端连接的是 `hai_erp_demo`。
+- 登录失败：确认上面的 SQL 按顺序全部导入、MySQL 和 Redis 均在运行，且后端连接的是 `hai_erp_demo`。
 - 修改后端代码后：先停止旧后端，再执行 `mvn clean -DskipTests package` 并重启 JAR；运行中的旧 JAR 不会自动更新，且在 Windows 上可能占用文件导致打包失败。删除或移动源码后必须带 `clean`，否则 `target/` 里的旧 class 和 mapper XML 会继续被打进 JAR，引发启动报错。
 
 更多实现状态和验收事项见 [开发启动说明](开发启动说明.md)、[需求分析](AI-ERP需求分析文档.md)、[接口设计](AI-ERP接口设计文档.md) 和 [数据库设计](AI-ERP数据库设计文档.md)。
