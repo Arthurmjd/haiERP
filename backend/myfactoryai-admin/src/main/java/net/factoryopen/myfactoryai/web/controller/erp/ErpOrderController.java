@@ -5,7 +5,9 @@ import java.util.Map;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.core.page.TableDataInfo;
 import net.factoryopen.myfactoryai.erp.domain.OrderDraftRequest;
 import net.factoryopen.myfactoryai.erp.mapper.ErpOrderMapper;
@@ -58,18 +60,21 @@ public class ErpOrderController {
         return AjaxResult.success(service.detail(id));
     }
 
+    @Log(title = "销售订单", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('sd:order:add')")
     @PostMapping
     public AjaxResult create(@RequestBody OrderDraftRequest request) {
         return AjaxResult.success(service.create(request));
     }
 
+    @Log(title = "销售订单", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('sd:order:edit')")
     @PutMapping("/{id}")
     public AjaxResult update(@PathVariable Long id, @RequestBody OrderDraftRequest request) {
         return AjaxResult.success(service.update(id, request));
     }
 
+    @Log(title = "销售订单确认", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('sd:order:confirm')")
     @PostMapping("/confirm/{id}")
     public AjaxResult confirm(@PathVariable Long id) {
@@ -78,6 +83,7 @@ public class ErpOrderController {
     }
 
     /** 删除草稿订单（含明细）。已确认或已产生工单/出货单时不允许。 */
+    @Log(title = "销售订单", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('sd:order:remove')")
     @DeleteMapping("/{id}")
     public AjaxResult remove(@PathVariable Long id) {
@@ -86,6 +92,7 @@ public class ErpOrderController {
     }
 
     /** 作废订单：草稿或已确认可作废，已有工单/出货单时不允许。 */
+    @Log(title = "销售订单作废", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('sd:order:cancel')")
     @PostMapping("/cancel/{id}")
     public AjaxResult cancel(@PathVariable Long id) {

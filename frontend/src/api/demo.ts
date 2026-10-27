@@ -222,6 +222,20 @@ function readStylePlans(): Record<string, { bom: StyleBomLine[]; processes: Styl
 }
 
 export const demoApi = {
+  // 演示模式下的操作日志：给出几条样例，真实环境读 sys_oper_log
+  operLogs: async (query: { pageNum: number; pageSize?: number; title?: string; businessType?: number; status?: number }) => {
+    const all = [
+      { operId: 3, title: '销售订单', businessType: 1, method: 'ErpOrderController.create()', operName: '销售员', operUrl: '/erp/sd/order', operIp: '127.0.0.1', status: 0, operTime: '2026-10-26 09:12:30', errorMsg: null },
+      { operId: 2, title: '销售订单确认', businessType: 2, method: 'ErpOrderController.confirm()', operName: '销售员', operUrl: '/erp/sd/order/confirm/8', operIp: '127.0.0.1', status: 0, operTime: '2026-10-26 09:13:02', errorMsg: null },
+      { operId: 1, title: '采购单作废', businessType: 2, method: 'ErpPurchaseController.cancel()', operName: '计划员', operUrl: '/erp/pu/purchaseOrder/cancel/8', operIp: '127.0.0.1', status: 0, operTime: '2026-10-26 10:02:41', errorMsg: null },
+    ]
+    const filtered = all.filter(row =>
+      (!query.title || row.title.includes(query.title)) &&
+      (query.businessType === undefined || row.businessType === query.businessType) &&
+      (query.status === undefined || row.status === query.status))
+    const size = query.pageSize || 10
+    return { rows: filtered.slice((query.pageNum - 1) * size, query.pageNum * size), total: filtered.length }
+  },
   generatePurchaseFromMrp: async (supplierId: string, expectDate: string, materialIds: string[]) => {
     const items = materialIds.map(materialId => {
       const row = mrp.find(item => item.materialId === materialId && item.shortageFlag === 1)

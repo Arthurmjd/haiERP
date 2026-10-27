@@ -52,12 +52,12 @@ public class MyFactoryAIApplication {
            ██║ ╚═╝ ██║   ██║       ██║     ██║  ██║╚██████╗   ██║   ╚██████╔╝██║  ██║   ██║      ██║  ██║██║
            ╚═╝     ╚═╝   ╚═╝       ╚═╝     ╚═╝  ╚═╝ ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝      ╚═╝  ╚═╝╚═╝
         
-                                                        factoryopen.myfactoryai ｜ 智能驱动制造未来 ⚡
+                                                        海岚 ERP ｜ 服装制造 · 订单到成本 ⚡
         
         ═════════════════════════════════════════════════════════════════════════════════════════════════════════
-          🚀 myFactoryAI 系统已成功启动  |  v1.0.0  |  努力进化的自主Agent引擎
-          🌐 官网: www.factoryopen.net
-          🌐 文档: http://localhost:8080/swagger-ui/index.html  |  Druid: http://localhost:8080/druid/index.html
+          🚀 海岚 ERP 系统已成功启动
+          📘 接入文档: docs/AI问答接入DeepSeek.md
+          🌐 API: http://localhost:8080/swagger-ui/index.html  |  Druid: http://localhost:8080/druid/index.html
           🌐 微信: factoryopen
         
           ✨ 核心能力已加载：
@@ -84,15 +84,15 @@ public class MyFactoryAIApplication {
                             "   ██║ ╚═╝ ██║   ██║       ██║     ██║  ██║╚██████╗   ██║   ╚██████╔╝██║  ██║   ██║      ██║  ██║██║\n" +
                             "   ╚═╝     ╚═╝   ╚═╝       ╚═╝     ╚═╝  ╚═╝ ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝      ╚═╝  ╚═╝╚═╝\n";
 
-            String slogan = "                                                        factoryopen.myfactoryai ｜ 智能驱动制造未来 ⚡\n";
+            String slogan = "                                                        海岚 ERP ｜ 服装制造 · 订单到成本 ⚡\n";
 
             //输出到控制台
             System.out.println();
             System.out.println(CYAN + BOLD + asciiArt + RESET);
             System.out.println(CYAN + BOLD + slogan + RESET);
             System.out.println(YELLOW + BOLD + "═════════════════════════════════════════════════════════════════════════════════════════════════════════" + RESET);
-            System.out.println(GREEN + BOLD + "  🚀 myFactoryAI 系统已成功启动  |  v1.0.0  |  努力进化的自主Agent引擎" + RESET);
-            System.out.println(CYAN + "  🌐 官网: " + BOLD + "www.factoryopen.net" + RESET);
+            System.out.println(GREEN + BOLD + "  🚀 海岚 ERP 系统已成功启动" + RESET);
+            System.out.println(CYAN + "  🌐 文档: " + BOLD + "docs/AI问答接入DeepSeek.md" + RESET + CYAN + "  |  API: http://localhost:8080/swagger-ui/index.html" + RESET);
             System.out.println(CYAN + "  🌐 文档: " + BOLD + "http://localhost:8080/swagger-ui/index.html" + RESET + CYAN + "  |  Druid: http://localhost:8080/druid/index.html" + RESET);
             System.out.println(CYAN + "  🌐 微信: " + BOLD + "factoryopen" + RESET);
             System.out.println();

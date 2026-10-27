@@ -5,7 +5,9 @@ import java.util.Map;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.core.page.TableDataInfo;
 import net.factoryopen.myfactoryai.erp.domain.PurchaseDraftRequest;
 import net.factoryopen.myfactoryai.erp.domain.PurchaseReceiptRequest;
@@ -55,16 +57,19 @@ public class ErpPurchaseController {
     @GetMapping("/{id}")
     public AjaxResult detail(@PathVariable Long id) { return AjaxResult.success(service.detail(id)); }
 
+    @Log(title = "采购单", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:add')")
     @PostMapping
     public AjaxResult create(@RequestBody PurchaseDraftRequest request) { return AjaxResult.success(service.create(request)); }
 
+    @Log(title = "采购单", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:edit')")
     @PutMapping("/{id}")
     public AjaxResult update(@PathVariable Long id, @RequestBody PurchaseDraftRequest request) {
         return AjaxResult.success(service.update(id, request));
     }
 
+    @Log(title = "采购单确认", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:confirm')")
     @PostMapping("/confirm/{id}")
     public AjaxResult confirm(@PathVariable Long id) { return AjaxResult.success(service.confirm(id)); }
@@ -83,16 +88,19 @@ public class ErpPurchaseController {
         return AjaxResult.success();
     }
 
+    @Log(title = "采购收货", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:receive')")
     @PostMapping("/receive")
     public AjaxResult receive(@RequestBody PurchaseReceiptRequest request) { return AjaxResult.success(service.receive(request)); }
 
     /** 删除草稿采购单（含明细）。已下单或已到货时不允许。 */
+    @Log(title = "采购单", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:remove')")
     @DeleteMapping("/{id}")
     public AjaxResult remove(@PathVariable Long id) { docs.deleteDraft("pu:purchaseOrder", id); return AjaxResult.success(); }
 
     /** 作废采购单：草稿或已下单可作废，已开始到货时不允许。 */
+    @Log(title = "采购单作废", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('pu:purchaseOrder:cancel')")
     @PostMapping("/cancel/{id}")
     public AjaxResult cancel(@PathVariable Long id) { docs.cancel("pu:purchaseOrder", id); return AjaxResult.success(); }

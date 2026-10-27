@@ -1,6 +1,8 @@
 package net.factoryopen.myfactoryai.web.controller.erp;
 
+import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.enums.BusinessType;
 import net.factoryopen.myfactoryai.erp.domain.StockAdjustRequest;
 import net.factoryopen.myfactoryai.erp.service.ErpStockAdjustService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +17,7 @@ public class ErpStockAdjustController {
     private final ErpStockAdjustService service;
     public ErpStockAdjustController(ErpStockAdjustService service) { this.service=service; }
 
+    @Log(title = "库存盘点调整", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('st:txn:adjust')")
     @PostMapping("/adjust")
     public AjaxResult adjust(@RequestBody StockAdjustRequest request) { return AjaxResult.success(service.adjust(request)); }

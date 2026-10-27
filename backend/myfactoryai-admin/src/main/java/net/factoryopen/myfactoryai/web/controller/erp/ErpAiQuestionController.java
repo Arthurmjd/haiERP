@@ -27,6 +27,14 @@ public class ErpAiQuestionController {
 
     private static final Logger log = LoggerFactory.getLogger(ErpAiQuestionController.class);
 
+    /** 查询范围 → 对应的数据权限。范围是否合法以 ErpAiPrompts.supports 为准 */
+    private static final Map<String,String> MODE_PERMISSIONS = Map.of(
+        "orders","sd:order:list",
+        "inventory","st:inventory:list",
+        "shortage","pu:suggestion:list",
+        "cost","dashboard:styleCost:list",
+        "ontime","dashboard:ontime:list");
+
     private final ErpAiReadMapper mapper;
     private final PermissionService permissions;
     private final DeepSeekConfig llm;
@@ -40,14 +48,8 @@ public class ErpAiQuestionController {
     public AjaxResult ask(@RequestBody Question request) {
         if (request == null || request.question() == null || request.question().isBlank()
                 || request.question().length() > 500) throw new ServiceException("问题长度应为 1 到 500 字",1001);
-        String permission = switch (request.mode() == null ? "" : request.mode()) {
-            case "orders" -> "sd:order:list";
-            case "inventory" -> "st:inventory:list";
-            case "shortage" -> "pu:suggestion:list";
-            case "cost" -> "dashboard:styleCost:list";
-            case "ontime" -> "dashboard:ontime:list";
-            default -> throw new ServiceException("查询范围不合法",1001);
-        };
+        if (!ErpAiPrompts.supports(request.mode())) throw new ServiceException("查询范围不合法",1001);
+        String permission = MODE_PERMISSIONS.get(request.mode());
         if (!permissions.hasPermi(permission)) throw new ServiceException("没有该业务数据权限",4002);
         List<Map<String,Object>> rows = switch (request.mode()) {
             case "orders" -> mapper.orders();
