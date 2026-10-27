@@ -1,6 +1,7 @@
 package net.factoryopen.myfactoryai.web.controller.erp;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -9,6 +10,7 @@ import com.ruoyi.framework.web.service.PermissionService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -42,7 +44,16 @@ public class ErpReadController {
 
     @PreAuthorize("@ss.hasPermi('pr:process:report')")
     @GetMapping("/md/workOrderOptions")
-    public AjaxResult workOrderOptions() { return AjaxResult.success(Map.of("workers",mapper.workers())); }
+    public AjaxResult workOrderOptions(@RequestParam(required=false) Long workOrderProcessId) {
+        List<Map<String,Object>> workers = mapper.workers();
+        if (workOrderProcessId != null) {
+            Long baseProcessId = mapper.woProcessBaseId(workOrderProcessId);
+            if (baseProcessId != null && mapper.processWorkerCount(baseProcessId) > 0) {
+                workers = mapper.workersByProcess(baseProcessId);
+            }
+        }
+        return AjaxResult.success(Map.of("workers",workers));
+    }
 
     @PreAuthorize("@ss.hasPermi('pu:suggestion:list')")
     @GetMapping("/pu/suggestion/list")

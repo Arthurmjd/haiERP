@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.ruoyi.common.exception.ServiceException;
@@ -117,6 +119,50 @@ public class ErpSalaryService {
         workflow.assertOpenPeriod(period);
         if (mapper.confirm(id) != 1) throw new ServiceException("工资单状态已变化",2001);
         workflow.todo("payroll","hr_salary_slip",id,"finance","工资单已确认，待发放","/hr/salary",null);
+    }
+
+    @Transactional
+    public Map<String,Object> confirmBatch(String wagePeriod) {
+        validatePeriod(wagePeriod);
+        workflow.assertOpenPeriod(wagePeriod);
+        List<Map<String,Object>> drafts = mapper.draftSlips(wagePeriod);
+        int confirmed = 0;
+        List<Map<String,Object>> skipped = new ArrayList<>();
+        for (Map<String,Object> draft : drafts) {
+            Long id = number(draft,"id");
+            Long empId = number(draft,"empId");
+            if (mapper.pieceTotal(empId,wagePeriod).compareTo(decimal(draft,"pieceAmount")) != 0) {
+                skipped.add(Map.of("id",id.toString(),"empId",empId.toString(),
+                        "empName",String.valueOf(mapper.employeeName(empId)),
+                        "reason","计件明细已变化，需重新生成"));
+                continue;
+            }
+            if (mapper.confirm(id) != 1) {
+                skipped.add(Map.of("id",id.toString(),"empId",empId.toString(),
+                        "empName",String.valueOf(mapper.employeeName(empId)),
+                        "reason","工资单状态已变化"));
+                continue;
+            }
+            workflow.todo("payroll","hr_salary_slip",id,"finance","工资单已确认，待发放","/hr/salary",null);
+            confirmed++;
+        }
+        Map<String,Object> result = new HashMap<>();
+        result.put("wagePeriod",wagePeriod);
+        result.put("confirmed",confirmed);
+        result.put("skipped",skipped);
+        return result;
+    }
+
+    @Transactional
+    public void voidSlip(Long id) {
+        Long empId = mapper.slipEmployee(id);
+        if (empId == null) throw new ServiceException("工资单不存在",1001);
+        Map<String,Object> row = mapper.lockSlip(id);
+        int status = number(row,"status").intValue();
+        if (status == 0) throw new ServiceException("工资单已是草稿状态",2001);
+        if (status == 2) throw new ServiceException("工资单已发放，不能作废",2001);
+        if (mapper.voidSlip(id) != 1) throw new ServiceException("工资单状态已变化",2001);
+        workflow.complete("payroll","hr_salary_slip",id);
     }
 
     @Transactional

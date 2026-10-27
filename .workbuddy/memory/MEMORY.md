@@ -23,3 +23,11 @@
 - 单据临时单号统一走 `erp/support/DocNos.temp(前缀)`，正式号走 `DocNos.formal()`；单号列一律 `varchar(30)`，不要再手拼 UUID。
 - 前端 Element Plus 按需引入：`unplugin-vue-components` + `ElementPlusResolver`，dts 输出 `src/types/components.d.ts`；locale 用 `provideGlobalConfig`；message/message-box/loading 样式需手动引入。
 - 认证失败时 HTTP 仍是 200，真实结果在响应体 `code`（403 等），排查勿只看状态码。
+- 主数据走通用 resource 化 CRUD `/erp/md/{resource}`，权限码 `md:{resource}:add/edit/remove`；按钮在 `CatalogView.vue` 用 `user.can()`（来自 `/getInfo` 的 perms，非 `v-hasPermi`）；删除被引用档案会拒物理删除（提示改停用）。
+- 工资单状态机：0 草稿 → 1 已确认 → 2 已发放；`hr_salary_slip` 有 `si_personal/fund_personal/tax/si_company/fund_company` 扣缴列（`ErpSalaryService.generate` 计算）。
+- 报工工资期锁定：员工当月工资单 status∈(1,2) 即拒绝该月任何报工（含正常报工，非仅补录）；作废工资单（`voidSlip` status=1→0）可解锁重新报工。
+- 工序-员工关联表 `md_process_worker(process_id,emp_id)`：报工选员工按工序过滤，无关联的工序回退全量生产员工；配置入口在工序目录页「配置员工」按钮，权限 `md:process:assign`（菜单 90105）。
+- 采购扣款流：确认/审批通过即调 `ErpFinanceService.payPurchase` 自动建应付+付款单+过账扣款（默认账户 = `fn_account` status=1 按 account_id）；收货时 `payableByPo` 判重避免重复建应付。
+- SQL seed 文件幂等（`INSERT IGNORE` / `ON DUPLICATE KEY UPDATE`），re-seed 安全；权限菜单 90000-90105，planner 现有基础数据 add/remove 全权。
+- DB 连接：`mysql -uroot -p1234`（密码见 `scripts/env.local.ps1`），客户端 `E:\soft\mysql-8.0.34-winx64\mysql-8.0.34-winx64\bin\mysql.exe`；中文查询加 `--default-character-set=utf8mb4`。
+

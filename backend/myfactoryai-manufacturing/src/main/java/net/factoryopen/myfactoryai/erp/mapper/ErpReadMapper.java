@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 @Mapper
@@ -16,6 +17,20 @@ public interface ErpReadMapper {
 
     @Select("SELECT CAST(emp_id AS CHAR) AS id,CONCAT(emp_no,' · ',name) AS name FROM hr_employee WHERE status=1 AND emp_type=1 ORDER BY emp_no")
     List<Map<String,Object>> workers();
+
+    @Select("SELECT p.process_id FROM pr_work_order_process p WHERE p.id=#{woProcessId}")
+    Long woProcessBaseId(@Param("woProcessId") Long woProcessId);
+
+    @Select("SELECT COUNT(*) FROM md_process_worker WHERE process_id=#{processId}")
+    int processWorkerCount(@Param("processId") Long processId);
+
+    @Select("""
+        SELECT CAST(e.emp_id AS CHAR) AS id, CONCAT(e.emp_no,' · ',e.name) AS name
+        FROM md_process_worker w JOIN hr_employee e ON e.emp_id=w.emp_id
+        WHERE w.process_id=#{processId} AND e.status=1 AND e.emp_type=1
+        ORDER BY e.emp_no
+        """)
+    List<Map<String,Object>> workersByProcess(@Param("processId") Long processId);
     @Select("SELECT CAST(customer_id AS CHAR) AS id, customer_name AS name FROM md_customer WHERE status=1 ORDER BY customer_name")
     List<Map<String, Object>> customers();
 

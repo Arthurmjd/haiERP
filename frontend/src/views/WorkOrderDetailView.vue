@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { http } from '../api/client'
@@ -86,9 +86,20 @@ async function saveReturn() {
 }
 async function openReport() {
   report.value = { workOrderProcessId: '', skuId: '', empId: '', doneQty: 0, badQty: 0, reportDate: localDate(), requestKey: crypto.randomUUID() }
-  try { workers.value = (await erpApi.workOrderOptions()).workers; reportOpen.value = true }
-  catch (e) { ElMessage.error((e as Error).message) }
+  workers.value = []
+  reportOpen.value = true
 }
+async function loadWorkers(workOrderProcessId: string) {
+  report.value.empId = ''
+  if (!workOrderProcessId) { workers.value = []; return }
+  const proc = order.value?.processes.find(item => item.id === workOrderProcessId)
+  if (proc?.isOutsourced) { workers.value = []; return }
+  try {
+    const result = await erpApi.workOrderOptions(workOrderProcessId)
+    workers.value = result.workers
+  } catch (e) { ElMessage.error((e as Error).message); workers.value = [] }
+}
+watch(() => report.value.workOrderProcessId, (id) => { if (id) loadWorkers(id) })
 async function saveReport() {
   if (!order.value) return
   const process = order.value.processes.find(item => item.id === report.value.workOrderProcessId)

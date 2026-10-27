@@ -21,6 +21,9 @@ public interface ErpFinanceMapper {
         """)
     List<Map<String,Object>> accounts();
 
+    @Select("SELECT account_id FROM fn_account WHERE status=1 ORDER BY account_id LIMIT 1")
+    Long defaultPaymentAccount();
+
     @Select("SELECT account_id AS accountId,current_balance AS currentBalance,status FROM fn_account WHERE account_id=#{id} FOR UPDATE")
     Map<String,Object> lockAccount(@Param("id") Long id);
 
@@ -123,6 +126,9 @@ public interface ErpFinanceMapper {
 
     @Select("SELECT ap_id AS apId FROM fn_payable WHERE request_key=#{key}")
     Long payableByRequest(@Param("key") String key);
+
+    @Select("SELECT ap_id AS apId FROM fn_payable WHERE po_id=#{poId} ORDER BY ap_id LIMIT 1")
+    Long payableByPo(@Param("poId") Long poId);
 
     @Select("SELECT ap_id AS apId,balance FROM fn_payable WHERE ap_id=#{id} FOR UPDATE")
     Map<String,Object> lockPayable(@Param("id") Long id);

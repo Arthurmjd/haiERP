@@ -214,6 +214,44 @@ public class ErpFinanceService {
     }
 
     @Transactional
+    public Map<String,String> payPurchase(Long poId, Long supplierId, BigDecimal amount, String requestKey) {
+        if (poId == null || supplierId == null || amount == null || amount.signum() <= 0
+                || requestKey == null || requestKey.isBlank()) {
+            throw new ServiceException("采购单、供应商、金额和请求键必填", 1001);
+        }
+        Long accountId = mapper.defaultPaymentAccount();
+        if (accountId == null) throw new ServiceException("未找到可用资金账户，请先在财务页面创建并启用账户", 2001);
+        LocalDate payDate = LocalDate.now();
+        workflow.assertOpen(payDate);
+        // 1. 先建应付（同时给会计发待付款待办，便于在会计页面看到这笔采购）
+        Long apId = createPayable(poId, supplierId, amount, requestKey);
+        // 2. 创建采购付款单（direction=2 付, bizType=2 采购付款, counterparty=供应商）
+        Map<String,Object> row = new HashMap<>();
+        row.put("paymentNo", DocNos.temp("PM"));
+        row.put("direction", 2); row.put("bizType", 2);
+        row.put("accountId", accountId);
+        row.put("counterpartyType", 2); row.put("counterpartyId", supplierId);
+        row.put("amount", money(amount));
+        row.put("payDate", payDate);
+        row.put("requestKey", requestKey);
+        row.put("remark", "采购付款 PO" + poId);
+        row.put("username", SecurityUtils.getUsername());
+        mapper.insertPayment(row);
+        Long paymentId = ((Number) row.get("paymentId")).longValue();
+        mapper.setPaymentNo(paymentId, DocNos.formal("PM", paymentId));
+        // 3. 关联核销应付
+        if (apId != null) mapper.insertPaymentLine(paymentId, 2, apId, money(amount));
+        // 4. 自动过账：扣账户余额、写资金流水、核销应付、撤回付款待办
+        confirmPayment(paymentId, requestKey + "-confirm");
+        return Map.of("paymentId", paymentId.toString(), "accountId", accountId.toString());
+    }
+
+    public Long payableByPo(Long poId) {
+        if (poId == null) return null;
+        return mapper.payableByPo(poId);
+    }
+
+    @Transactional
     public Map<String,String> payPayroll(Long slipId, Long accountId, LocalDate payDate, String requestKey) {
         Map<String,Object> slip = salaryMapper.lockForPay(slipId);
         if (slip == null || number(slip, "status") != 1) throw new ServiceException("工资单未确认或已发放", 2001);

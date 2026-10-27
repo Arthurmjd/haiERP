@@ -37,13 +37,13 @@ public interface ErpModuleReadMapper {
     @Select("SELECT CAST(supplier_id AS CHAR) AS id,supplier_code AS code,supplier_name AS name,contact,phone,status FROM md_supplier ORDER BY supplier_id DESC")
     List<Map<String,Object>> suppliers();
 
-    @Select("SELECT CAST(emp_id AS CHAR) AS id,emp_no AS code,name,position,emp_type AS empType,hire_date AS hireDate,status FROM hr_employee ORDER BY emp_id DESC")
+    @Select("SELECT CAST(emp_id AS CHAR) AS id,emp_no AS code,name,position,emp_type AS empType,hire_date AS hireDate,base_salary AS baseSalary,si_base AS siBase,status FROM hr_employee ORDER BY emp_id DESC")
     List<Map<String,Object>> employees();
 
     @Select("SELECT CAST(w.id AS CHAR) AS id,CAST(w.emp_id AS CHAR) AS empId,e.name AS employeeName,w.wage_period AS wagePeriod,CAST(w.work_order_id AS CHAR) AS workOrderId,w.qty,w.unit_price AS unitPrice,w.amount,w.status FROM hr_piece_wage w JOIN hr_employee e ON e.emp_id=w.emp_id ORDER BY w.id DESC")
     List<Map<String,Object>> pieceWages();
 
-    @Select("SELECT CAST(s.id AS CHAR) AS id,CAST(s.emp_id AS CHAR) AS empId,e.name AS employeeName,s.wage_period AS wagePeriod,s.base_salary AS baseSalary,s.piece_amount AS pieceAmount,s.gross_pay AS grossPay,s.net_pay AS netPay,s.company_cost AS companyCost,s.status FROM hr_salary_slip s JOIN hr_employee e ON e.emp_id=s.emp_id ORDER BY s.wage_period DESC,s.id DESC")
+    @Select("SELECT CAST(s.id AS CHAR) AS id,CAST(s.emp_id AS CHAR) AS empId,e.name AS employeeName,s.wage_period AS wagePeriod,s.base_salary AS baseSalary,s.piece_amount AS pieceAmount,s.si_personal AS siPersonal,s.fund_personal AS fundPersonal,s.tax,s.gross_pay AS grossPay,s.net_pay AS netPay,s.company_cost AS companyCost,s.status FROM hr_salary_slip s JOIN hr_employee e ON e.emp_id=s.emp_id ORDER BY s.wage_period DESC,s.id DESC")
     List<Map<String,Object>> salarySlips();
 
     @Select("SELECT CAST(q.quote_id AS CHAR) AS id,q.quote_no AS code,c.customer_name AS customerName,q.quote_date AS quoteDate,q.total_amount AS totalAmount,q.status FROM sd_quotation q JOIN md_customer c ON c.customer_id=q.customer_id WHERE q.del_flag='0' ORDER BY q.quote_id DESC")

@@ -36,6 +36,18 @@ public class ErpSalaryController {
     @PostMapping("/confirm/{id}")
     public AjaxResult confirm(@PathVariable Long id) { service.confirm(id); return AjaxResult.success(); }
 
+    @Log(title = "工资单一键确认", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('hr:salarySlip:confirm')")
+    @PostMapping("/confirmBatch")
+    public AjaxResult confirmBatch(@RequestBody SalaryPayRequest.Batch request) {
+        return AjaxResult.success(service.confirmBatch(request == null ? null : request.wagePeriod()));
+    }
+
+    @Log(title = "工资单作废", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('hr:salarySlip:confirm')")
+    @PostMapping("/void/{id}")
+    public AjaxResult voidSlip(@PathVariable Long id) { service.voidSlip(id); return AjaxResult.success(); }
+
     @Log(title = "工资发放", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('fn:payroll:pay')")
     @PostMapping("/pay/{id}")

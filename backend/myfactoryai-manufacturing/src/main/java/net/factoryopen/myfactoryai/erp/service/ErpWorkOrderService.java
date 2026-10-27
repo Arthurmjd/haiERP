@@ -187,8 +187,23 @@ public class ErpWorkOrderService {
         boolean outsourced = ((Number) process.get("isOutsourced")).intValue() == 1;
         if (!outsourced && (request.empId() == null || !Integer.valueOf(1).equals(mapper.activeWorker(request.empId())))) throw new ServiceException("内部报工须选择在职生产员工",1001);
         if (outsourced && request.empId() != null) throw new ServiceException("外发工序不能计员工工资",1001);
+        // 校验：若该工序已配置员工，则报工员工必须属于该工序
+        if (!outsourced) {
+            Long baseProcessId = longValue(process,"baseProcessId");
+            if (baseProcessId != null && mapper.processWorkerCount(baseProcessId) > 0
+                    && mapper.workerInProcess(request.empId(),baseProcessId) == 0) {
+                String workerName = mapper.workerName(request.empId());
+                throw new ServiceException("员工" + (workerName == null ? request.empId() : workerName)
+                        + " 不属于该工序，不能报工",2001);
+            }
+        }
         String wagePeriod = request.reportDate().format(DateTimeFormatter.ofPattern("yyyy-MM"));
-        if (!outsourced && mapper.closedWagePeriod(request.empId(),wagePeriod) > 0) throw new ServiceException("该员工工资期已确认，不能补录报工",2001);
+        if (!outsourced && mapper.closedWagePeriod(request.empId(),wagePeriod) > 0) {
+            String workerName = mapper.workerName(request.empId());
+            throw new ServiceException("报工日期 " + request.reportDate() + " 所属工资期 " + wagePeriod
+                    + " 已确认（员工：" + (workerName == null ? request.empId() : workerName)
+                    + "），不能补录；如需修正请先作废该工资单", 2001);
+        }
         ProcessReportRow row = new ProcessReportRow();
         row.setKey(request.requestKey()); row.setProcessId(request.workOrderProcessId());
         row.setWoId(woId); row.setSkuId(request.skuId()); row.setEmpId(request.empId());

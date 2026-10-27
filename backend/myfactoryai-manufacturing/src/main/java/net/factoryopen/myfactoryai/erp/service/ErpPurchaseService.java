@@ -117,6 +117,7 @@ public class ErpPurchaseService {
         }
         String username = SecurityUtils.getUsername();
         BigDecimal total = decimal(header,"totalAmount");
+        Long supplierId = ((Number) header.get("supplierId")).longValue();
         if (total.compareTo(workflow.purchaseThreshold()) > 0) {
             if (number(header,"approvalStatus") == 1) {
                 return Map.of("status","pending_approval");
@@ -131,7 +132,9 @@ public class ErpPurchaseService {
         if (mapper.confirm(id,username) != 1) {
             throw new ServiceException("采购单状态不允许确认",2001);
         }
-        workflow.todo("receive","pu_order",id,"wh","采购单已下单，待到货收货","/purchases",null);
+        // 小额直批：立即扣款（审批通过等价物）
+        finance.payPurchase(id, supplierId, total, "purchase-confirm:" + id + ":" + System.currentTimeMillis());
+        workflow.todo("receive","pu_order",id,"wh","采购单已下单并付款，待到货收货","/purchases",null);
         return Map.of("status","confirmed");
     }
 
@@ -142,12 +145,16 @@ public class ErpPurchaseService {
             throw new ServiceException("采购单状态不允许审批",2001);
         }
         String username = SecurityUtils.getUsername();
+        BigDecimal total = decimal(header,"totalAmount");
+        Long supplierId = ((Number) header.get("supplierId")).longValue();
         workflow.decide("pu_purchase_order",id,true,comment);
         if (mapper.approve(id,username) != 1) {
             throw new ServiceException("采购单状态已变化，请刷新后重试",2001);
         }
         workflow.complete("approval","pu_order",id);
-        workflow.todo("receive","pu_order",id,"wh","采购单已下单，待到货收货","/purchases",null);
+        // 审批通过即自动扣款，会计页面立即可见资金流水与应付核销
+        finance.payPurchase(id, supplierId, total, "purchase-approve:" + id + ":" + System.currentTimeMillis());
+        workflow.todo("receive","pu_order",id,"wh","采购单已审批并付款，待到货收货","/purchases",null);
     }
 
     @Transactional
@@ -202,7 +209,10 @@ public class ErpPurchaseService {
         mapper.finishReceipt(request.poId(),mapper.remainingLineCount(request.poId()) == 0 ? 3 : 2,
                 request.actualArrivalDate(),SecurityUtils.getUsername());
         stock.complete(request.requestKey(),request.poId());
-        finance.createPayable(request.poId(),supplierId,receiveAmount,"purchase-receive:" + request.requestKey());
+        // 若审批/确认时已建应付并全额付款，收货不再重复建应付（避免重复）
+        if (finance.payableByPo(request.poId()) == null) {
+            finance.createPayable(request.poId(),supplierId,receiveAmount,"purchase-receive:" + request.requestKey());
+        }
         workflow.complete("receive","pu_order",request.poId());
         return Map.of("poId",request.poId().toString());
     }
