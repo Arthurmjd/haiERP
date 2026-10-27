@@ -80,7 +80,7 @@
 ### 2.5 审批与会计期间
 
 - **采购审批**：`confirm` 时若 `totalAmount > erp.purchase.approval.threshold`（默认 `10000`），单据不置为已下单，而是 `approval_status=1` 待审批并返回 `{status:"pending_approval"}`；未超阈值直接 `status=1` 返回 `{status:"confirmed"}`。审批通过才 `status=1`，驳回停在 `status=0`、`approval_status=3`，可改后重新提交。
-- **会计期间**：`fn_period.period` 格式 `yyyy-MM`。已结账期间（`status=1`）拒绝补录与过账，返回 `2001`；关闭/重开需要 `fn:period:close` / `fn:period:reopen`。
+- **会计期间**：`fn_period.period` 格式 `yyyy-MM`。已结账期间（`status=1`）拒绝补录与过账，返回 `2001`；受校验的动作包括**报工、收付款确认、工资发放**。关闭/重开需要 `fn:period:close` / `fn:period:reopen`。
 
 ## 3. 接口总览
 
@@ -369,7 +369,7 @@
 - 工单完工以**最终工序**合格量校验，必须逐道工序报工。
 - 出货只要求订单处于 2/3（生产中或已完工），**不要求已完工**；发齐转 4，全部签收后转 5。
 - 结算确认后才允许从结算单生成报价单，形成成本闭环。
-- 工资单确认后锁死该工资期的报工补录。
+- 工资单确认后锁死该工资期的报工补录；发放后状态不可回退，已发放工资单不允许重新生成。
 - 非法跳转统一 `2001`；已记账动作不得通过取消回滚。
 
 ## 6. 角色权限矩阵
@@ -420,7 +420,7 @@
 
 后果：admin 因持有 `*:*:*` 不受影响，**其余 7 个角色调用这些端点一律 403**（响应体 `code=403`、HTTP 200）。删除/作废按钮即使显示，也会被服务端拒绝。
 
-处理：权限菜单随 7.2 的脚本一并写入 `sys_menu` / `sys_role_menu`，导入后按第 6 节矩阵核对角色授权。
+处理：这 44 个权限码中，`sql/ai-erp-12-finance-workflow.sql` 与 `sql/erp-permissions.sql` **已定义 43 个**，导入即补齐；仅 `md:sku:add` 未定义，但 SKU 只能通过 `POST /erp/md/sku/generate` 创建（直接新增返回 1001），该权限无实际用途，可不补。导入后按第 6 节矩阵核对角色授权（脚本已含为 boss 补授 `fn:period:reopen` 的 90125 菜单）。
 
 ### 7.4 建议的补齐顺序
 
