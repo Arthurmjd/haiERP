@@ -21,6 +21,8 @@ export interface WorkOrderMaterial { id: string; materialId: string; materialCod
 export interface WorkOrderProcess { id: string; processName: string; seq: number; planQty: number; doneQty: number; badQty: number; isOutsourced: number; status: number }
 export interface WorkOrder { woId: string; woNo: string; orderId: string; orderNo?: string; styleId: string; styleName: string; qty: number; status: number; planEndDate: string | null; actualStartDate: string | null; actualEndDate: string | null; skus: WorkOrderSku[]; materials: WorkOrderMaterial[]; processes: WorkOrderProcess[] }
 export interface ShipmentLine { itemId: string; skuId: string; skuCode: string; batchNo: string; qty: number }
+export interface PendingShipmentLine { skuId: string; skuCode: string; remaining: number; available: number }
+export interface PendingShipmentOrder { orderId: string; orderNo: string; customerName: string; status: number; deliveryDate: string; lines: PendingShipmentLine[] }
 export interface Shipment { shipmentId: string; shipmentNo: string; orderId: string; customerName: string; shipDate: string | null; logisticsCompany: string | null; logisticsNo: string | null; status: number; items: ShipmentLine[] }
 export interface ReturnOrder { returnId: string; returnNo: string; shipmentId: string; orderId: string; reason: string; returnType: number; isRestock: number; refundAmount: number; returnDate: string | null; status: number; items: ShipmentLine[] }
 export interface StockLine { skuId: string; batchNo: string; qty: number }
@@ -87,6 +89,8 @@ export const erpApi = {
   addProcessWorker: async (processId: string, empId: string) => { await http.post<Envelope>(`/erp/md/process/${encodeURIComponent(processId)}/worker/${encodeURIComponent(empId)}`) },
   removeProcessWorker: async (processId: string, empId: string) => { await http.delete<Envelope>(`/erp/md/process/${encodeURIComponent(processId)}/worker/${encodeURIComponent(empId)}`) },
   shipment: (id: string) => payload<Shipment>(http.get(`/erp/sh/shipment/${encodeURIComponent(id)}`)),
+  /** 待出货订单（仓管员入口）：只含订单号/客户/未发数量/成品可用量，不含金额 */
+  pendingShipments: () => payload<PendingShipmentOrder[]>(http.get('/erp/sh/pendingShipments')),
   /** 按 SKU 查可用成品批次（含各批次合计结存），出货弹窗下拉用 */
   productBatches: (skuIds: string[]) => payload<{ skuId: string; batchNo: string; qty: number | string }[]>(
     http.get('/erp/sh/shipment/batches', { params: { skuIds: skuIds.join(',') } })),

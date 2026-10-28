@@ -12,6 +12,35 @@ import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface ErpShipmentMapper {
+    /**
+     * 待出货订单（按「订单 × SKU」平铺）：只返回出货需要的信息，不含单价与金额。
+     *
+     * <p>仓管员没有 sd:order:query 权限，进不了销售订单详情页，所以出货这一步必须有自己的入口。
+     * 这里刻意不查金额：仓管要知道的是「发什么、发多少、成品仓有没有」，不是这单卖了多少钱。</p>
+     *
+     * <p>过滤条件：订单在生产中(2)或已完工(3)，且该 SKU 还有未发数量。</p>
+     */
+    @Select("""
+        SELECT CAST(o.order_id AS CHAR) AS orderId, o.order_no AS orderNo,
+               c.customer_name AS customerName, o.status, o.delivery_date AS deliveryDate,
+               CAST(sk.sku_id AS CHAR) AS skuId, sk.sku_code AS skuCode,
+               oi.qty - COALESCE((
+                   SELECT SUM(si.qty) FROM sh_shipment sh
+                   JOIN sh_shipment_item si ON si.shipment_id = sh.shipment_id
+                   WHERE sh.order_id = o.order_id AND si.sku_id = sk.sku_id
+                     AND sh.status IN (1,2) AND sh.del_flag = '0'), 0) AS remaining,
+               COALESCE((SELECT SUM(i.qty) FROM st_inventory i
+                         WHERE i.item_type = 2 AND i.item_id = sk.sku_id), 0) AS available
+        FROM sd_order o
+        JOIN md_customer c ON c.customer_id = o.customer_id
+        JOIN sd_order_item oi ON oi.order_id = o.order_id
+        JOIN md_sku sk ON sk.style_id = oi.style_id AND sk.color_id = oi.color_id AND sk.size_id = oi.size_id
+        WHERE o.del_flag = '0' AND o.status IN (2,3)
+        HAVING remaining > 0
+        ORDER BY o.order_id DESC, sk.sku_id
+        """)
+    List<Map<String,Object>> pendingOrders();
+
     @Select("SELECT order_id AS orderId,customer_id AS customerId,status FROM sd_order WHERE order_id=#{id} AND del_flag='0' FOR UPDATE")
     Map<String,Object> lockOrder(@Param("id") Long id);
 

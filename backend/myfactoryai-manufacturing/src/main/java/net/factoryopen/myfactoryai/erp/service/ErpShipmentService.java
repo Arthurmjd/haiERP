@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +48,40 @@ public class ErpShipmentService {
         if (header == null) throw new ServiceException("退货单不存在", ErpErrorCode.INVALID_PARAM.code());
         Map<String,Object> result = new HashMap<>(header);
         result.put("items",mapper.returnDetailLines(id));
+        return result;
+    }
+
+    /**
+     * 待出货订单：给仓管员用的工作清单，只含出货必需字段（无单价、无金额）。
+     * 按订单聚合，每个 SKU 一行，带未发数量与成品可用数量。
+     */
+    public List<Map<String,Object>> pendingOrders() {
+        List<Map<String,Object>> rows = mapper.pendingOrders();
+        List<Map<String,Object>> result = new ArrayList<>();
+        Map<String,Map<String,Object>> byOrder = new LinkedHashMap<>();
+        for (Map<String,Object> row : rows) {
+            String orderId = String.valueOf(row.get("orderId"));
+            Map<String,Object> order = byOrder.get(orderId);
+            if (order == null) {
+                order = new LinkedHashMap<>();
+                order.put("orderId",orderId);
+                order.put("orderNo",row.get("orderNo"));
+                order.put("customerName",row.get("customerName"));
+                order.put("status",row.get("status"));
+                order.put("deliveryDate",row.get("deliveryDate"));
+                order.put("lines",new ArrayList<Map<String,Object>>());
+                byOrder.put(orderId,order);
+                result.add(order);
+            }
+            Map<String,Object> line = new LinkedHashMap<>();
+            line.put("skuId",row.get("skuId"));
+            line.put("skuCode",row.get("skuCode"));
+            line.put("remaining",row.get("remaining"));
+            line.put("available",row.get("available"));
+            @SuppressWarnings("unchecked")
+            List<Map<String,Object>> lines = (List<Map<String,Object>>) order.get("lines");
+            lines.add(line);
+        }
         return result;
     }
 

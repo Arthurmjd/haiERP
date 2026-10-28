@@ -39,6 +39,17 @@ public class ErpShipmentController {
     public AjaxResult create(@RequestBody ShipmentRequest.Create request) { return AjaxResult.success(service.create(request)); }
 
     /**
+     * 待出货订单清单（仓管员工作台用）。
+     *
+     * <p>出货入口原来只挂在销售订单详情页，而仓管员没有 sd:order:query 权限，
+     * 于是「生产已完工、仓管却找不到这张单」。这里用出货自己的权限点暴露一份
+     * 不含金额的清单：订单号、客户、每个 SKU 的未发数量与成品可用量。</p>
+     */
+    @PreAuthorize("@ss.hasPermi('sh:shipment:add')")
+    @GetMapping("/pendingShipments")
+    public AjaxResult pendingOrders() { return AjaxResult.success(service.pendingOrders()); }
+
+    /**
      * 按 SKU 查可用成品批次及其结存，供「创建出货单」弹窗下拉选择。
      * 不传 skuIds 返回空列表；多个 SKU 用英文逗号分隔，如 skuIds=1,2,3。
      */
