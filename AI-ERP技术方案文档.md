@@ -8,7 +8,7 @@
 
 以 RuoYi 派生的现有仓库为代码起点，采用 Java 21、Spring Boot 3.5 系列、Spring Security + JWT、原生 MyBatis、PageHelper、`AjaxResult`、`TableDataInfo` 和 `sys_*` 平台表。业务域分为 `md/hr/sd/pu/pr/st/sh/fn`，属于一个 Spring Boot 应用，不拆为微服务。
 
-前端单独建设 Vue 3 + TypeScript + Vite + Vue Router 4 + Pinia + Element Plus + ECharts；复用后端接口协议和菜单语义，不移植 Vue 2 组件。数据库 MySQL 8.x，Redis 沿用底座登录缓存并承担 AI 问答限流。AI 问答直连 DeepSeek HTTP 接口（`myfactoryai-admin` 的 `web/ai/DeepSeekConfig`），不引入 Spring AI 等额外框架。首期无需 Python 服务、Flink、ClickHouse、ES、RabbitMQ、MongoDB 或 MinIO。
+前端单独建设 Vue 3 + TypeScript + Vite + Vue Router 4 + Pinia + Element Plus（未引入图表库，看板用指标卡与表格呈现）；复用后端接口协议和菜单语义，不移植 Vue 2 组件。数据库 MySQL 8.x，Redis 沿用底座登录缓存并承担 AI 问答限流。AI 问答直连 DeepSeek HTTP 接口（`myfactoryai-admin` 的 `web/ai/DeepSeekConfig`），不引入 Spring AI 等额外框架。首期无需 Python 服务、Flink、ClickHouse、ES、RabbitMQ、MongoDB 或 MinIO。
 
 后端模块为 `ruoyi-common`、`ruoyi-framework`、`ruoyi-quartz`、`myfactoryai-system`、`myfactoryai-manufacturing`、`myfactoryai-admin` 六个，合计 325 个 Java 文件。**Controller 统一放在 admin（`web/controller/erp` 下 18 个 ERP 控制器 + `web/ai` 放 AI 配置）；domain/mapper/service/support 放在 manufacturing 的 `erp` 包（55 个文件、5051 行）。** 没有单独的 AI 模块，AI 只读查询走 manufacturing 的 `ErpAiReadMapper`。底座公共响应、认证、分页不重写。
 
