@@ -96,10 +96,15 @@ UNION ALL
 SELECT '11 cost lines retain their own price', IF(COUNT(*)=0,'PASS',CONCAT('FAIL: ',COUNT(*)))
 FROM fn_cost_detail WHERE amount<>ROUND(qty*unit_price,2)
 UNION ALL
+-- 12 原先写死种子合计（8894.65 / 1560 / 2），一旦跑过一单新业务就必然 FAIL。
+-- 这里改成校验「视图只统计已确认结算单」这个真正的不变式，种子库与业务库都成立。
 SELECT '12 style view confirmed-only',
-       IF((SELECT COALESCE(SUM(total_cost),0) FROM v_style_cost)=8894.65
-          AND (SELECT COALESCE(SUM(total_qty),0) FROM v_style_cost)=1560
-          AND (SELECT COALESCE(SUM(settle_cnt),0) FROM v_style_cost)=2,
+       IF(ABS((SELECT COALESCE(SUM(total_cost),0) FROM v_style_cost)
+              - (SELECT COALESCE(ROUND(SUM(total_cost),2),0) FROM fn_cost_settlement WHERE del_flag='0' AND status=1)) < 0.05
+          AND (SELECT COALESCE(SUM(total_qty),0) FROM v_style_cost)
+              = (SELECT COALESCE(SUM(qty),0) FROM fn_cost_settlement WHERE del_flag='0' AND status=1)
+          AND (SELECT COALESCE(SUM(settle_cnt),0) FROM v_style_cost)
+              = (SELECT COUNT(*) FROM fn_cost_settlement WHERE del_flag='0' AND status=1),
           'PASS','FAIL')
 UNION ALL
 SELECT '13 future shipment excluded today',
@@ -146,12 +151,14 @@ FROM hr_piece_wage pw
 JOIN pr_work_order_process wp ON wp.wo_id=pw.work_order_id AND wp.process_id=pw.process_id
 WHERE wp.is_outsourced=1
 UNION ALL
+-- 19 只校验「已确认」工资单：草稿工资单的计件金额是生成时的快照，
+-- 之后补录报工本来就会变，拿它跟当前计件合计比是误报。已确认期间系统会拒绝补录报工，才是不变式。
 SELECT '19 piece wages match salary slips', IF(COUNT(*)=0,'PASS',CONCAT('FAIL: ',COUNT(*)))
 FROM hr_salary_slip sl
 LEFT JOIN (SELECT emp_id,wage_period,SUM(amount) amount FROM hr_piece_wage
            GROUP BY emp_id,wage_period) pw
   ON pw.emp_id=sl.emp_id AND pw.wage_period=sl.wage_period
-WHERE sl.piece_amount<>COALESCE(pw.amount,0)
+WHERE sl.status=1 AND sl.piece_amount<>COALESCE(pw.amount,0)
 UNION ALL
 SELECT '20 seed data present',
        IF((SELECT COUNT(*) FROM pr_work_order_sku)>0

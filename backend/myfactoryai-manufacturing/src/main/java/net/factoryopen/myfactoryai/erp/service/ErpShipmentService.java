@@ -50,6 +50,26 @@ public class ErpShipmentService {
         return result;
     }
 
+    /**
+     * 按 SKU 查可用成品批次（含各批次全仓合计结存），供出货弹窗下拉选择。
+     * 批次是完工入库时手工填的自由文本，不给出候选就只能靠人记，打错一个字就发不了货。
+     */
+    public List<Map<String,Object>> productBatches(List<Long> skuIds) {
+        List<Map<String,Object>> result = new ArrayList<>();
+        if (skuIds == null) return result;
+        for (Long skuId : skuIds) {
+            if (skuId == null) continue;
+            for (Map<String,Object> row : stockMapper.availableBatches(2,skuId)) {
+                Map<String,Object> item = new HashMap<>();
+                item.put("skuId",skuId.toString());
+                item.put("batchNo",row.get("batchNo"));
+                item.put("qty",row.get("qty"));
+                result.add(item);
+            }
+        }
+        return result;
+    }
+
     @Transactional
     public Map<String,String> create(ShipmentRequest.Create request) {
         if (request == null || request.orderId() == null) throw new ServiceException("销售订单必填", ErpErrorCode.INVALID_PARAM.code());
@@ -101,8 +121,11 @@ public class ErpShipmentService {
             Long skuId = number(line,"skuId");
             String batch = (String) line.get("batchNo");
             BigDecimal qty = BigDecimal.valueOf(number(line,"qty"));
-            if (stockMapper.subtractStock(2,skuId,batch,qty) != 1) throw new ServiceException("成品库存不足", ErpErrorCode.INSUFFICIENT.code());
-            stock.txn(2,4,2,skuId,batch,qty,"sh_shipment",id,number(line,"itemId"),request.requestKey(),LocalDate.now());
+            // 一个批号可能分散在多个仓库，逐个仓库扣并写同仓库的流水，账实才对得上
+            for (ErpStockService.Consumed used : stock.deduct(2,skuId,batch,qty,"成品")) {
+                stock.txnAt(used.warehouseId(),2,4,2,skuId,batch,used.qty(),
+                        "sh_shipment",id,number(line,"itemId"),request.requestKey(),LocalDate.now(),null);
+            }
         }
         if (mapper.ship(id,SecurityUtils.getUsername()) != 1) throw new ServiceException("出货状态已变化", ErpErrorCode.INVALID_STATE.code());
         boolean full = true;
@@ -176,7 +199,7 @@ public class ErpShipmentService {
             for (Map<String,Object> line : lines) {
                 Long skuId = number(line,"skuId"); String batch = (String) line.get("batchNo");
                 BigDecimal qty = BigDecimal.valueOf(number(line,"qty"));
-                stockMapper.addStock(2,skuId,batch,qty,SecurityUtils.getUsername());
+                stock.add(2,skuId,batch,qty);
                 stock.txn(1,7,2,skuId,batch,qty,"sh_return",id,number(line,"itemId"),request.requestKey(),LocalDate.now());
             }
         }

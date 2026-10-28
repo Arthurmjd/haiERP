@@ -65,8 +65,12 @@ public interface ErpModuleReadMapper {
 
     @Select("""
         <script>
-        SELECT CAST(w.wo_id AS CHAR) AS id,w.wo_no AS code,CAST(w.order_id AS CHAR) AS orderId,s.style_name AS styleName,w.qty,w.plan_start_date AS planStartDate,w.plan_end_date AS planEndDate,w.actual_end_date AS actualEndDate,w.status
+        SELECT CAST(w.wo_id AS CHAR) AS id,w.wo_no AS code,CAST(w.order_id AS CHAR) AS orderId,
+               o.order_no AS orderNo,s.style_name AS styleName,w.qty,
+               w.plan_start_date AS planStartDate,w.plan_end_date AS planEndDate,
+               w.actual_end_date AS actualEndDate,w.status
         FROM pr_work_order w JOIN md_style s ON s.style_id=w.style_id
+        LEFT JOIN sd_order o ON o.order_id=w.order_id
         WHERE w.del_flag='0'
         <if test="month != null and month != ''">AND DATE_FORMAT(w.plan_end_date,'%Y-%m') = #{month}</if>
         ORDER BY w.wo_id DESC
@@ -76,8 +80,11 @@ public interface ErpModuleReadMapper {
 
     @Select("""
         <script>
-        SELECT CAST(s.shipment_id AS CHAR) AS id,s.shipment_no AS code,CAST(s.order_id AS CHAR) AS orderId,c.customer_name AS customerName,s.ship_date AS shipDate,s.logistics_company AS logisticsCompany,s.logistics_no AS logisticsNo,s.status
+        SELECT CAST(s.shipment_id AS CHAR) AS id,s.shipment_no AS code,CAST(s.order_id AS CHAR) AS orderId,
+               o.order_no AS orderNo,c.customer_name AS customerName,s.ship_date AS shipDate,
+               s.logistics_company AS logisticsCompany,s.logistics_no AS logisticsNo,s.status
         FROM sh_shipment s JOIN md_customer c ON c.customer_id=s.customer_id
+        LEFT JOIN sd_order o ON o.order_id=s.order_id
         WHERE s.del_flag='0'
         <if test="month != null and month != ''">AND DATE_FORMAT(s.ship_date,'%Y-%m') = #{month}</if>
         ORDER BY s.shipment_id DESC

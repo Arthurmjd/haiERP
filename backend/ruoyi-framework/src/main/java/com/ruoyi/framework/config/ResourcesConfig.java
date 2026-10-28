@@ -7,12 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.CacheControl;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
@@ -34,13 +35,30 @@ public class ResourcesConfig implements WebMvcConfigurer {
         registry.addResourceHandler(Constants.RESOURCE_PREFIX + "/**")
                 .addResourceLocations("file:" + RuoYiConfig.getProfile() + "/");
 
-        /** swagger配置 */
-        registry.addResourceHandler("/swagger-ui/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/")
-                .setCacheControl(CacheControl.maxAge(5, TimeUnit.HOURS).cachePublic());
+        // 说明：这里原来有一条 springfox 时代的 /swagger-ui/** → classpath:...webjars/springfox-swagger-ui/
+        // 映射，那个目录早已不存在，而且它会挡住 springdoc 自己的 /swagger-ui/**（含 swagger-initializer.js
+        // 的重写逻辑，负责把界面默认地址改成 /v3/api-docs）。删掉后 Swagger UI 才能正确连到本项目的文档。
+
         // hls静态资源映射
         registry.addResourceHandler("/hls/**")
                 .addResourceLocations("file:///d:/hls/");
+    }
+
+    /**
+     * 接口文档入口的容错跳转。
+     *
+     * <p>页面本身在 {@code static/swagger/index.html}，只有 {@code /swagger/} 这种「目录 + 斜杠」的写法
+     * 才会命中欢迎页。少写斜杠时 Spring 会把它当成一个叫 {@code swagger} 的静态资源去找，
+     * 找不到就抛 NoResourceFoundException，被全局异常处理器包成
+     * {@code {"msg":"No static resource swagger.","code":500}} —— 答辩现场最容易踩这个坑。</p>
+     *
+     * <p>这里显式映射三种写法，另外给一个短地址 {@code /doc}，口头念起来也方便。</p>
+     */
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/swagger").setViewName("forward:/swagger/index.html");
+        registry.addViewController("/swagger/").setViewName("forward:/swagger/index.html");
+        registry.addViewController("/doc").setViewName("forward:/swagger/index.html");
     }
 
     /**

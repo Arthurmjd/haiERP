@@ -138,8 +138,10 @@ public class ErpWorkOrderService {
                 if (need.signum() == 0) break;
                 BigDecimal taken = need.min(decimal(batch,"qty"));
                 String batchNo = (String) batch.get("batchNo");
-                if (stockMapper.subtractStock(1,materialId,batchNo,taken) != 1) throw new ServiceException("并发领料导致库存不足", ErpErrorCode.INSUFFICIENT.code());
-                stock.txn(2,2,1,materialId,batchNo,taken,"pr_wo",woId,longValue(material,"id"),request.requestKey(),LocalDate.now());
+                for (ErpStockService.Consumed used : stock.deduct(1,materialId,batchNo,taken,"物料")) {
+                    stock.txnAt(used.warehouseId(),2,2,1,materialId,batchNo,used.qty(),
+                            "pr_wo",woId,longValue(material,"id"),request.requestKey(),LocalDate.now(),null);
+                }
                 need = need.subtract(taken);
                 takenTotal = takenTotal.add(taken);
             }
@@ -251,8 +253,10 @@ public class ErpWorkOrderService {
             }
             if (mapper.finishSku(woId,item.skuId(),item.goodQty()) != 1) throw new ServiceException("完工数量已变化", ErpErrorCode.CONFLICT.code());
             BigDecimal qty = BigDecimal.valueOf(item.goodQty());
-            stockMapper.addStock(2,item.skuId(),item.batchNo().trim(),qty,SecurityUtils.getUsername());
-            stock.txn(1,3,2,item.skuId(),item.batchNo().trim(),qty,"pr_wo",woId,null,request.requestKey(),LocalDate.now());
+            stock.add(2,item.skuId(),item.batchNo().trim(),qty);
+            // source_line_id 指向 pr_work_order_sku 明细行，self_check 第 4 项要求业务流水都能追到单据行
+            stock.txn(1,3,2,item.skuId(),item.batchNo().trim(),qty,"pr_wo",woId,
+                    longValue(plan,"skuRowId"),request.requestKey(),LocalDate.now());
         }
         if (mapper.unfinishedSkuCount(woId) == 0) {
             String username = SecurityUtils.getUsername();
@@ -295,7 +299,7 @@ public class ErpWorkOrderService {
             if (returned.add(item.qty()).compareTo(issued) > 0) {
                 throw new ServiceException("退料数量超过已领数量", ErpErrorCode.CONFLICT.code());
             }
-            stockMapper.addStock(1,item.materialId(),item.batchNo().trim(),item.qty(),username);
+            stock.add(1,item.materialId(),item.batchNo().trim(),item.qty());
             stock.txn(1,7,1,item.materialId(),item.batchNo().trim(),item.qty(),"pr_wo",woId,
                     longValue(material,"id"),request.requestKey(),LocalDate.now());
             if (mapper.returnMaterial(longValue(material,"id"),item.qty()) != 1) {

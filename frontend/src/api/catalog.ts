@@ -40,13 +40,13 @@ export const catalogs: Record<string, CatalogGroup> = {
     quotations: { title: '报价单', path: '/erp/sd/quotation/list', permission: 'sd:quotation:list', detailRoute: '/sales/quotations', detailPermission: 'sd:quotation:query', columns: [...common, { prop: 'customerName', label: '客户' }, { prop: 'quoteDate', label: '报价日期' }, { prop: 'totalAmount', label: '金额' }, { prop: 'status', label: '状态', enum: 'quoteStatus' }] },
   },
   production: {
-    workOrders: { title: '生产工单', path: '/erp/pr/workOrder/list', permission: 'pr:workOrder:list', filter: 'month', detailRoute: '/production/workOrders', detailPermission: 'pr:workOrder:query', columns: [...common, { prop: 'orderId', label: '销售订单' }, { prop: 'styleName', label: '款式' }, { prop: 'qty', label: '计划数量' }, { prop: 'planEndDate', label: '计划完工' }, { prop: 'status', label: '状态', enum: 'workOrderStatus' }] },
+    workOrders: { title: '生产工单', path: '/erp/pr/workOrder/list', permission: 'pr:workOrder:list', filter: 'month', detailRoute: '/production/workOrders', detailPermission: 'pr:workOrder:query', columns: [...common, { prop: 'orderNo', label: '订单号' }, { prop: 'styleName', label: '款式' }, { prop: 'qty', label: '计划数量' }, { prop: 'planEndDate', label: '计划完工' }, { prop: 'status', label: '状态', enum: 'workOrderStatus' }] },
   },
   inventory: {
     transactions: { title: '出入库流水', path: '/erp/st/txn/list', permission: 'st:txn:list', filter: 'month', columns: [{ prop: 'txnNo', label: '流水号' }, { prop: 'txnType', label: '方向', enum: 'txnDirection' }, { prop: 'bizType', label: '业务类型', enum: 'txnBizType' }, { prop: 'itemCode', label: '编码' }, { prop: 'itemName', label: '物料/产品' }, { prop: 'batchNo', label: '批次' }, { prop: 'qty', label: '数量' }, { prop: 'txnTime', label: '发生时间' }] },
   },
   shipping: {
-    shipments: { title: '出货单', path: '/erp/sh/shipment/list', permission: 'sh:shipment:list', filter: 'month', detailRoute: '/shipping/shipments', detailPermission: 'sh:shipment:query', columns: [...common, { prop: 'orderId', label: '销售订单' }, { prop: 'customerName', label: '客户' }, { prop: 'shipDate', label: '出货日期' }, { prop: 'logisticsCompany', label: '物流公司' }, { prop: 'status', label: '状态', enum: 'shipmentStatus' }] },
+    shipments: { title: '出货单', path: '/erp/sh/shipment/list', permission: 'sh:shipment:list', filter: 'month', detailRoute: '/shipping/shipments', detailPermission: 'sh:shipment:query', columns: [...common, { prop: 'orderNo', label: '订单号' }, { prop: 'customerName', label: '客户' }, { prop: 'shipDate', label: '出货日期' }, { prop: 'logisticsCompany', label: '物流公司' }, { prop: 'status', label: '状态', enum: 'shipmentStatus' }] },
     returns: { title: '退货单', path: '/erp/sh/return/list', permission: 'sh:return:list', detailRoute: '/shipping/returns', detailPermission: 'sh:return:query', columns: [...common, { prop: 'shipmentId', label: '原出货单' }, { prop: 'customerName', label: '客户' }, { prop: 'returnDate', label: '退货日期' }, { prop: 'reason', label: '原因' }, { prop: 'refundAmount', label: '退款' }, { prop: 'status', label: '状态', enum: 'returnStatus' }] },
   },
   cost: {

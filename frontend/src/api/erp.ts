@@ -4,7 +4,8 @@ import { enumLabel } from './labels'
 export interface Option { id: string; name: string; code?: string; styleId?: string; colorId?: string; sizeId?: string }
 export interface OrderOptions { customers: Option[]; styles: Option[]; colors: Option[]; sizes: Option[]; skus: Option[] }
 export interface OrderLine { itemId: string; styleId: string; styleName: string; skuId: string; skuCode: string; colorId: string; colorName: string; sizeId: string; sizeName: string; qty: number; unitPrice: number; amount: number; shippedQty: number; remainingQty: number }
-export interface Order { orderId: string; orderNo: string; customerId: string; customerName: string; orderDate: string; deliveryDate: string; status: number; totalAmount: number; fullShipDate: string | null; fulfillmentState: string; lineCount?: number; orderQty?: number; items?: OrderLine[] }
+export interface OrderWorkOrder { woId: string; woNo: string; styleId: string; styleName: string; qty: number; status: number; planEndDate: string | null; actualEndDate: string | null }
+export interface Order { orderId: string; orderNo: string; customerId: string; customerName: string; orderDate: string; deliveryDate: string; status: number; totalAmount: number; fullShipDate: string | null; fulfillmentState: string; lineCount?: number; orderQty?: number; items?: OrderLine[]; workOrders?: OrderWorkOrder[] }
 export interface OrderDraft { customerId: string; deliveryDate: string; items: { styleId: string; colorId: string; sizeId: string; qty: number; unitPrice: number }[] }
 export interface MrpRow { materialId: string; materialCode: string; materialName: string; unit: string; demandQty: number; stockQty: number; onWayQty: number; gapQty: number; suggestQty: number; estAmount: number; shortageFlag: number }
 export interface InventoryRow { inventoryId: string; itemType: number; itemId: string; itemCode: string; itemName: string; batchNo: string; qty: number; safeStock: number; unit: string }
@@ -18,7 +19,7 @@ export interface PurchaseReceipt { poId: string; actualArrivalDate: string; item
 export interface WorkOrderSku { skuId: string; skuCode: string; planQty: number; completedQty: number }
 export interface WorkOrderMaterial { id: string; materialId: string; materialCode: string; materialName: string; unit: string; planQty: number; issuedQty: number }
 export interface WorkOrderProcess { id: string; processName: string; seq: number; planQty: number; doneQty: number; badQty: number; isOutsourced: number; status: number }
-export interface WorkOrder { woId: string; woNo: string; orderId: string; styleId: string; styleName: string; qty: number; status: number; planEndDate: string | null; actualStartDate: string | null; actualEndDate: string | null; skus: WorkOrderSku[]; materials: WorkOrderMaterial[]; processes: WorkOrderProcess[] }
+export interface WorkOrder { woId: string; woNo: string; orderId: string; orderNo?: string; styleId: string; styleName: string; qty: number; status: number; planEndDate: string | null; actualStartDate: string | null; actualEndDate: string | null; skus: WorkOrderSku[]; materials: WorkOrderMaterial[]; processes: WorkOrderProcess[] }
 export interface ShipmentLine { itemId: string; skuId: string; skuCode: string; batchNo: string; qty: number }
 export interface Shipment { shipmentId: string; shipmentNo: string; orderId: string; customerName: string; shipDate: string | null; logisticsCompany: string | null; logisticsNo: string | null; status: number; items: ShipmentLine[] }
 export interface ReturnOrder { returnId: string; returnNo: string; shipmentId: string; orderId: string; reason: string; returnType: number; isRestock: number; refundAmount: number; returnDate: string | null; status: number; items: ShipmentLine[] }
@@ -86,6 +87,9 @@ export const erpApi = {
   addProcessWorker: async (processId: string, empId: string) => { await http.post<Envelope>(`/erp/md/process/${encodeURIComponent(processId)}/worker/${encodeURIComponent(empId)}`) },
   removeProcessWorker: async (processId: string, empId: string) => { await http.delete<Envelope>(`/erp/md/process/${encodeURIComponent(processId)}/worker/${encodeURIComponent(empId)}`) },
   shipment: (id: string) => payload<Shipment>(http.get(`/erp/sh/shipment/${encodeURIComponent(id)}`)),
+  /** 按 SKU 查可用成品批次（含各批次合计结存），出货弹窗下拉用 */
+  productBatches: (skuIds: string[]) => payload<{ skuId: string; batchNo: string; qty: number | string }[]>(
+    http.get('/erp/sh/shipment/batches', { params: { skuIds: skuIds.join(',') } })),
   createShipment: (orderId: string, logisticsCompany: string, logisticsNo: string, items: StockLine[]) => payload<{ shipmentId: string; shipmentNo: string }>(http.post('/erp/sh/shipment', { orderId, logisticsCompany, logisticsNo, items })),
   ship: async (id: string, requestKey: string) => { await http.post<Envelope>(`/erp/sh/shipment/ship/${encodeURIComponent(id)}`, { requestKey }) },
   sign: async (id: string) => { await http.post<Envelope>(`/erp/sh/shipment/sign/${encodeURIComponent(id)}`) },

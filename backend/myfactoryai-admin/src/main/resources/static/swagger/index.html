@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>海岚 ERP · 接口文档（Swagger UI）</title>
+    <!--
+      说明：
+      1) springdoc 2.8.x 自带的 UI 首页在 Spring Boot 3.5 下不会注入配置（会退回 petstore 示例），
+         所以这里直接引用 springdoc 依赖里自带的 swagger-ui 静态资源，自己写一份页面。
+      2) 分组清单直接写在这里，不用 /v3/api-docs/swagger-config：
+         关掉官方 UI（springdoc.swagger-ui.enabled=false）后，那个 config 接口也会一起下线，
+         返回的是 {"msg":"No OpenAPI resource found for group: swagger-config"}，
+         Swagger UI 解析不到 urls，页面就会显示 "No API definition provided."。
+      3) 分组文档接口 /v3/api-docs/{分组名} 仍然可用（由 SwaggerConfig 里的 GroupedOpenApi 提供）。
+      4) webjars 路径由 webjars-locator 做版本无关解析，升级 springdoc 不用改这里。
+    -->
+    <link rel="stylesheet" href="/webjars/swagger-ui/swagger-ui.css"/>
+    <style>
+        body { margin: 0; background: #fafafa; }
+    </style>
+</head>
+<body>
+<div id="swagger-ui"></div>
+<script src="/webjars/swagger-ui/swagger-ui-bundle.js" charset="UTF-8"></script>
+<script src="/webjars/swagger-ui/swagger-ui-standalone-preset.js" charset="UTF-8"></script>
+<script>
+    // 与 SwaggerConfig 里的 GroupedOpenApi 一一对应；改分组时两边一起改
+    var GROUPS = [
+        "01 销售：报价与订单",
+        "02 采购：缺料与收货",
+        "03 生产：工单与报工",
+        "04 库存：结存与流水",
+        "05 出货：发货与退货",
+        "06 财务：应收应付与成本",
+        "07 人事：员工与工资",
+        "08 主数据：款式物料客户",
+        "09 系统与权限",
+        "10 看板与 AI 问答"
+    ];
+
+    var GROUP_URLS = GROUPS.map(function (name) {
+        return {url: "/v3/api-docs/" + encodeURIComponent(name), name: name};
+    });
+
+    window.onload = function () {
+        window.ui = SwaggerUIBundle({
+            urls: [{url: "/v3/api-docs", name: "全部接口（按 Tag 分组）"}].concat(GROUP_URLS),
+            // 默认打开哪一组；答辩时想直接看某一域，改这里的名字即可
+            "urls.primaryName": "全部接口（按 Tag 分组）",
+            dom_id: "#swagger-ui",
+            deepLinking: true,
+            docExpansion: "list",
+            defaultModelsExpandDepth: 0,
+            filter: true,
+            // 认证后刷新页面不用重新贴 token
+            persistAuthorization: true,
+            presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIStandalonePreset
+            ],
+            layout: "StandaloneLayout"
+            // 认证：Authorization 用的是 http/bearer 方案，Swagger UI 会自动加 "Bearer " 前缀，
+            // 所以点 Authorize 时只粘 /login 返回的 token 即可，不要再手动加前缀。
+        });
+    };
+</script>
+</body>
+</html>

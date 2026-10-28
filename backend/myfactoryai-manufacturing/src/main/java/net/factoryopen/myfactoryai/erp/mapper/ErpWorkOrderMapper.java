@@ -137,10 +137,12 @@ public interface ErpWorkOrderMapper {
 
     @Select("""
         SELECT CAST(w.wo_id AS CHAR) AS woId,w.wo_no AS woNo,
-               CAST(w.order_id AS CHAR) AS orderId,CAST(w.style_id AS CHAR) AS styleId,
+               CAST(w.order_id AS CHAR) AS orderId,o.order_no AS orderNo,
+               CAST(w.style_id AS CHAR) AS styleId,
                s.style_name AS styleName,w.qty,w.status,w.plan_end_date AS planEndDate,
                w.actual_start_date AS actualStartDate,w.actual_end_date AS actualEndDate
         FROM pr_work_order w JOIN md_style s ON s.style_id=w.style_id
+        LEFT JOIN sd_order o ON o.order_id=w.order_id
         WHERE w.wo_id=#{id} AND w.del_flag='0'
         """)
     Map<String,Object> detail(@Param("id") Long id);
@@ -238,7 +240,7 @@ public interface ErpWorkOrderMapper {
         """)
     Map<String,Object> lockProcess(@Param("id") Long id);
 
-    @Select("SELECT plan_qty AS planQty,completed_qty AS completedQty FROM pr_work_order_sku WHERE wo_id=#{woId} AND sku_id=#{skuId}")
+    @Select("SELECT id AS skuRowId,plan_qty AS planQty,completed_qty AS completedQty FROM pr_work_order_sku WHERE wo_id=#{woId} AND sku_id=#{skuId}")
     Map<String,Object> skuPlan(@Param("woId") Long woId,@Param("skuId") Long skuId);
 
     @Select("SELECT COALESCE(SUM(good_qty),0) FROM pr_process_report WHERE wo_process_id=#{processId} AND sku_id=#{skuId}")

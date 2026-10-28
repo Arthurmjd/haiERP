@@ -22,8 +22,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ErpOrderService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ErpOrderService.class);
+
     private final ErpOrderMapper mapper;
     private final ErpWorkflowService workflow;
+
+    /**
+     * 订单确认后要自动建工单。用字段注入 + required=false：
+     * 一是避免 ErpOrderService / ErpWorkOrderService 构造器循环依赖，
+     * 二是纯订单读写的单元测试（只 new ErpOrderService(mapper)）不受影响。
+     */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private ErpWorkOrderService workOrderService;
 
     @org.springframework.beans.factory.annotation.Autowired
     public ErpOrderService(ErpOrderMapper mapper, ErpWorkflowService workflow) {
@@ -42,6 +52,7 @@ public class ErpOrderService {
         if (header == null) throw new ServiceException("订单不存在", ErpErrorCode.INVALID_PARAM.code());
         Map<String, Object> result = new HashMap<>(header);
         result.put("items", mapper.lines(orderId));
+        result.put("workOrders", mapper.workOrders(orderId));
         return result;
     }
 
@@ -139,11 +150,46 @@ public class ErpOrderService {
         if (mapper.confirm(orderId, SecurityUtils.getUsername()) != 1) {
             throw new ServiceException("订单已确认、无明细或状态不允许确认", ErpErrorCode.INVALID_STATE.code());
         }
+        // 订单确认后立刻按款式生成生产工单，让「订单 → 工单」是一条连续链路，
+        // 不用再让人跑去订单详情点「一键生成工单」（漏点就会出现「工单列表里找不到这张订单」）。
+        // 放在事务提交后执行：某个款式缺 BOM / 工序时只跳过它，不会把订单确认一起回滚。
+        autoGenerateWorkOrders(orderId);
         if (workflow != null) {
             Map<String, Object> detail = mapper.detail(orderId);
             LocalDate dueDate = detail == null ? null : toLocalDate(detail.get("deliveryDate"));
             workflow.todo("plan", "sd_order", orderId, "planner",
                     "订单已确认，请采购物料并按款式生成工单", "/orders/" + orderId, dueDate);
+        }
+    }
+
+    /**
+     * 订单确认后自动建工单（幂等：已存在工单的款式会被跳过）。
+     *
+     * <p>用 afterCommit 而不是直接调用：ErpWorkOrderService.create 在缺少 BOM、工序或色码时
+     * 会抛 ServiceException，如果在同一个事务里抛出，整张订单的确认都会被回滚 ——
+     * 那才是真正的「订单确认不了」。现在最坏情况只是这张订单暂时没有工单，
+     * 页面上的「一键生成工单」按钮还能补。</p>
+     */
+    private void autoGenerateWorkOrders(Long orderId) {
+        if (workOrderService == null) return;
+        if (!org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) {
+            tryGenerate(orderId);
+            return;
+        }
+        org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                new org.springframework.transaction.support.TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        tryGenerate(orderId);
+                    }
+                });
+    }
+
+    private void tryGenerate(Long orderId) {
+        try {
+            workOrderService.generate(orderId);
+        } catch (RuntimeException e) {
+            log.warn("订单 {} 自动生成工单失败，可在订单详情点「一键生成工单」重试：{}", orderId, e.getMessage());
         }
     }
 

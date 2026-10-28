@@ -27,8 +27,11 @@
 
         <!-- 工具类 -->
         <bitwalker.version>1.21</bitwalker.version>
-        <!-- 移除 springfox，改用 springdoc -->
-        <springdoc-openapi.version>2.6.0</springdoc-openapi.version>
+        <!-- 移除 springfox，改用 springdoc
+             2.6.0 在 Spring Framework 6.2 / Boot 3.5 下会抛
+             NoSuchMethodError: ControllerAdviceBean.<init>(Object)（构造器已被移除），
+             表现为 /v3/api-docs 500、Swagger 页面空白。2.8.x 才适配 Boot 3.5。 -->
+        <springdoc-openapi.version>2.8.6</springdoc-openapi.version>
         <knife4j.version>4.5.0</knife4j.version>
         <kaptcha.version>2.3.3</kaptcha.version>
         <fastjson.version>2.0.43</fastjson.version>

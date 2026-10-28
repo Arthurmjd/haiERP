@@ -88,7 +88,19 @@ pagehelper:
 swagger:
   # 生产环境通过 SWAGGER_ENABLED=false 关闭 API 文档暴露
   enabled: ${SWAGGER_ENABLED:true}
-  pathMapping: /dev-api
+  # 本机直连后端（8080）时留空；只有在网关/nginx 前面加了统一前缀才填，否则「调试」会拼错地址
+  pathMapping: ${SWAGGER_PATH_MAPPING:}
+
+# Swagger UI：http://127.0.0.1:8080/swagger/index.html（页面在 static/swagger/index.html）
+# 规范 JSON：http://127.0.0.1:8080/v3/api-docs（分组：/v3/api-docs/{group}）
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    # springdoc 自带的 UI 首页在 Boot 3.5 下不会注入 configUrl（会退回 petstore 示例），
+    # 且 2.8.9+ 会注册 /swagger-ui/**/*swagger-initializer.js 这个非法模式导致启动失败。
+    # 所以关掉官方首页，用 static/swagger/index.html 引同一份 webjar 资源，行为完全可控。
+    enabled: false
 
 xss:
   enabled: true

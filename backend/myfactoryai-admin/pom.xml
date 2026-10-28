@@ -20,16 +20,16 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- ========== API 文档（SpringDoc + Knife4j Jakarta 版） ========== -->
-        <!-- 核心依赖：自动包含 Swagger UI 和 OpenAPI 支持 -->
+        <!-- ========== API 文档（SpringDoc OpenAPI 3 + 原生 Swagger UI） ========== -->
+        <!-- 入口：http://127.0.0.1:8080/swagger-ui/index.html
+             规范 JSON：http://127.0.0.1:8080/v3/api-docs
+             说明：knife4j 4.5.0 是按 springdoc 2.3 编译的（Knife4jOpenApiCustomizer 调
+             SpringDocConfigProperties.getGroupConfigs() 返回 List），而 Spring Boot 3.5 必须用
+             springdoc 2.8.x（该方法的返回类型已改为 Set），两者混用会在每次取文档时抛
+             NoSuchMethodError。这里只保留 springdoc 官方 UI，接口文档与分组功能不受影响。 -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        </dependency>
-        <!-- Knife4j 增强 UI（可选，提供更美观的界面） -->
-        <dependency>
-            <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
         </dependency>
 
         <!-- 数据库驱动 -->

@@ -39,6 +39,20 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 访问了不存在的路径 / 静态资源。
+     *
+     * <p>不单独处理的话，会落到 handleRuntimeException，返回
+     * {@code {"msg":"No static resource swagger.","code":500}} —— 明明是地址写错，
+     * 却报成系统 500，看起来像服务挂了（答辩现场敲错网址最容易踩）。这里改成 404 并给出可读提示。</p>
+     */
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public AjaxResult handleNoResourceFound(org.springframework.web.servlet.resource.NoResourceFoundException e,
+                                            HttpServletRequest request) {
+        log.warn("请求地址'{}'不存在", request.getRequestURI());
+        return AjaxResult.error(404, "接口或资源不存在：" + request.getRequestURI());
+    }
+
+    /**
      * 请求方式不支持
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

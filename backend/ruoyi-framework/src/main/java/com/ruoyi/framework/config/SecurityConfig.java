@@ -65,8 +65,10 @@ public class SecurityConfig {
             // 修正静态资源：删除 /**/*.html 等写法，改用目录通配
             auth.requestMatchers(HttpMethod.GET, "/", "/*.html", "/static/**", "/profile/**").permitAll();
 
-            // Swagger
-            auth.requestMatchers("/swagger-ui/**","/swagger-ui.html", "/swagger-resources/**", "/webjars/**", "/*/api-docs", "/druid/**").permitAll();
+            // Swagger / OpenAPI 文档（UI 在 /swagger/，短地址 /doc，规范在 /v3/api-docs/**）
+            auth.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/swagger", "/swagger/**", "/doc",
+                    "/swagger-resources/**", "/webjars/**", "/v3/api-docs", "/v3/api-docs/**", "/*/api-docs",
+                    "/druid/**").permitAll();
 
             // WebSocket
             auth.requestMatchers("/websocket/**", "/websocket", "/rtsp/**").permitAll();

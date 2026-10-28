@@ -36,15 +36,18 @@ public class ErpStockAdjustService {
         int exists = request.itemType() == 1 ? mapper.materialExists(request.itemId()) : mapper.skuExists(request.itemId());
         if (exists != 1) throw new ServiceException("盘点对象不存在", ErpErrorCode.INVALID_PARAM.code());
         String batch = request.batchNo().trim();
-        BigDecimal current = mapper.lockQuantity(request.itemType(),request.itemId(),batch);
-        if (current == null) current = BigDecimal.ZERO;
+        // 盘点以「该批号全仓合计结存」为账面数，避免多仓同批号时只盘到其中一个仓
+        BigDecimal current = mapper.batchTotalQty(request.itemType(),request.itemId(),batch);
         BigDecimal delta = request.actualQty().subtract(current);
         if (delta.signum() > 0) {
-            mapper.addStock(request.itemType(),request.itemId(),batch,delta,SecurityUtils.getUsername());
+            stock.add(request.itemType(),request.itemId(),batch,delta);
             stock.txn(1,5,request.itemType(),request.itemId(),batch,delta,"stock_check",request.itemId(),null,request.requestKey(),LocalDate.now(),request.reason().trim());
         } else if (delta.signum() < 0) {
-            if (mapper.subtractStock(request.itemType(),request.itemId(),batch,delta.abs()) != 1) throw new ServiceException("库存已变化，请刷新后重试", ErpErrorCode.INSUFFICIENT.code());
-            stock.txn(2,6,request.itemType(),request.itemId(),batch,delta.abs(),"stock_check",request.itemId(),null,request.requestKey(),LocalDate.now(),request.reason().trim());
+            for (ErpStockService.Consumed used : stock.deduct(request.itemType(),request.itemId(),batch,delta.abs(),
+                    request.itemType() == 1 ? "物料" : "成品")) {
+                stock.txnAt(used.warehouseId(),2,6,request.itemType(),request.itemId(),batch,used.qty(),
+                        "stock_check",request.itemId(),null,request.requestKey(),LocalDate.now(),request.reason().trim());
+            }
         }
         stock.complete(request.requestKey(),request.itemId());
         return Map.of("itemId",request.itemId().toString(),"previousQty",current,"actualQty",request.actualQty(),"delta",delta);

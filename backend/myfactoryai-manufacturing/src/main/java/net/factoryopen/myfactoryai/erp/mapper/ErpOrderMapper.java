@@ -49,6 +49,22 @@ public interface ErpOrderMapper {
         """)
     Map<String, Object> detail(@Param("orderId") Long orderId);
 
+    /**
+     * 订单关联的生产工单。
+     *
+     * <p>订单确认后会自动生成工单，订单详情页要把它们列出来，否则业务员根本没法从订单跳到工单，
+     * 只能去工单列表里按订单号一个个翻。</p>
+     */
+    @Select("""
+        SELECT CAST(w.wo_id AS CHAR) AS woId, w.wo_no AS woNo, w.qty, w.status,
+               CAST(w.style_id AS CHAR) AS styleId, s.style_name AS styleName,
+               w.plan_end_date AS planEndDate, w.actual_end_date AS actualEndDate
+        FROM pr_work_order w JOIN md_style s ON s.style_id = w.style_id
+        WHERE w.order_id = #{orderId} AND w.del_flag = '0'
+        ORDER BY w.wo_id
+        """)
+    List<Map<String, Object>> workOrders(@Param("orderId") Long orderId);
+
     @Select("""
         SELECT CAST(oi.item_id AS CHAR) AS itemId, CAST(oi.style_id AS CHAR) AS styleId,
                st.style_name AS styleName, CAST(sku.sku_id AS CHAR) AS skuId,

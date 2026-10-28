@@ -3,6 +3,8 @@ package net.factoryopen.myfactoryai.web.controller.erp;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
+import java.util.ArrayList;
+import java.util.List;
 import net.factoryopen.myfactoryai.erp.domain.ShipmentRequest;
 import net.factoryopen.myfactoryai.erp.service.ErpShipmentService;
 import net.factoryopen.myfactoryai.erp.service.ErpDocService;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,6 +37,24 @@ public class ErpShipmentController {
     @PreAuthorize("@ss.hasPermi('sh:shipment:add')")
     @PostMapping("/shipment")
     public AjaxResult create(@RequestBody ShipmentRequest.Create request) { return AjaxResult.success(service.create(request)); }
+
+    /**
+     * 按 SKU 查可用成品批次及其结存，供「创建出货单」弹窗下拉选择。
+     * 不传 skuIds 返回空列表；多个 SKU 用英文逗号分隔，如 skuIds=1,2,3。
+     */
+    @PreAuthorize("@ss.hasPermi('sh:shipment:query')")
+    @GetMapping("/shipment/batches")
+    public AjaxResult productBatches(@RequestParam(required = false) String skuIds) {
+        List<Long> ids = new ArrayList<>();
+        if (skuIds != null && !skuIds.isBlank()) {
+            for (String part : skuIds.split(",")) {
+                String text = part.trim();
+                if (text.isEmpty()) continue;
+                try { ids.add(Long.valueOf(text)); } catch (NumberFormatException ignored) { /* 非法 ID 直接跳过 */ }
+            }
+        }
+        return AjaxResult.success(service.productBatches(ids));
+    }
 
     @Log(title = "出货发货", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('sh:shipment:ship')")
