@@ -31,6 +31,11 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
+        <!-- 让 /webjars/swagger-ui/xxx（不带版本号）能被解析到实际版本 -->
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>webjars-locator-core</artifactId>
+        </dependency>
 
         <!-- 数据库驱动 -->
         <dependency>
